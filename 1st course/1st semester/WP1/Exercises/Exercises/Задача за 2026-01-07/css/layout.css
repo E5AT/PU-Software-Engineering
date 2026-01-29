@@ -1,0 +1,19 @@
+.layout {
+    display: flex;
+    gap: 24px;
+    margin: 32px auto;
+}
+
+.content {
+    flex: 1;
+}
+
+@media (max-width: 1024px) {
+    .layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        display: none;
+    }
+}

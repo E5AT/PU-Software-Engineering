@@ -1,0 +1,35 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  background: #f5f7fb;
+  color: #222;
+  body {
+    margin: 0; /* маха бялата рамка */
+    padding: 0;
+    max-width: 100%; /* НИКОГА по-широко от екрана */
+    overflow-x: hidden; /* спира хоризонталния скрол */
+  }
+}
+
+/* CONTAINER */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* SECTIONS */
+.section {
+  margin-bottom: 48px;
+}
+
+.section-title {
+  margin-bottom: 16px;
+  font-size: 1.3rem;
+  color: #1e293b;
+}

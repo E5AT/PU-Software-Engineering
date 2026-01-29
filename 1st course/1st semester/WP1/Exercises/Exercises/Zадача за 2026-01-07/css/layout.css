@@ -1,0 +1,11 @@
+/* Main layout: sidebar + content */
+.layout {
+    display: flex;
+    gap: 24px;
+    margin: 32px auto;
+}
+
+/* Main content area */
+.content {
+    flex: 1;
+}

@@ -1,0 +1,43 @@
+/* SIDEBAR */
+.sidebar {
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sidebar a {
+    padding: 12px;
+    background: #e2e8f0;
+    text-decoration: none;
+    color: #1e293b;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+@media (max-width: 768px){
+
+    #second {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    #second a{
+        text-align: center;
+        font-weight: bold;
+    }
+
+    #first{
+        display: none;
+    }
+}
+
+@media(max-width: 10000px) {
+
+    #second {
+        display: none;
+    }
+    #first {
+        display: flex;
+    }
+}

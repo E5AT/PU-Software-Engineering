@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="My first HTML page">
+	<meta name="keywords" content="HTML, CSS, JavaScript">
+	<meta name="author" content="Simeon Kondov">
+
+	<title>Title</title>
+
+	<style>
+		p { color: blue }
+
+		.centered {
+			text-align: center;
+		}
+
+		.red {
+				color: red;
+		}
+
+		#green-background {
+				color: white;
+				background: green;
+		}
+	</style>
+
+</head>
+<body>
+	<!-- Текстови тагове -->
+	<p>paragraph</p>
+	<br>
+	<b>bold</b>
+	<i>italic</i>
+	<u>underlined</u>
+	<mark>marked</mark>
+	<small>small</small>
+	<del>strike through</del>
+	<h1>Title</h1>
+	<h2>Title</h2>
+	<h3>Title</h3>
+	<h4>Title</h4>
+	<h5>Title</h5>
+	<h6>Title</h6>
+
+	<!-- Структурни тагове -->
+	<header>Header</header>
+	<nav>Nav</nav>
+	<main>Main</main>
+	<aside>Aside</aside>
+	<section>Section</section>
+	<div>Div</div>
+	<footer>Footer</footer>
+
+	<!-- Линкове -->
+	<a href="URL or File Path">Линк</a>
+	<a href="folder/file">Линк във вътрешна папка</a>
+	<a href="../file">Линк с връщане в предишна папка </a>
+	<a target="_blank" href="">Линк за нов раздел</a>
+
+	<!-- Изображения -->
+	<img src="File Path" alt="Показва се, ако снимката не се зареди" width="100" height="80">
+
+
+	<!-- Вграждане на страница -->
+	<iframe src="Page URL" width="200" height="150"></iframe>
+
+	<!-- Списъци -->
+	<ol>
+		<li>Подреден</li>
+		<li>Списък</li>
+	</ol>
+
+	<ul>
+		<li>Неподреден</li>
+		<li>Списък</li>
+	</ul>
+
+	<!-- Таблици -->
+	<table>
+		<thead>
+			<tr><th>Продукт</th><th>Мерна единица</th><th>Ед. цена</th><th>Количество</th><th>Общо</th></tr>
+		</thead>
+		<tbody>
+			<tr><td>Ябълки</td><td rowspan="3">кг</td><td>2.30</td><td>2.000</td><td>4.60</td></tr>
+			<tr><td rowspan="2">Круши</td><td>3.00</td><td>1.000</td><td>3.00</td></tr>
+			<tr><td>3.00</td><td>2.000</td><td>6.00</td></tr>
+		</tbody>
+	</table>
+
+	<!-- Форми -->
+	<form>
+		<div>
+			<label for="name-input">Име</label>
+			<input id="name-input" type="text">
+		</div>
+
+		<input type="number" min="0" max="10" step="2" placeholder="Number"><br>
+
+		<input type="email" placeholder="Email"><br>
+
+		<input type="password" placeholder="Password"><br>
+
+		<input type="date"><br>
+		<input type="time"><br>
+		<input type="datetime-local"><br>
+
+		<input type="range" min="1" max="5"><br>
+
+		<input type="file"><br>
+
+		<input id="checkbox" type="checkbox">
+		<label for="checkbox">Checkbox</label>
+
+		<div>
+			<input type="radio" id="radio-input-1" name="group-1">
+			<label for="radio-input-1">Group 1 Radio Btn 1</label>
+
+			<input type="radio" id="radio-input-2" name="g">
+			<label for="radio-input-2">Group 1 Radio Btn 2</label>
+		</div>
+
+		<div>
+			<input type="radio" id="radio-input-3" name="group-2">
+			<label for="radio-input-3">Group 2 Radio Btn 1</label>
+
+			<input type="radio" id="radio-input-4" name="group-2">
+			<label for="radio-input-4">Group 2 Radio Btn 2</label>
+		</div>
+	</form>
+
+	<p>All paragraphs are blue</p>
+	<p>All paragraphs are blue</p>
+
+	<h3 class="centered">All elements with class .centered are centered</h3>
+	<p class="centered">All elements with class .centered are centered</p>
+
+	<p class="red centered">Red and centered</p>
+
+	<p id="green-background">Element with ID</p>
+
+</body>
+</html>

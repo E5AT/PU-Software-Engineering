@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Tech Store</title>
+	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/header.css">
+	<link rel="stylesheet" href="css/nav.css">
+	<link rel="stylesheet" href="css/layout.css">
+	<link rel="stylesheet" href="css/sidebar.css">
+	<link rel="stylesheet" href="css/cards.css">
+	<link rel="stylesheet" href="css/form.css">
+	<link rel="stylesheet" href="css/footer.css">
+</head>
+<body>
+
+<header class="header">
+	<div class="container header-inner">
+		<div class="logo">TechStore</div>
+
+		<nav class="nav" id="nav">
+			<a href="#devices">Устройства</a>
+			<a href="#components">Периферия и компоненти</a>
+			<a href="#order">Поръчка</a>
+		</nav>
+	</div>
+</header>
+
+<div class="container layout">
+
+	<!-- SIDEBAR -->
+	<aside class="sidebar">
+		<a href="#devices">Устройства</a>
+		<a href="#components">Периферия и компоненти</a>
+		<a href="#order">Поръчка</a>
+	</aside>
+
+	<!-- MAIN -->
+	<main class="content">
+
+		<!-- DEVICES -->
+		<section id="devices" class="section">
+			<h2 class="section-title">Устройства</h2>
+
+			<div class="cards devices">
+				<div class="card device">Компютри</div>
+				<div class="card device">Лаптопи</div>
+				<div class="card device">Таблети</div>
+				<div class="card device">Телефони</div>
+			</div>
+		</section>
+
+		<!-- COMPONENTS -->
+		<section id="components" class="section">
+			<h2 class="section-title">Периферия и компоненти</h2>
+
+			<div class="cards components">
+				<div class="card component">Видео карти</div>
+				<div class="card component">Процесори</div>
+				<div class="card component">Монитори</div>
+				<div class="card component">Клавиатури</div>
+			</div>
+		</section>
+
+		<!-- ORDER FORM -->
+		<section id="order" class="section">
+			<h2 class="section-title">Поръчка</h2>
+
+			<form class="order-form">
+				<div class="form-row">
+					<label>Име</label>
+					<input type="text">
+				</div>
+
+				<div class="form-row">
+					<label>Email</label>
+					<input type="email">
+				</div>
+
+				<div class="form-row">
+					<label>Адрес</label>
+					<input type="text">
+				</div>
+
+				<button class="btn">Изпрати поръчка</button>
+			</form>
+		</section>
+
+	</main>
+</div>
+
+<footer class="footer">
+	<div class="container footer-grid">
+		<div>За нас</div>
+		<div>Поддръжка</div>
+		<div>Доставка</div>
+		<div>Контакти</div>
+	</div>
+</footer>
+
+</body>
+</html>

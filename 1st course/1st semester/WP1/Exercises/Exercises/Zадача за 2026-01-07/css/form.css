@@ -1,0 +1,32 @@
+/* FORM */
+.order-form {
+    max-width: 500px;
+}
+
+.form-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    align-items: center;
+}
+
+.form-row label {
+    width: 100px;
+}
+
+.form-row input,
+.form-row textarea {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.btn {
+    padding: 12px 24px;
+    background: #1e293b;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    width: fit-content;
+}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="js/script.js"></script>
+  </head>
+  <body>
+    <div class="form">
+      <h1>Въведи продукт</h1>
+      <input type="text" id="product-name" placeholder="Име" />
+      <input type="text" id="product-price" placeholder="Ед. Цена" />
+      <input
+        type="number"
+        id="product-quantity"
+        placeholder="Количество"
+        min="0"
+      />
+      <input
+        type="submit"
+        onclick="AddNewProduct()"
+        value="ДОБАВИ КЪМ ПОРЪЧКА"
+      />
+    </div>
+
+    <table
+      id="products"
+      class="viewProducts"
+      style="border-width: 4px; margin-left: 10px"
+    >
+      <thead>
+        <tr>
+          <th>Продукт</th>
+          <th>Ед. Цена</th>
+          <th>Количество</th>
+          <th>Обща цена</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <p style="margin-left: 10px;">Общо: <span id="total">0.00</span></p>
+  </body>
+</html>

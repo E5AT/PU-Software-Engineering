@@ -1,0 +1,19 @@
+/* NAV */
+.nav {
+    display: flex;
+    gap: 16px;
+}
+
+.nav a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 0;
+}
+
+@media (max-width: 768px) {
+    .nav {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+}

@@ -1,0 +1,16 @@
+/* SIDEBAR */
+.sidebar {
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sidebar a {
+    padding: 12px;
+    background: #e2e8f0;
+    text-decoration: none;
+    color: #1e293b;
+    border-radius: 6px;
+    font-weight: 500;
+}

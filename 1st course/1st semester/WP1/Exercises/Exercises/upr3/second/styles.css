@@ -1,0 +1,97 @@
+body {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+#bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -1;
+    filter: blur(10px);
+}
+
+#container{
+    display: inline-grid;
+    width: 40%;
+    height: 90vh;
+
+    margin: 20px;
+    row-gap: 10px;
+    column-gap: 10px;
+    /* place-items: start; */
+    place-items: stretch;
+    grid-template: "i01 i01 i02 i02"
+                   "i03 i04 i02 i02"
+                   "i03 i05 i05 i06"
+                   "i07 i07 i07 i08"
+                   "i09 i09 i10 i08"
+                   "i09 i09 i11 i11"
+                   "i09 i09 i12 i12";
+}
+
+#container div{
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+#i01{
+    grid-area: i01;
+    background-image: url("https://thumbs.dreamstime.com/b/llama-scotland-safari-park-united-kingdom-34840130.jpg");
+}
+#i02{
+    grid-area: i02;
+    background-image: url("https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Llamas%2C_Vernagt-Stausee%2C_Italy.jpg/1200px-Llamas%2C_Vernagt-Stausee%2C_Italy.jpg");
+}
+#i03{
+    grid-area: i03;
+    background-image: url("https://images.unsplash.com/photo-1589182337358-2cb63099350c?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bGFtYXxlbnwwfHwwfHx8MA%3D%3D");
+}
+#i04{
+    grid-area: i04;
+    background-image: url("https://www.ritten.com/images/content/lamatrekking.jpg?size=1200&typ=5");
+}
+#i05{
+    grid-area: i05;
+    background-image: url("https://www.llama.asn.au/images/banner3.jpg");
+}
+#i06{
+    grid-area: i06;
+    background-image: url("https://media.istockphoto.com/id/1201041782/photo/alpaca.jpg?s=612x612&w=0&k=20&c=aHFfLZMuyEyyiJux4OghXfdcc40Oa6L7_cE0D7zvbtY=");
+}
+#i07{
+    grid-area: i07;
+    background-image: url("https://static.independent.co.uk/s3fs-public/thumbnails/image/2017/08/17/10/llama-5.jpg");
+}
+#i08{
+    grid-area: i08;
+    background-image: url("https://puzzlemania-154aa.kxcdn.com/products/2024/puzzle-castorland-500-pieces-i-am-the-lama.webp");
+}
+#i09{
+    grid-area: i09;
+    background-image: url("https://www.irozhlas.cz/sites/default/files/styles/zpravy_fotogalerie_large/public/images/f201b6b511d7a24f785fc3be721e48c5.jpg?itok=I_c-6Ctt");
+}
+#i10{
+    grid-area: i10;
+    background-image: url("https://st5.depositphotos.com/1006362/68092/i/450/depositphotos_680920512-stock-photo-llama-remote-area-bolivia.jpg");
+}
+#i11{
+    grid-area: i11;
+    background-image: url("https://wallpaper.forfun.com/fetch/78/78e6e40123b1dc9b189394eabfe343e5.jpeg");
+}
+#i12{
+    grid-area: i12;
+    background-image: url("https://st2.depositphotos.com/4011313/85215/i/450/depositphotos_852151126-stock-photo-big-llama-zoo-selective-focus.jpg");
+}
+#selectedImg{
+    display:flexbox;
+    width: 50%;
+}
