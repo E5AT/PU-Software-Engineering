@@ -1,0 +1,199 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ConsoleApp2
+{
+  internal class Program
+  {
+    static int findElInArr(int[] arr, int el)
+    {
+      //if (!arr.Contains(el)) return -1;
+      //else return Array.IndexOf(arr, el);
+
+
+      //foreach(int i in arr)
+      //  if(i == el)
+      //    return Array.IndexOf(arr, i);
+      //return -1;
+
+      return Array.IndexOf(arr, el);
+    }
+
+    static int BinarySearch(int[] arr, int el)
+    {
+      int left = 0,
+          right = arr.Length - 1;
+
+      while (left <= right)
+      {
+        int mid = (left + right) / 2;
+
+        if (arr[mid] == el)
+          return mid;
+        else if (arr[mid] < el)
+          left = mid + 1;
+        else
+          right = mid - 1;
+      }
+
+      return -1;
+    }
+
+    static int[] BubbleSort(int[] arr)
+    {
+      for (int i = 0; i < arr.Length; i++)
+        for (int j = 0; j < arr.Length - 1 - i; j++)
+          if (arr[j] > arr[j + 1])
+            (arr[j], arr[j + 1]) = (arr[j + 1], arr[j]);
+      //arr[j] ^= arr[j + 1] ^= arr[j] ^= arr[j + 1]; - somehow not working
+      return arr;
+    }
+
+    static int[] SelectionSort(int[] arr)
+    {
+      for (int i = 0; i < arr.Length; i++)
+      {
+        int minIndex = i;
+        for (int j = i + 1; j < arr.Length; j++)
+          if (arr[j] < arr[minIndex])
+            minIndex = j;
+        (arr[i], arr[minIndex]) = (arr[minIndex], arr[i]);
+      }
+      return arr;
+
+    }
+
+    static void printArr(int[] arr)
+    {
+      Console.WriteLine(String.Join(", ", arr));
+    }
+
+    //static int[] InsertionSort(int[] arr)
+    //{
+    //  // Insertion sort (in-place, stable, ascending)
+    //  // Iterate from the second element to the end
+    //  for (int i = 1; i < arr.Length; i++)
+    //  {
+    //    // The element to be inserted into the sorted portion
+    //    int key = arr[i],
+    //        // j points to the last index of the sorted portion (left side)
+    //        j = i - 1;
+
+    //    // Shift elements of the sorted portion that are greater than key
+    //    // one position to the right to make room for key
+    //    while (j >= 0 && arr[j] > key)
+    //    {
+    //      arr[j + 1] = arr[j];
+    //      j--;
+    //    }
+
+    //    // Insert key into its correct location
+    //    arr[j + 1] = key;
+    //  }
+
+    //  // Return the same array reference (sorted in-place)
+    //  return arr;
+    //}
+
+
+
+    static int[] InsertionSort(int[] arr)
+    {
+      for (int i = 1; i < arr.Length; i++)
+      {
+        int key = arr[i],
+            j = i - 1;
+
+        while (j >= 0 && arr[j] > key)
+        {
+          arr[j + 1] = arr[j];
+          j--;
+        }
+
+        arr[j + 1] = key;
+      }
+
+      return arr;
+    }
+
+
+    //static void BogoSort(int[] arr)
+    //{
+    //  Random rand = new Random();
+    //  int attempts = 0;
+    //  int[] newArr = new int[arr.Length];
+    //  while (!arr.SequenceEqual(arr.OrderBy(x => x)))
+    //  {
+    //    for (int i = 0; i < arr.Length; i++)
+    //      newArr[i] = arr[rand.Next(arr.Length)];
+    //    attempts++;
+    //  }
+    //  Console.WriteLine(attempts);
+    //}
+
+
+
+    static void Main(string[] args)
+    {
+      int[] arr = { 1, 2, 3, 4 };
+
+      Console.WriteLine(findElInArr(arr, 4));
+      Console.WriteLine(BinarySearch(arr, 5));
+
+      int[] arrToSort = { 5, 7, 0, 2, 1 };
+      Console.WriteLine(String.Join(", ", BubbleSort(arrToSort)));
+      printArr(SelectionSort(arrToSort));
+      printArr(InsertionSort(arrToSort));
+
+      int[,] nums = new int[3, 2]{
+                                  { 1, 2 },
+                                  { 3, 4 },
+                                  { 5, 6}
+      };
+
+      int rows = nums.GetLength(0),
+          cols = nums.GetLength(1);
+
+      Console.WriteLine();
+      printMatrix(nums);
+      Console.WriteLine();
+
+      int[,] matrix =
+      {
+        {1, 2, 3, 4 },
+        {4, 5, 6, 7 },
+        {7, 8, 9, 1 },
+        {9, 8, 5, 4 }
+      };
+
+      printMatrix(matrix);
+      Console.WriteLine();
+      printMatrix(Transpose(matrix));
+      Console.WriteLine();
+
+
+    }
+    static void printMatrix(int[,] matrix)
+    {
+      int rows = matrix.GetLength(0),
+          cols = matrix.GetLength(1);
+
+      for (int i = 0; i < rows; i++)
+      {
+        Console.Write("| ");
+        for (int j = 0; j < cols; j++)
+          Console.Write(matrix[i, j] + " ");
+        Console.WriteLine("|");
+      }
+    }
+
+    static int[,] Transpose(int[,] matrix)
+    {
+
+    }
+  }
+}

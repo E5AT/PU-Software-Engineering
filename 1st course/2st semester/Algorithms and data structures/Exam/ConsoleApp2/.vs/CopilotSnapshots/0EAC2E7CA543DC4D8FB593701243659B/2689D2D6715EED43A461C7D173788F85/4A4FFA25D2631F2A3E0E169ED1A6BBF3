@@ -1,0 +1,56 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ConsoleApp2
+{
+  internal class Program
+  {
+    static int findElInArr(int[] arr, int el)
+    {
+      //if (!arr.Contains(el)) return -1;
+      //else return Array.IndexOf(arr, el);
+
+
+      //foreach(int i in arr)
+      //  if(i == el)
+      //    return Array.IndexOf(arr, i);
+      //return -1;
+
+      return Array.IndexOf(arr, el);
+    }
+
+    static int BinarySearch(int[] arr, int el)
+    {
+
+    {
+      if (arr == null || arr.Length == 0)
+        return -1;
+
+      int left = 0;
+      int right = arr.Length - 1;
+
+      while (left <= right)
+      {
+        int mid = left + (right - left) / 2;
+        if (arr[mid] == el)
+          return mid;
+        if (arr[mid] < el)
+          left = mid + 1;
+        else
+          right = mid - 1;
+      }
+
+      return -1;
+    }
+
+    static void Main(string[] args)
+    {
+      int[] arr = { 1, 2, 3, 4 };
+      Console.WriteLine(findElInArr(arr, 4));
+    }
+  }
+}
