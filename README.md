@@ -94,6 +94,7 @@ A movie logging web application built as coursework for the Programming course.
 **Location:** `1st course/1st semester/Programming/Coursework/CineLog/`
 
 **Tech Stack:**
+
 - React 19
 - Vite 7
 - Tailwind CSS 4
@@ -111,6 +112,7 @@ npm run dev
 ```
 
 **Available scripts:**
+
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run lint` - Run ESLint
@@ -118,6 +120,7 @@ npm run dev
 
 **Environment Variables:**
 Create a `.env` file in the project root with your Supabase credentials:
+
 ```
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
@@ -130,16 +133,19 @@ A C# console application for exam practice, implementing fundamental data struct
 **Location:** `1st course/2st semester/Algorithms and data structures/Exam/`
 
 **Tech Stack:**
+
 - .NET 8.0
 - C#
 
 **Projects Included:**
+
 - `ConsoleApp1` - First exam practice project
 - `ConsoleApp2` - Second exam practice project
 - `ConsoleApp3` - Third exam practice project
 - `ConsoleApp4` - Fourth exam practice project
 
 **Homework Assignments:**
+
 - `Homework1` - First homework assignment
 - `Homework2` - Second homework assignment
 
