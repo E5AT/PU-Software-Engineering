@@ -1,6 +1,6 @@
 # PU Software Engineering - Course Materials
 
-This repository contains lecture notes, exercises, coursework, and exam materials for the 1st year of the Software Engineering program at PU (Prague University).
+This repository contains lecture notes, exercises, coursework, and exam materials for the 1st year of the Software Engineering program at PU (Plovdiv University).
 
 ## Repository Structure
 
