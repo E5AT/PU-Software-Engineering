@@ -149,6 +149,14 @@ A C# console application for exam practice, implementing fundamental data struct
 - `Homework1` - First homework assignment
 - `Homework2` - Second homework assignment
 
+**Lecture Materials:**
+
+- `Конспект АСД 2025-26 _ 1 СИ ро.doc` - Exam syllabus and outline (2025-26)
+- `Учебно помагало по АЛГОРИТМИ И ПРОГРАМИ със C#.pdf` - Algorithms and Programming textbook with C#
+- `Програмиране=++Алгоритми;.pdf` - Programming and Algorithms reference book
+- `АСД C# проекти.zip` - C# projects archive with examples
+- `links/` - Reference materials and links folder
+
 **To run a project:**
 
 ```bash
