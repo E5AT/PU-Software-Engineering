@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ден 1 Екстра — Производни</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+  :root {
+    --bg: #0a0f0d; --surface: #111810; --surface2: #182015;
+    --border: #243020; --accent: #5dfc8d; --accent2: #f7c948;
+    --accent3: #ff7f51; --accent4: #60cfff;
+    --text: #e4efe7; --muted: #5a7060;
+    --correct: #5dfc8d; --wrong: #ff7f51;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; overflow-x:hidden; }
+  body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background: radial-gradient(ellipse 70% 50% at 10% 20%, rgba(93,252,141,0.05) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 90% 80%, rgba(247,201,72,0.04) 0%, transparent 60%);
+  }
+  .container { max-width:900px; margin:0 auto; padding:40px 24px; position:relative; z-index:1; }
+  .header { text-align:center; margin-bottom:50px; animation:fadeDown 0.7s ease; }
+  .day-badge {
+    display:inline-block; background:linear-gradient(135deg,var(--accent),#3db865);
+    color:#000; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600;
+    letter-spacing:3px; padding:6px 18px; border-radius:20px; margin-bottom:18px; text-transform:uppercase;
+  }
+  h1 {
+    font-family:'Playfair Display',serif; font-size:clamp(30px,6vw,52px); font-weight:900; line-height:1.1;
+    background:linear-gradient(135deg,var(--text) 0%,var(--accent) 100%);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:10px;
+  }
+  .subtitle { color:var(--muted); font-size:15px; font-weight:300; }
+  .progress-nav { display:flex; gap:8px; margin-bottom:36px; flex-wrap:wrap; animation:fadeUp 0.6s ease 0.2s both; }
+  .nav-btn {
+    flex:1; min-width:140px; padding:10px 14px; background:var(--surface); border:1px solid var(--border);
+    border-radius:10px; color:var(--muted); font-family:'Inter',sans-serif; font-size:13px;
+    font-weight:500; cursor:pointer; transition:all 0.2s; text-align:center;
+  }
+  .nav-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .nav-btn.active { background:var(--accent); border-color:var(--accent); color:#000; font-weight:700; }
+  .nav-btn.done { border-color:var(--correct); color:var(--correct); }
+  .section { display:none; animation:fadeUp 0.4s ease; }
+  .section.active { display:block; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:26px; margin-bottom:18px; position:relative; overflow:hidden; }
+  .card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+  .card.green::before { background:linear-gradient(90deg,var(--accent),transparent); }
+  .card.yellow::before { background:linear-gradient(90deg,var(--accent2),transparent); }
+  .card.orange::before { background:linear-gradient(90deg,var(--accent3),transparent); }
+  .card.blue::before { background:linear-gradient(90deg,var(--accent4),transparent); }
+  .card-title { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; margin-bottom:6px; }
+  .card-subtitle { color:var(--muted); font-size:13px; margin-bottom:18px; }
+  .formula { background:var(--surface2); border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:0 8px 8px 0; padding:13px 17px; font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--accent4); margin:10px 0; line-height:1.7; }
+  .formula.yellow { border-left-color:var(--accent2); color:var(--accent2); }
+  .formula.orange { border-left-color:var(--accent3); color:var(--accent3); }
+  .deriv-table { width:100%; border-collapse:separate; border-spacing:0; font-family:'JetBrains Mono',monospace; font-size:13px; margin:16px 0; }
+  .deriv-table th { background:var(--surface2); padding:11px 14px; text-align:center; color:var(--accent); font-weight:600; font-size:12px; letter-spacing:1px; }
+  .deriv-table td { padding:11px 14px; text-align:center; border-top:1px solid var(--border); color:var(--text); }
+  .deriv-table tr:hover td { background:var(--surface2); }
+  .deriv-table td:first-child { color:var(--accent2); }
+  .deriv-table td:last-child { color:var(--accent4); }
+  .step-list { display:flex; flex-direction:column; gap:12px; margin:14px 0; }
+  .step { display:flex; gap:14px; align-items:flex-start; }
+  .step-num { width:30px; height:30px; border-radius:50%; background:var(--accent); color:#000; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+  .step-num.yellow { background:var(--accent2); }
+  .step-num.orange { background:var(--accent3); }
+  .step-content { flex:1; }
+  .step-title { font-weight:600; font-size:15px; margin-bottom:4px; }
+  .step-body { font-size:14px; color:var(--muted); line-height:1.6; }
+  .step-body code { font-family:'JetBrains Mono',monospace; background:var(--surface2); padding:2px 6px; border-radius:4px; color:var(--accent4); font-size:13px; }
+  .exercise-list { display:flex; flex-direction:column; gap:12px; margin:14px 0; }
+  .exercise { background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:17px; cursor:pointer; transition:all 0.2s; }
+  .exercise:hover { border-color:var(--accent4); }
+  .exercise.revealed { border-color:var(--correct); }
+  .ex-num { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:1px; margin-bottom:5px; }
+  .ex-question { font-family:'JetBrains Mono',monospace; font-size:17px; color:var(--text); margin-bottom:8px; }
+  .ex-hint { font-size:13px; color:var(--accent2); margin-bottom:8px; }
+  .ex-answer { display:none; padding:12px; background:rgba(93,252,141,0.07); border:1px solid rgba(93,252,141,0.2); border-radius:8px; font-size:14px; line-height:1.8; }
+  .exercise.revealed .ex-answer { display:block; }
+  .ex-answer code { font-family:'JetBrains Mono',monospace; color:var(--accent4); background:var(--surface); padding:2px 6px; border-radius:4px; font-size:13px; }
+  .reveal-hint { font-size:12px; color:var(--muted); font-style:italic; }
+  .exercise.revealed .reveal-hint { display:none; }
+  .info-box { border-radius:10px; padding:13px 17px; font-size:14px; line-height:1.6; margin:12px 0; }
+  .info-box.green { background:rgba(93,252,141,0.07); border:1px solid rgba(93,252,141,0.2); }
+  .info-box.yellow { background:rgba(247,201,72,0.07); border:1px solid rgba(247,201,72,0.2); }
+  .info-box.orange { background:rgba(255,127,81,0.07); border:1px solid rgba(255,127,81,0.2); }
+  .nav-actions { display:flex; gap:12px; justify-content:space-between; margin-top:28px; }
+  .btn { padding:12px 26px; border-radius:10px; border:none; font-family:'Inter',sans-serif; font-size:15px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+  .btn-primary { background:var(--accent); color:#000; }
+  .btn-primary:hover { background:#3db865; transform:translateY(-1px); }
+  .btn-secondary { background:var(--surface); border:1px solid var(--border); color:var(--text); }
+  .btn-secondary:hover { border-color:var(--accent); color:var(--accent); }
+  .section-header { display:flex; align-items:center; gap:12px; margin-bottom:22px; }
+  .section-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+  .section-icon.green { background:rgba(93,252,141,0.12); }
+  .section-icon.yellow { background:rgba(247,201,72,0.12); }
+  .section-icon.orange { background:rgba(255,127,81,0.12); }
+  .section-meta { flex:1; }
+  .section-meta h2 { font-family:'Playfair Display',serif; font-size:24px; font-weight:700; }
+  .section-meta p { font-size:13px; color:var(--muted); margin-top:2px; }
+  .time-chip { background:var(--surface2); border:1px solid var(--border); border-radius:20px; padding:4px 12px; font-size:12px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+  .rule-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin:14px 0; }
+  .rule-item { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px; }
+  .rule-item .rule-type { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); font-weight:600; margin-bottom:6px; letter-spacing:1px; }
+  .rule-item .rule-desc { font-size:14px; color:var(--text); line-height:1.5; }
+  .rule-item .rule-desc code { font-family:'JetBrains Mono',monospace; color:var(--accent3); background:var(--surface); padding:2px 5px; border-radius:4px; font-size:12px; }
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  hr { border:none; border-top:1px solid var(--border); margin:20px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="day-badge">⚡ ДЕН 1 — ЕКСТРА</div>
+    <h1>Производни</h1>
+    <p class="subtitle">Формули · Правила · Верижно правило · Задачи</p>
+  </div>
+
+  <div class="progress-nav">
+    <button class="nav-btn active" onclick="goTo(0)">📋 Формули<br><small>Таблица</small></button>
+    <button class="nav-btn" onclick="goTo(1)">⚙️ Правила<br><small>Сбор/Произв/Частно</small></button>
+    <button class="nav-btn" onclick="goTo(2)">🔗 Верижно<br><small>Сложни функции</small></button>
+    <button class="nav-btn" onclick="goTo(3)">✏️ Задачи<br><small>Практика</small></button>
+  </div>
+
+  <!-- БЛОК 1: ФОРМУЛИ -->
+  <div class="section active" id="sec0">
+    <div class="section-header">
+      <div class="section-icon green">📋</div>
+      <div class="section-meta"><h2>Таблица с производни</h2><p>Учи наизуст — без тях нищо не работи</p></div>
+      <div class="time-chip">⏱ ~20 мин</div>
+    </div>
+    <div class="card green">
+      <div class="card-title">Основни производни</div>
+      <div class="card-subtitle">Тези трябва да излизат автоматично</div>
+      <table class="deriv-table">
+        <tr><th>Функция f(x)</th><th>Производна f'(x)</th><th>Пример</th></tr>
+        <tr><td>c (константа)</td><td>0</td><td>(5)' = 0</td></tr>
+        <tr><td>x</td><td>1</td><td>(x)' = 1</td></tr>
+        <tr><td>xⁿ</td><td>n·xⁿ⁻¹</td><td>(x⁴)' = 4x³</td></tr>
+        <tr><td>√x = x^(1/2)</td><td>1/(2√x)</td><td>(√x)' = 1/2√x</td></tr>
+        <tr><td>1/x = x⁻¹</td><td>-1/x²</td><td>(1/x)' = -1/x²</td></tr>
+        <tr><td>eˣ</td><td>eˣ</td><td>(eˣ)' = eˣ</td></tr>
+        <tr><td>aˣ</td><td>aˣ · ln(a)</td><td>(2ˣ)' = 2ˣ·ln2</td></tr>
+        <tr><td>ln(x)</td><td>1/x</td><td>(ln x)' = 1/x</td></tr>
+        <tr><td>log_a(x)</td><td>1/(x·ln a)</td><td>(log₂x)' = 1/(x·ln2)</td></tr>
+        <tr><td>sin(x)</td><td>cos(x)</td><td>(sin x)' = cos x</td></tr>
+        <tr><td>cos(x)</td><td>-sin(x)</td><td>(cos x)' = -sin x</td></tr>
+        <tr><td>tan(x)</td><td>1/cos²(x)</td><td>(tan x)' = 1/cos²x</td></tr>
+        <tr><td>cot(x)</td><td>-1/sin²(x)</td><td>(cot x)' = -1/sin²x</td></tr>
+      </table>
+      <div class="info-box yellow">
+        💡 <strong>Трик за запомняне:</strong> (xⁿ)' — "свалаш степента пред x и намаляваш с 1". Пример: (x⁵)' = 5x⁴
+      </div>
+    </div>
+    <div class="nav-actions">
+      <div></div>
+      <button class="btn btn-primary" onclick="nextSection()">Правила →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 2: ПРАВИЛА -->
+  <div class="section" id="sec1">
+    <div class="section-header">
+      <div class="section-icon yellow">⚙️</div>
+      <div class="section-meta"><h2>Правила за диференциране</h2><p>Как да диференцираш комбинации от функции</p></div>
+      <div class="time-chip">⏱ ~25 мин</div>
+    </div>
+    <div class="card yellow">
+      <div class="card-title">Четирите основни правила</div>
+      <div class="rule-grid">
+        <div class="rule-item">
+          <div class="rule-type">📌 КОНСТАНТА × ФУНКЦИЯ</div>
+          <div class="rule-desc"><code>(c·f)' = c·f'</code><br><br>Пример:<br>(5x³)' = 5·3x² = 15x²</div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-type">📌 СУМА / РАЗЛИКА</div>
+          <div class="rule-desc"><code>(f ± g)' = f' ± g'</code><br><br>Пример:<br>(x² + sin x)' = 2x + cos x</div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-type">📌 ПРОИЗВЕДЕНИЕ</div>
+          <div class="rule-desc"><code>(f·g)' = f'g + fg'</code><br><br>Пример:<br>(x²·eˣ)' = 2x·eˣ + x²·eˣ</div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-type">📌 ЧАСТНО</div>
+          <div class="rule-desc"><code>(f/g)' = (f'g - fg')/g²</code><br><br>Пример:<br>(sin x/x)' = (cos x·x - sin x·1)/x²</div>
+        </div>
+      </div>
+      <div class="info-box orange">
+        ⚠️ <strong>Честа грешка:</strong> При правилото за частно — ВИНАГИ е (f'g − fg') / g². Не бъркай реда на изваждане!
+      </div>
+    </div>
+    <div class="card green">
+      <div class="card-title">Примери стъпка по стъпка</div>
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num">Ex1</div>
+          <div class="step-content">
+            <div class="step-title">f(x) = 3x⁴ − 2x² + 7x − 1</div>
+            <div class="step-body">Правило за сума/разлика + константа:<br>
+            <code>f'(x) = 3·4x³ − 2·2x + 7·1 − 0</code><br>
+            <code>f'(x) = 12x³ − 4x + 7</code></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num yellow">Ex2</div>
+          <div class="step-content">
+            <div class="step-title">f(x) = x³ · sin(x)</div>
+            <div class="step-body">Правило за произведение: f = x³, g = sin x<br>
+            <code>f'(x) = 3x² · sin x + x³ · cos x</code></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num orange">Ex3</div>
+          <div class="step-content">
+            <div class="step-title">f(x) = eˣ / x²</div>
+            <div class="step-body">Правило за частно: f = eˣ, g = x²<br>
+            <code>f'(x) = (eˣ · x² − eˣ · 2x) / x⁴</code><br>
+            <code>= eˣ(x² − 2x) / x⁴ = eˣ(x − 2) / x³</code></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Формули</button>
+      <button class="btn btn-primary" onclick="nextSection()">Верижно правило →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 3: ВЕРИЖНО ПРАВИЛО -->
+  <div class="section" id="sec2">
+    <div class="section-header">
+      <div class="section-icon orange">🔗</div>
+      <div class="section-meta"><h2>Верижното правило</h2><p>За сложни (композирани) функции — най-важното!</p></div>
+      <div class="time-chip">⏱ ~30 мин</div>
+    </div>
+    <div class="card orange">
+      <div class="card-title">Какво е верижното правило?</div>
+      <div class="card-subtitle">Когато имаш функция вътре в друга функция</div>
+      <div class="formula orange">[f(g(x))]' = f'(g(x)) · g'(x)</div>
+      <div class="info-box green" style="margin-top:14px">
+        💡 <strong>С думи:</strong> "Производна на външната функция (оставяш вътрешната непроменена) × производна на вътрешната функция"
+      </div>
+      <hr>
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Идентифицирай външната и вътрешната функция</div>
+            <div class="step-body">Пример: <code>sin(x²)</code> → външна: sin( ), вътрешна: x²</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">Диференцирай външната — оставяш вътрешната</div>
+            <div class="step-body"><code>[sin(x²)]' → cos(x²) · ...</code></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">Умножи по производната на вътрешната</div>
+            <div class="step-body"><code>cos(x²) · (x²)' = cos(x²) · 2x</code><br><strong>Отговор: 2x · cos(x²)</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card blue">
+      <div class="card-title">Примери — от лесни към трудни</div>
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num">Ex1</div>
+          <div class="step-content">
+            <div class="step-title">(x² + 1)⁵</div>
+            <div class="step-body">
+              Външна: ( )⁵, вътрешна: x² + 1<br>
+              <code>= 5(x²+1)⁴ · (x²+1)'</code><br>
+              <code>= 5(x²+1)⁴ · 2x</code><br>
+              <strong>= 10x(x²+1)⁴</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num yellow">Ex2</div>
+          <div class="step-content">
+            <div class="step-title">e^(3x+1)</div>
+            <div class="step-body">
+              Външна: eˣ, вътрешна: 3x+1<br>
+              <code>= e^(3x+1) · (3x+1)'</code><br>
+              <code>= e^(3x+1) · 3</code><br>
+              <strong>= 3e^(3x+1)</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num orange">Ex3</div>
+          <div class="step-content">
+            <div class="step-title">ln(x² − 4)</div>
+            <div class="step-body">
+              Външна: ln( ), вътрешна: x² − 4<br>
+              <code>= 1/(x²−4) · (x²−4)'</code><br>
+              <code>= 1/(x²−4) · 2x</code><br>
+              <strong>= 2x/(x²−4)</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">Ex4</div>
+          <div class="step-content">
+            <div class="step-title">√(3x − 1) = (3x−1)^(1/2)</div>
+            <div class="step-body">
+              Външна: ( )^(1/2), вътрешна: 3x−1<br>
+              <code>= (1/2)(3x−1)^(-1/2) · 3</code><br>
+              <code>= 3 / (2√(3x−1))</code><br>
+              <strong>= 3/(2√(3x−1))</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num yellow">Ex5</div>
+          <div class="step-content">
+            <div class="step-title">sin²(x) = [sin(x)]²</div>
+            <div class="step-body">
+              Външна: ( )², вътрешна: sin(x)<br>
+              <code>= 2sin(x) · (sin x)'</code><br>
+              <code>= 2sin(x) · cos(x)</code><br>
+              <strong>= 2sin(x)cos(x) = sin(2x)</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num orange">Ex6</div>
+          <div class="step-content">
+            <div class="step-title">e^(sin x) · x² &nbsp;[верижно + произведение]</div>
+            <div class="step-body">
+              Произведение: f = e^(sin x), g = x²<br>
+              f' = e^(sin x) · cos x (верижно!)<br>
+              g' = 2x<br>
+              <code>= e^(sin x)·cos x · x² + e^(sin x) · 2x</code><br>
+              <strong>= x·e^(sin x)(x·cos x + 2)</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="info-box yellow" style="margin-top:14px">
+        ⚠️ <strong>Честа грешка:</strong> Хората забравят да умножат по производната на вътрешната функция. Винаги проверявай — умножил ли си по g'(x)?
+      </div>
+    </div>
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Правила</button>
+      <button class="btn btn-primary" onclick="nextSection()">Задачи →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 4: ЗАДАЧИ -->
+  <div class="section" id="sec3">
+    <div class="section-header">
+      <div class="section-icon green">✏️</div>
+      <div class="section-meta"><h2>Задачи за практика</h2><p>Намери производната — кликни за решение</p></div>
+      <div class="time-chip">⏱ ~45 мин</div>
+    </div>
+    <div class="card green">
+      <div class="card-title">🟢 Лесни — Основни формули</div>
+      <div class="exercise-list">
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 01</div>
+          <div class="ex-question">f(x) = 5x³ − 4x + 2</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer"><code>f'(x) = 15x² − 4</code></div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 02</div>
+          <div class="ex-question">f(x) = x⁷ − 3x⁵ + x</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer"><code>f'(x) = 7x⁶ − 15x⁴ + 1</code></div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 03</div>
+          <div class="ex-question">f(x) = eˣ + ln(x) − cos(x)</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer"><code>f'(x) = eˣ + 1/x + sin(x)</code></div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 04</div>
+          <div class="ex-question">f(x) = √x + 1/x²</div>
+          <div class="ex-hint">💡 Запиши като степени: x^(1/2) + x^(-2)</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            <code>f(x) = x^(1/2) + x^(-2)</code><br>
+            <code>f'(x) = (1/2)x^(-1/2) + (-2)x^(-3)</code><br>
+            <code>= 1/(2√x) − 2/x³</code>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card yellow">
+      <div class="card-title">🟡 Средни — Правила</div>
+      <div class="exercise-list">
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 05</div>
+          <div class="ex-question">f(x) = x² · eˣ</div>
+          <div class="ex-hint">💡 Правило за произведение</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            f = x², g = eˣ; f' = 2x, g' = eˣ<br>
+            <code>f'(x) = 2x·eˣ + x²·eˣ = eˣ(2x + x²) = x·eˣ(x+2)</code>
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 06</div>
+          <div class="ex-question">f(x) = sin(x) · cos(x)</div>
+          <div class="ex-hint">💡 Правило за произведение</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            f = sin x, g = cos x; f' = cos x, g' = −sin x<br>
+            <code>f'(x) = cos x · cos x + sin x · (−sin x)</code><br>
+            <code>= cos²x − sin²x = cos(2x)</code>
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 07</div>
+          <div class="ex-question">f(x) = (x² + 1) / (x − 1)</div>
+          <div class="ex-hint">💡 Правило за частно</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            f = x²+1, g = x−1; f' = 2x, g' = 1<br>
+            <code>f'(x) = [2x(x−1) − (x²+1)·1] / (x−1)²</code><br>
+            <code>= [2x²−2x − x²−1] / (x−1)²</code><br>
+            <code>= (x²−2x−1) / (x−1)²</code>
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 08</div>
+          <div class="ex-question">f(x) = ln(x) / x</div>
+          <div class="ex-hint">💡 Правило за частно</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            f = ln x, g = x; f' = 1/x, g' = 1<br>
+            <code>f'(x) = [(1/x)·x − ln x·1] / x²</code><br>
+            <code>= [1 − ln x] / x²</code>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card orange">
+      <div class="card-title">🔴 По-сложни — Верижно правило</div>
+      <div class="exercise-list">
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 09</div>
+          <div class="ex-question">f(x) = (2x + 3)⁶</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Външна: ( )⁶, вътрешна: 2x+3<br>
+            <code>f'(x) = 6(2x+3)⁵ · 2 = 12(2x+3)⁵</code>
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 10</div>
+          <div class="ex-question">f(x) = sin(3x² − 1)</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Външна: sin( ), вътрешна: 3x²−1<br>
+            <code>f'(x) = cos(3x²−1) · 6x = 6x·cos(3x²−1)</code>
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 11</div>
+          <div class="ex-question">f(x) = e^(x² + 2x)</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Външна: eˣ, вътрешна: x²+2x<br>
+            <code>f'(x) = e^(x²+2x) · (2x+2) = (2x+2)·e^(x²+2x)</code>
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 12</div>
+          <div class="ex-question">f(x) = ln(sin x)</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Външна: ln( ), вътрешна: sin x<br>
+            <code>f'(x) = 1/sin x · cos x = cos x / sin x = cot x</code>
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 13</div>
+          <div class="ex-question">f(x) = √(x² + 4x + 1)</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Запиши: (x²+4x+1)^(1/2); вътрешна: x²+4x+1<br>
+            <code>f'(x) = (1/2)(x²+4x+1)^(-1/2) · (2x+4)</code><br>
+            <code>= (2x+4) / (2√(x²+4x+1))</code><br>
+            <code>= (x+2) / √(x²+4x+1)</code>
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 14 — КОМБО</div>
+          <div class="ex-question">f(x) = x · e^(2x)</div>
+          <div class="ex-hint">💡 Произведение + верижно правило</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Произведение: f = x, g = e^(2x)<br>
+            f' = 1; g' = e^(2x)·2 = 2e^(2x) (верижно!)<br>
+            <code>f'(x) = 1·e^(2x) + x·2e^(2x)</code><br>
+            <code>= e^(2x)(1 + 2x)</code>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Верижно правило</button>
+      <button class="btn btn-primary" onclick="goTo(0)">↩ Начало</button>
+    </div>
+  </div>
+</div>
+<script>
+  let current = 0;
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const sections = document.querySelectorAll('.section');
+  function goTo(idx) {
+    sections[current].classList.remove('active'); navBtns[current].classList.remove('active');
+    current = idx; sections[current].classList.add('active'); navBtns[current].classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  function nextSection() { if(current<3){navBtns[current].classList.add('done');goTo(current+1);} }
+  function prevSection() { if(current>0)goTo(current-1); }
+  function toggleEx(el) { el.classList.toggle('revealed'); }
+</script>
+</body>
+</html>

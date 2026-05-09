@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ден 2 — Граници & Arc Функции</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+  :root {
+    --bg:#0d0a14; --surface:#13101e; --surface2:#1a1628;
+    --border:#252038; --accent:#c084fc; --accent2:#fb923c;
+    --accent3:#34d399; --accent4:#60a5fa;
+    --text:#ede9f8; --muted:#6b6380;
+    --correct:#34d399; --wrong:#f87171;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 60% 40% at 15% 15%,rgba(192,132,252,0.06) 0%,transparent 60%),
+               radial-gradient(ellipse 50% 40% at 85% 80%,rgba(251,146,60,0.05) 0%,transparent 60%);}
+  .container{max-width:900px;margin:0 auto;padding:40px 24px;position:relative;z-index:1;}
+  .header{text-align:center;margin-bottom:50px;animation:fadeDown 0.7s ease;}
+  .day-badge{display:inline-block;background:linear-gradient(135deg,var(--accent),#9333ea);color:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:3px;padding:6px 18px;border-radius:20px;margin-bottom:18px;text-transform:uppercase;}
+  h1{font-family:'Playfair Display',serif;font-size:clamp(30px,6vw,52px);font-weight:900;line-height:1.1;background:linear-gradient(135deg,var(--text) 0%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px;}
+  .subtitle{color:var(--muted);font-size:15px;font-weight:300;}
+  .progress-nav{display:flex;gap:8px;margin-bottom:36px;flex-wrap:wrap;animation:fadeUp 0.6s ease 0.2s both;}
+  .nav-btn{flex:1;min-width:120px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;text-align:center;}
+  .nav-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .nav-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
+  .nav-btn.done{border-color:var(--correct);color:var(--correct);}
+  .section{display:none;animation:fadeUp 0.4s ease;}
+  .section.active{display:block;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:26px;margin-bottom:18px;position:relative;overflow:hidden;}
+  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+  .card.purple::before{background:linear-gradient(90deg,var(--accent),transparent);}
+  .card.orange::before{background:linear-gradient(90deg,var(--accent2),transparent);}
+  .card.green::before{background:linear-gradient(90deg,var(--accent3),transparent);}
+  .card.blue::before{background:linear-gradient(90deg,var(--accent4),transparent);}
+  .card-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+  .card-subtitle{color:var(--muted);font-size:13px;margin-bottom:18px;}
+  .formula{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:13px 17px;font-family:'JetBrains Mono',monospace;font-size:14px;color:#c4b5fd;margin:10px 0;line-height:1.7;}
+  .formula.orange{border-left-color:var(--accent2);color:#fdba74;}
+  .formula.green{border-left-color:var(--accent3);color:#6ee7b7;}
+  .formula.blue{border-left-color:var(--accent4);color:#93c5fd;}
+  .arc-table{width:100%;border-collapse:separate;border-spacing:0;font-family:'JetBrains Mono',monospace;font-size:13px;margin:14px 0;}
+  .arc-table th{background:var(--surface2);padding:10px 12px;text-align:center;color:var(--accent);font-weight:600;font-size:11px;letter-spacing:1px;}
+  .arc-table td{padding:10px 12px;text-align:center;border-top:1px solid var(--border);}
+  .arc-table tr:hover td{background:var(--surface2);}
+  .arc-table td:first-child{color:var(--accent2);font-weight:600;}
+  .step-list{display:flex;flex-direction:column;gap:12px;margin:14px 0;}
+  .step{display:flex;gap:14px;align-items:flex-start;}
+  .step-num{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+  .step-num.orange{background:var(--accent2);color:#fff;}
+  .step-num.green{background:var(--accent3);color:#000;}
+  .step-num.blue{background:var(--accent4);color:#fff;}
+  .step-content{flex:1;}
+  .step-title{font-weight:600;font-size:15px;margin-bottom:4px;}
+  .step-body{font-size:14px;color:var(--muted);line-height:1.6;}
+  .step-body code{font-family:'JetBrains Mono',monospace;background:var(--surface2);padding:2px 6px;border-radius:4px;color:#93c5fd;font-size:13px;}
+  .exercise-list{display:flex;flex-direction:column;gap:12px;margin:14px 0;}
+  .exercise{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:17px;cursor:pointer;transition:all 0.2s;}
+  .exercise:hover{border-color:var(--accent);}
+  .exercise.revealed{border-color:var(--correct);}
+  .ex-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;margin-bottom:5px;}
+  .ex-question{font-family:'JetBrains Mono',monospace;font-size:17px;color:var(--text);margin-bottom:8px;}
+  .ex-hint{font-size:13px;color:var(--accent2);margin-bottom:8px;}
+  .ex-answer{display:none;padding:12px;background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.2);border-radius:8px;font-size:14px;line-height:1.8;}
+  .exercise.revealed .ex-answer{display:block;}
+  .ex-answer code{font-family:'JetBrains Mono',monospace;color:#93c5fd;background:var(--surface);padding:2px 6px;border-radius:4px;font-size:13px;}
+  .reveal-hint{font-size:12px;color:var(--muted);font-style:italic;}
+  .exercise.revealed .reveal-hint{display:none;}
+  .info-box{border-radius:10px;padding:13px 17px;font-size:14px;line-height:1.6;margin:12px 0;}
+  .info-box.purple{background:rgba(192,132,252,0.07);border:1px solid rgba(192,132,252,0.2);}
+  .info-box.orange{background:rgba(251,146,60,0.07);border:1px solid rgba(251,146,60,0.2);}
+  .info-box.green{background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.2);}
+  .info-box.red{background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.2);}
+  .nav-actions{display:flex;gap:12px;justify-content:space-between;margin-top:28px;}
+  .btn{padding:12px 26px;border-radius:10px;border:none;font-family:'Inter',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-primary:hover{background:#9333ea;transform:translateY(-1px);}
+  .btn-secondary{background:var(--surface);border:1px solid var(--border);color:var(--text);}
+  .btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+  .section-header{display:flex;align-items:center;gap:12px;margin-bottom:22px;}
+  .section-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+  .section-icon.purple{background:rgba(192,132,252,0.12);}
+  .section-icon.orange{background:rgba(251,146,60,0.12);}
+  .section-icon.green{background:rgba(52,211,153,0.12);}
+  .section-icon.blue{background:rgba(96,165,250,0.12);}
+  .section-meta{flex:1;}
+  .section-meta h2{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;}
+  .section-meta p{font-size:13px;color:var(--muted);margin-top:2px;}
+  .time-chip{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+  .technique-box{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px;margin:12px 0;}
+  .technique-title{font-weight:700;font-size:16px;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+  .technique-num{background:var(--accent);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+  .technique-num.orange{background:var(--accent2);}
+  .technique-num.green{background:var(--accent3);color:#000;}
+  .technique-num.blue{background:var(--accent4);}
+  hr{border:none;border-top:1px solid var(--border);margin:18px 0;}
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="day-badge">📅 ДЕН 2</div>
+    <h1>Граници & Arc Функции</h1>
+    <p class="subtitle">Arc функции · Техники за граници · Специални граници · Задачи</p>
+  </div>
+
+  <div class="progress-nav">
+    <button class="nav-btn active" onclick="goTo(0)">🔄 Arc функции<br><small>arcsin/cos/tan/cot</small></button>
+    <button class="nav-btn" onclick="goTo(1)">⚙️ Техники<br><small>5 метода</small></button>
+    <button class="nav-btn" onclick="goTo(2)">⭐ Специални<br><small>важни граници</small></button>
+    <button class="nav-btn" onclick="goTo(3)">✏️ Задачи<br><small>практика</small></button>
+  </div>
+
+  <!-- БЛОК 1: ARC ФУНКЦИИ -->
+  <div class="section active" id="sec0">
+    <div class="section-header">
+      <div class="section-icon purple">🔄</div>
+      <div class="section-meta"><h2>Arc (обратни тригонометрични) функции</h2><p>Обратното на sin, cos, tan, cot</p></div>
+      <div class="time-chip">⏱ ~45 мин</div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title">💡 Какво означава "arc"?</div>
+      <div class="card-subtitle">Логиката зад обратните функции</div>
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num">?</div>
+          <div class="step-content">
+            <div class="step-title">Идеята</div>
+            <div class="step-body">
+              Ако <code>sin(π/6) = 1/2</code>, тогава <code>arcsin(1/2) = π/6</code><br><br>
+              arcsin пита: <em>"За кой ъгъл x е sin(x) = дадена стойност?"</em><br>
+              Аналогично за arccos, arctan, arccot.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="info-box red">
+        ⚠️ <strong>Важно:</strong> Arc функциите НЕ са 1/sin(x)! Това е sin⁻¹(x) като нотация за обратна функция, не степен −1!
+      </div>
+    </div>
+
+    <div class="card orange">
+      <div class="card-title">📋 Таблица — Домейн, Обхват, Графика</div>
+      <table class="arc-table">
+        <tr><th>Функция</th><th>Домейн D(f)</th><th>Обхват E(f)</th><th>Минава през</th></tr>
+        <tr><td>arcsin(x)</td><td>[−1, 1]</td><td>[−π/2, π/2]</td><td>(0,0), (1,π/2), (−1,−π/2)</td></tr>
+        <tr><td>arccos(x)</td><td>[−1, 1]</td><td>[0, π]</td><td>(0,π/2), (1,0), (−1,π)</td></tr>
+        <tr><td>arctan(x)</td><td>ℝ</td><td>(−π/2, π/2)</td><td>(0,0), (1,π/4), (−1,−π/4)</td></tr>
+        <tr><td>arccot(x)</td><td>ℝ</td><td>(0, π)</td><td>(0,π/2), (1,π/4), (−1,3π/4)</td></tr>
+      </table>
+      <div class="info-box orange">
+        💡 <strong>Забележи:</strong> arcsin и arccos имат ограничен домейн [−1,1], докато arctan и arccot са дефинирани за всички реални числа!
+      </div>
+    </div>
+
+    <div class="card green">
+      <div class="card-title">📊 Важни стойности наизуст</div>
+      <table class="arc-table">
+        <tr><th>Стойност</th><th>arcsin</th><th>arccos</th><th>arctan</th><th>arccot</th></tr>
+        <tr><td>−1</td><td>−π/2</td><td>π</td><td>—</td><td>—</td></tr>
+        <tr><td>−√3/2</td><td>−π/3</td><td>5π/6</td><td>—</td><td>—</td></tr>
+        <tr><td>−√2/2</td><td>−π/4</td><td>3π/4</td><td>—</td><td>—</td></tr>
+        <tr><td>−1/2</td><td>−π/6</td><td>2π/3</td><td>—</td><td>—</td></tr>
+        <tr><td>0</td><td>0</td><td>π/2</td><td>0</td><td>π/2</td></tr>
+        <tr><td>1/2</td><td>π/6</td><td>π/3</td><td>—</td><td>—</td></tr>
+        <tr><td>√2/2</td><td>π/4</td><td>π/4</td><td>—</td><td>—</td></tr>
+        <tr><td>√3/2</td><td>π/3</td><td>π/6</td><td>—</td><td>—</td></tr>
+        <tr><td>1</td><td>π/2</td><td>0</td><td>—</td><td>—</td></tr>
+        <tr><td>−√3</td><td>—</td><td>—</td><td>−π/3</td><td>5π/6</td></tr>
+        <tr><td>−1</td><td>—</td><td>—</td><td>−π/4</td><td>3π/4</td></tr>
+        <tr><td>−√3/3</td><td>—</td><td>—</td><td>−π/6</td><td>2π/3</td></tr>
+        <tr><td>√3/3</td><td>—</td><td>—</td><td>π/6</td><td>π/3</td></tr>
+        <tr><td>1</td><td>—</td><td>—</td><td>π/4</td><td>π/4</td></tr>
+        <tr><td>√3</td><td>—</td><td>—</td><td>π/3</td><td>π/6</td></tr>
+      </table>
+    </div>
+
+    <div class="card blue">
+      <div class="card-title">🔗 Важни идентичности</div>
+      <div class="formula blue">arcsin(x) + arccos(x) = π/2</div>
+      <div class="formula blue">arctan(x) + arccot(x) = π/2</div>
+      <div class="formula blue">arcsin(−x) = −arcsin(x) &nbsp;&nbsp; [нечетна]</div>
+      <div class="formula blue">arccos(−x) = π − arccos(x)</div>
+      <div class="formula blue">arctan(−x) = −arctan(x) &nbsp;&nbsp; [нечетна]</div>
+      <div class="info-box green">
+        💡 <strong>Полезно:</strong> arcsin(x) + arccos(x) = π/2 означава, че ако знаеш едното, автоматично намираш другото!
+      </div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title">∞ Гранични стойности на arc функциите</div>
+      <div class="formula">lim(x→+∞) arctan(x) = π/2</div>
+      <div class="formula">lim(x→−∞) arctan(x) = −π/2</div>
+      <div class="formula">lim(x→+∞) arccot(x) = 0</div>
+      <div class="formula">lim(x→−∞) arccot(x) = π</div>
+      <div class="info-box purple">
+        💡 arctan има хоризонтални асимптоти y = π/2 и y = −π/2. arccot има асимптоти y = 0 и y = π.
+      </div>
+    </div>
+
+    <div class="card orange">
+      <div class="card-title">✏️ Примерни задачи с arc функции</div>
+      <div class="exercise-list">
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 01</div>
+          <div class="ex-question">arcsin(√2/2) = ?</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">Питаме: за кой ъгъл sin = √2/2?<br>От тригонометричната таблица: sin(π/4) = √2/2<br><strong>Отговор: π/4 (45°)</strong></div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 02</div>
+          <div class="ex-question">arccos(−1/2) = ?</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">Питаме: за кой ъгъл cos = −1/2? (обхватът е [0,π])<br>cos(2π/3) = −1/2<br><strong>Отговор: 2π/3 (120°)</strong></div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 03</div>
+          <div class="ex-question">arctan(1) = ?</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">Питаме: за кой ъгъл tan = 1?<br>tan(π/4) = 1<br><strong>Отговор: π/4</strong></div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 04 — Граница</div>
+          <div class="ex-question">lim(x→∞) arctan(x²− 3x + 1)</div>
+          <div class="ex-hint">💡 При x→∞ какво прави x²−3x+1?</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            При x→∞: x²−3x+1 → +∞<br>
+            <code>lim(x→∞) arctan(+∞) = π/2</code><br>
+            <strong>Отговор: π/2</strong>
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 05 — Граница</div>
+          <div class="ex-question">lim(x→−∞) arccot(2x + 1)</div>
+          <div class="ex-hint">💡 При x→−∞ какво прави 2x+1?</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            При x→−∞: 2x+1 → −∞<br>
+            <code>lim(x→−∞) arccot(−∞) = π</code><br>
+            <strong>Отговор: π</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <div></div>
+      <button class="btn btn-primary" onclick="nextSection()">Техники за граници →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 2: ТЕХНИКИ -->
+  <div class="section" id="sec1">
+    <div class="section-header">
+      <div class="section-icon orange">⚙️</div>
+      <div class="section-meta"><h2>Техники за намиране на граници</h2><p>5 метода — кога и как да ги прилагаш</p></div>
+      <div class="time-chip">⏱ ~1 ч</div>
+    </div>
+
+    <div class="card orange">
+      <div class="card-title">🗺️ Алгоритъм — Как да избереш техника</div>
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num green">1</div>
+          <div class="step-content">
+            <div class="step-title">Опитай директно заместване</div>
+            <div class="step-body">Замести x = a. Ако получиш нормален резултат (не 0/0, ∞/∞, 0·∞) → готово!</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num orange">2</div>
+          <div class="step-content">
+            <div class="step-title">Ако получиш 0/0 → Факторизация</div>
+            <div class="step-body">Разложи числителя и/или знаменателя. Съкрати общия множител.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">Ако имаш корени → Спрегнато</div>
+            <div class="step-body">Умножи по спреженото изражение за да се отървеш от корена.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num blue">4</div>
+          <div class="step-content">
+            <div class="step-title">Ако x→∞ → Деление по най-висока степен</div>
+            <div class="step-body">Дели числител и знаменател по xⁿ (най-голямата степен).</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num green">5</div>
+          <div class="step-content">
+            <div class="step-title">Ако имаш sin/cos около 0 → Специални граници</div>
+            <div class="step-body">Използвай lim sin(x)/x = 1 и производните формули.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="technique-box">
+      <div class="technique-title"><span class="technique-num green">T1</span> Директно заместване</div>
+      <div class="formula green">Замести x = a директно. Работи когато няма неопределена форма.</div>
+      <div style="font-size:14px;color:var(--muted);margin-top:8px;line-height:1.6">
+        <strong>Пример:</strong> lim(x→2) (x³+1) = 2³+1 = <strong>9</strong>
+      </div>
+    </div>
+
+    <div class="technique-box">
+      <div class="technique-title"><span class="technique-num orange">T2</span> Факторизация (за 0/0)</div>
+      <div class="formula orange">Разлагай! Търси (x−a) в числител и знаменател, съкращавай.</div>
+      <div class="step-list" style="margin-top:10px">
+        <div class="step">
+          <div class="step-num orange" style="font-size:11px">Ex</div>
+          <div class="step-content">
+            <div class="step-body">
+              <code>lim(x→1) (x³−1)/(x−1)</code><br>
+              x³−1 = (x−1)(x²+x+1)<br>
+              = <code>lim (x²+x+1) = 1+1+1 = <strong>3</strong></code>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="info-box orange">
+        💡 <strong>Полезни разложения:</strong><br>
+        x²−a² = (x−a)(x+a)<br>
+        x³−a³ = (x−a)(x²+ax+a²)<br>
+        x³+a³ = (x+a)(x²−ax+a²)
+      </div>
+    </div>
+
+    <div class="technique-box">
+      <div class="technique-title"><span class="technique-num">T3</span> Умножение по спрегнато (при корени)</div>
+      <div class="formula">Умножи по (√A + √B)/(√A + √B) за да елиминираш корена.</div>
+      <div class="step-list" style="margin-top:10px">
+        <div class="step">
+          <div class="step-num" style="font-size:11px">Ex</div>
+          <div class="step-content">
+            <div class="step-body">
+              <code>lim(x→0) (√(x+1) − 1)/x</code> → форма 0/0<br>
+              Умножаваме по (√(x+1)+1)/(√(x+1)+1):<br>
+              = <code>(x+1−1) / [x(√(x+1)+1)]</code><br>
+              = <code>x / [x(√(x+1)+1)]</code><br>
+              = <code>1/(√(x+1)+1)</code> → при x→0: <strong>1/2</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="technique-box">
+      <div class="technique-title"><span class="technique-num blue">T4</span> Граница при безкрайност (∞/∞)</div>
+      <div class="formula blue">Дели числител и знаменател по xⁿ (най-голямата степен в целия израз).</div>
+      <div class="info-box purple" style="margin-top:10px">
+        🧠 <strong>Бързо правило за рационални функции при x→∞:</strong><br><br>
+        • Степен горе &lt; степен долу → граница = <strong>0</strong><br>
+        • Степен горе = степен долу → граница = <strong>водещи коефициенти</strong><br>
+        • Степен горе &gt; степен долу → граница = <strong>±∞</strong>
+      </div>
+      <div class="step-list" style="margin-top:10px">
+        <div class="step">
+          <div class="step-num blue" style="font-size:11px">Ex</div>
+          <div class="step-content">
+            <div class="step-body">
+              <code>lim(x→∞) (3x²+x) / (2x²−5)</code><br>
+              Делим по x²: <code>(3+1/x)/(2−5/x²)</code><br>
+              При x→∞: <code>(3+0)/(2−0) = <strong>3/2</strong></code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="technique-box">
+      <div class="technique-title"><span class="technique-num green">T5</span> Едностранни граници</div>
+      <div class="formula green">lim(x→a⁺) и lim(x→a⁻) — подхождаш от дясно и ляво</div>
+      <div class="step-list" style="margin-top:10px">
+        <div class="step">
+          <div class="step-num green" style="font-size:11px">Ex</div>
+          <div class="step-content">
+            <div class="step-body">
+              <code>lim(x→0⁺) 1/x = +∞</code> (от дясно → положителни x)<br>
+              <code>lim(x→0⁻) 1/x = −∞</code> (от ляво → отрицателни x)<br>
+              Границата <strong>не съществува</strong> (лява ≠ дясна)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Arc функции</button>
+      <button class="btn btn-primary" onclick="nextSection()">Специални граници →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 3: СПЕЦИАЛНИ ГРАНИЦИ -->
+  <div class="section" id="sec2">
+    <div class="section-header">
+      <div class="section-icon green">⭐</div>
+      <div class="section-meta"><h2>Специални граници</h2><p>Учи наизуст — излизат директно на теста</p></div>
+      <div class="time-chip">⏱ ~30 мин</div>
+    </div>
+    <div class="card green">
+      <div class="card-title">🌟 Задължителни специални граници</div>
+      <div class="formula green">lim(x→0) sin(x)/x = 1</div>
+      <div class="formula green">lim(x→0) tan(x)/x = 1</div>
+      <div class="formula green">lim(x→0) (1 − cos x)/x² = 1/2</div>
+      <div class="formula green">lim(x→0) arcsin(x)/x = 1</div>
+      <div class="formula green">lim(x→0) arctan(x)/x = 1</div>
+      <div class="formula green">lim(x→∞) (1 + 1/x)ˣ = e</div>
+      <div class="formula green">lim(x→0) (1 + x)^(1/x) = e</div>
+      <div class="formula green">lim(x→0) (eˣ − 1)/x = 1</div>
+      <div class="formula green">lim(x→0) ln(1+x)/x = 1</div>
+      <div class="info-box green">
+        💡 <strong>Обща логика:</strong> Много специални граници около 0 се свеждат до "функция / нейния аргумент = 1". Ако видиш sin(нещо)/(същото нещо) → веднага = 1!
+      </div>
+    </div>
+    <div class="card blue">
+      <div class="card-title">🔧 Как да прилагаш специалните граници</div>
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num green">Ex1</div>
+          <div class="step-content">
+            <div class="step-title">lim(x→0) sin(3x)/x</div>
+            <div class="step-body">
+              Искаме sin(3x)/(3x) = 1, но имаме sin(3x)/x.<br>
+              Умножаваме и делим по 3:<br>
+              <code>= 3 · sin(3x)/(3x) = 3 · 1 = <strong>3</strong></code>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num blue">Ex2</div>
+          <div class="step-content">
+            <div class="step-title">lim(x→0) sin(5x)/sin(3x)</div>
+            <div class="step-body">
+              <code>= sin(5x)/(5x) · (5x)/(3x) · (3x)/sin(3x)</code><br>
+              <code>= 1 · 5/3 · 1 = <strong>5/3</strong></code>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num orange">Ex3</div>
+          <div class="step-content">
+            <div class="step-title">lim(x→0) (e^(2x) − 1)/x</div>
+            <div class="step-body">
+              Умножаваме и делим по 2:<br>
+              <code>= 2 · (e^(2x) − 1)/(2x) = 2 · 1 = <strong>2</strong></code>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">Ex4</div>
+          <div class="step-content">
+            <div class="step-title">lim(x→0) arctan(4x)/(2x)</div>
+            <div class="step-body">
+              <code>= (4/2) · arctan(4x)/(4x) = 2 · 1 = <strong>2</strong></code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Техники</button>
+      <button class="btn btn-primary" onclick="nextSection()">Задачи →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 4: ЗАДАЧИ -->
+  <div class="section" id="sec3">
+    <div class="section-header">
+      <div class="section-icon blue">✏️</div>
+      <div class="section-meta"><h2>Задачи за практика</h2><p>Всички техники — кликни за решение</p></div>
+      <div class="time-chip">⏱ ~1.5 ч</div>
+    </div>
+    <div class="card purple">
+      <div class="card-title">🟣 Факторизация</div>
+      <div class="exercise-list">
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 01</div>
+          <div class="ex-question">lim(x→2) (x² − 4) / (x² − 3x + 2)</div>
+          <div class="ex-hint">💡 Разложи и числителя и знаменателя</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Числител: <code>x²−4 = (x−2)(x+2)</code><br>
+            Знаменател: <code>x²−3x+2 = (x−2)(x−1)</code><br>
+            <code>= (x+2)/(x−1)</code> → при x=2: <code>4/1 = <strong>4</strong></code>
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 02</div>
+          <div class="ex-question">lim(x→−1) (x³ + 1) / (x + 1)</div>
+          <div class="ex-hint">💡 x³+1 = (x+1)(x²−x+1)</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            <code>x³+1 = (x+1)(x²−x+1)</code><br>
+            <code>= x²−x+1</code> → при x=−1: <code>1+1+1 = <strong>3</strong></code>
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 03</div>
+          <div class="ex-question">lim(x→3) (x² − 7x + 12) / (x² − 9)</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Числител: <code>(x−3)(x−4)</code><br>
+            Знаменател: <code>(x−3)(x+3)</code><br>
+            <code>= (x−4)/(x+3)</code> → при x=3: <code>−1/6 = <strong>−1/6</strong></code>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card orange">
+      <div class="card-title">🟠 Спрегнато (корени)</div>
+      <div class="exercise-list">
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 04</div>
+          <div class="ex-question">lim(x→4) (√x − 2) / (x − 4)</div>
+          <div class="ex-hint">💡 Умножи по (√x + 2)/(√x + 2)</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            <code>· (√x+2)/(√x+2) = (x−4)/[(x−4)(√x+2)]</code><br>
+            <code>= 1/(√x+2)</code> → при x=4: <code>1/(2+2) = <strong>1/4</strong></code>
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 05</div>
+          <div class="ex-question">lim(x→0) (√(1+x) − √(1−x)) / x</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Умножаваме по (√(1+x)+√(1−x)):<br>
+            <code>[(1+x)−(1−x)] / [x(√(1+x)+√(1−x))]</code><br>
+            <code>= 2x / [x(√(1+x)+√(1−x))]</code><br>
+            <code>= 2/(√1+√1) = 2/2 = <strong>1</strong></code>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card blue">
+      <div class="card-title">🔵 При безкрайност</div>
+      <div class="exercise-list">
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 06</div>
+          <div class="ex-question">lim(x→∞) (5x³ − x) / (2x³ + 7)</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Делим по x³:<br>
+            <code>(5 − 1/x²) / (2 + 7/x³)</code> → <code>5/2 = <strong>5/2</strong></code>
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 07</div>
+          <div class="ex-question">lim(x→∞) (x² + 3x) / (x³ − 1)</div>
+          <div class="ex-hint">💡 Степен горе < степен долу → ?</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Степен горе (2) &lt; степен долу (3) → граница = <strong>0</strong><br>
+            Проверка: делим по x³: <code>(1/x + 3/x²)/(1 − 1/x³) → 0/1 = 0</code>
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 08</div>
+          <div class="ex-question">lim(x→∞) √(x² + x) − x</div>
+          <div class="ex-hint">💡 Умножи по спреженото!</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Умножаваме по (√(x²+x)+x):<br>
+            <code>[(x²+x)−x²] / (√(x²+x)+x) = x/(√(x²+x)+x)</code><br>
+            Делим по x: <code>1/(√(1+1/x)+1)</code><br>
+            При x→∞: <code>1/(1+1) = <strong>1/2</strong></code>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card green">
+      <div class="card-title">🟢 Специални граници</div>
+      <div class="exercise-list">
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 09</div>
+          <div class="ex-question">lim(x→0) sin(7x) / (2x)</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            <code>= (7/2) · sin(7x)/(7x) = 7/2 · 1 = <strong>7/2</strong></code>
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 10</div>
+          <div class="ex-question">lim(x→0) (1 − cos x) / x²</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Директно специална граница:<br>
+            <code>lim(x→0) (1−cos x)/x² = <strong>1/2</strong></code>
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 11</div>
+          <div class="ex-question">lim(x→0) (e^(3x) − 1) / (5x)</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            <code>= (3/5) · (e^(3x)−1)/(3x) = 3/5 · 1 = <strong>3/5</strong></code>
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 12 — Arc</div>
+          <div class="ex-question">lim(x→0) arcsin(2x) / (3x)</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            <code>= (2/3) · arcsin(2x)/(2x) = 2/3 · 1 = <strong>2/3</strong></code>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Специални граници</button>
+      <button class="btn btn-primary" onclick="goTo(0)">↩ Начало</button>
+    </div>
+  </div>
+</div>
+<script>
+  let current=0;
+  const navBtns=document.querySelectorAll('.nav-btn');
+  const sections=document.querySelectorAll('.section');
+  function goTo(idx){sections[current].classList.remove('active');navBtns[current].classList.remove('active');current=idx;sections[current].classList.add('active');navBtns[current].classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+  function nextSection(){if(current<3){navBtns[current].classList.add('done');goTo(current+1);}}
+  function prevSection(){if(current>0)goTo(current-1);}
+  function toggleEx(el){el.classList.toggle('revealed');}
+</script>
+</body>
+</html>

@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ден 1 — Аналитична Геометрия</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161e;
+    --surface2: #1a1e28;
+    --border: #252a38;
+    --accent: #f0c040;
+    --accent2: #4ecdc4;
+    --accent3: #ff6b6b;
+    --accent4: #a78bfa;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --correct: #34d399;
+    --wrong: #f87171;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(240,192,64,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(78,205,196,0.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 60px;
+    animation: fadeDown 0.8s ease;
+  }
+
+  .day-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent), #d4a017);
+    color: #000;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 6vw, 56px);
+    font-weight: 900;
+    line-height: 1.1;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 16px;
+    font-weight: 300;
+  }
+
+  /* Progress nav */
+  .progress-nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    animation: fadeUp 0.6s ease 0.2s both;
+  }
+
+  .nav-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .nav-btn.active { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 600; }
+  .nav-btn.done { border-color: var(--correct); color: var(--correct); }
+
+  /* Sections */
+  .section {
+    display: none;
+    animation: fadeUp 0.4s ease;
+  }
+  .section.active { display: block; }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .card.yellow::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .card.teal::before { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .card.red::before { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .card.purple::before { background: linear-gradient(90deg, var(--accent4), transparent); }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card-subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  /* Trig table */
+  .trig-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    margin: 20px 0;
+  }
+
+  .trig-table th {
+    background: var(--surface2);
+    padding: 12px 16px;
+    text-align: center;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+
+  .trig-table td {
+    padding: 12px 16px;
+    text-align: center;
+    border-top: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .trig-table tr:hover td { background: var(--surface2); }
+
+  .trig-table th:first-child { border-radius: 8px 0 0 0; }
+  .trig-table th:last-child { border-radius: 0 8px 0 0; }
+  .trig-table td:first-child { color: var(--accent2); font-weight: 600; }
+
+  /* Rules */
+  .rule-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+
+  .rule-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+  }
+
+  .rule-item .rule-type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+
+  .rule-item .rule-desc {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .rule-item .rule-desc span {
+    color: var(--accent3);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+  }
+
+  /* Formula boxes */
+  .formula {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    color: var(--accent2);
+    margin: 12px 0;
+    line-height: 1.6;
+  }
+
+  /* Graph grid */
+  .graph-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+
+  .graph-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .graph-card canvas {
+    display: block;
+    margin: 0 auto 10px;
+    border-radius: 4px;
+  }
+
+  .graph-card .graph-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .graph-card .graph-info {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Limit intro */
+  .limit-types {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin: 16px 0;
+  }
+
+  .limit-type {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .limit-type .sym {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    color: var(--accent3);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .limit-type .desc {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* Exercises */
+  .exercise-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 16px 0;
+  }
+
+  .exercise {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .exercise:hover { border-color: var(--accent2); }
+
+  .exercise.revealed { border-color: var(--correct); }
+
+  .ex-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .ex-question {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 17px;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .ex-hint {
+    font-size: 13px;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .ex-answer {
+    display: none;
+    padding: 12px;
+    background: rgba(52, 211, 153, 0.08);
+    border: 1px solid rgba(52, 211, 153, 0.25);
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .exercise.revealed .ex-answer { display: block; }
+
+  .ex-answer strong {
+    color: var(--correct);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .reveal-hint {
+    font-size: 12px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .exercise.revealed .reveal-hint { display: none; }
+
+  /* Info boxes */
+  .info-box {
+    background: rgba(167, 139, 250, 0.08);
+    border: 1px solid rgba(167, 139, 250, 0.25);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 14px 0;
+  }
+
+  .info-box.yellow {
+    background: rgba(240, 192, 64, 0.08);
+    border-color: rgba(240, 192, 64, 0.25);
+  }
+
+  .info-box.red {
+    background: rgba(255, 107, 107, 0.08);
+    border-color: rgba(255, 107, 107, 0.25);
+  }
+
+  .info-icon { margin-right: 8px; }
+
+  /* Navigation buttons */
+  .nav-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    margin-top: 30px;
+  }
+
+  .btn {
+    padding: 12px 28px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .btn-primary:hover { background: #d4a017; transform: translateY(-1px); }
+
+  .btn-secondary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Trig quiz */
+  .quiz-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2px;
+    margin: 16px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  .quiz-cell {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px 4px;
+    text-align: center;
+  }
+
+  .quiz-cell.header {
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 11px;
+  }
+
+  .quiz-cell.row-header {
+    color: var(--accent2);
+    font-weight: 600;
+  }
+
+  .quiz-cell input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    text-align: center;
+    outline: none;
+  }
+
+  .quiz-cell.correct { background: rgba(52, 211, 153, 0.15); border-color: var(--correct); }
+  .quiz-cell.wrong { background: rgba(248, 113, 113, 0.15); border-color: var(--wrong); }
+
+  .quiz-actions { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+
+  .btn-small {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-check { background: var(--accent2); color: #000; }
+  .btn-reset { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); }
+  .btn-show { background: var(--surface2); border: 1px solid var(--accent); color: var(--accent); }
+
+  #quiz-result {
+    margin-top: 12px;
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 20px;
+  }
+
+  /* Step list */
+  .step-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 16px 0;
+  }
+
+  .step {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #000;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .step-content { flex: 1; }
+  .step-title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+  .step-body { font-size: 14px; color: var(--muted); line-height: 1.5; }
+  .step-body code {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--surface2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--accent2);
+    font-size: 13px;
+  }
+
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 24px 0;
+  }
+
+  /* Animations */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Timer */
+  .timer-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .timer-label { font-size: 13px; color: var(--muted); }
+  .timer-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--accent);
+    min-width: 70px;
+  }
+
+  .timer-progress {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .timer-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 1s linear;
+    width: 100%;
+  }
+
+  .btn-timer {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .section-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .section-icon.yellow { background: rgba(240,192,64,0.15); }
+  .section-icon.teal { background: rgba(78,205,196,0.15); }
+  .section-icon.red { background: rgba(255,107,107,0.15); }
+  .section-icon.purple { background: rgba(167,139,250,0.15); }
+
+  .section-meta { flex: 1; }
+  .section-meta h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 700;
+  }
+  .section-meta p { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  .time-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="day-badge">📅 ДЕН 1 ОТ 3</div>
+    <h1>Аналитична Геометрия</h1>
+    <p class="subtitle">Тригонометрия · Допустими стойности · Графики · Граници</p>
+  </div>
+
+  <!-- Timer -->
+  <div class="timer-bar">
+    <div>
+      <div class="timer-label">Таймер за блок</div>
+      <div class="timer-value" id="timerVal">1:30:00</div>
+    </div>
+    <div class="timer-progress"><div class="timer-fill" id="timerFill"></div></div>
+    <button class="btn-timer" id="timerBtn" onclick="toggleTimer()">▶ Старт</button>
+  </div>
+
+  <!-- Nav -->
+  <div class="progress-nav">
+    <button class="nav-btn active" onclick="goTo(0)">📐 Блок 1<br><small>Тригонометрия</small></button>
+    <button class="nav-btn" onclick="goTo(1)">🔢 Блок 2<br><small>Допустими стойности</small></button>
+    <button class="nav-btn" onclick="goTo(2)">📈 Блок 3<br><small>Графики</small></button>
+    <button class="nav-btn" onclick="goTo(3)">∞ Блок 4<br><small>Граници</small></button>
+  </div>
+
+  <!-- ========== БЛОК 1: ТРИГОНОМЕТРИЯ ========== -->
+  <div class="section active" id="sec0">
+    <div class="section-header">
+      <div class="section-icon yellow">📐</div>
+      <div class="section-meta">
+        <h2>Тригонометрична таблица</h2>
+        <p>Основата на всичко — учи наизуст</p>
+      </div>
+      <div class="time-chip">⏱ ~1.5 ч</div>
+    </div>
+
+    <div class="card yellow">
+      <div class="card-title">📖 Таблицата</div>
+      <div class="card-subtitle">Тези стойности трябва да знаеш без мислене</div>
+
+      <table class="trig-table">
+        <tr>
+          <th>Функция</th>
+          <th>0°&nbsp;(0)</th>
+          <th>30°&nbsp;(π/6)</th>
+          <th>45°&nbsp;(π/4)</th>
+          <th>60°&nbsp;(π/3)</th>
+          <th>90°&nbsp;(π/2)</th>
+        </tr>
+        <tr>
+          <td><strong>sin x</strong></td>
+          <td>0</td>
+          <td>1/2</td>
+          <td>√2/2</td>
+          <td>√3/2</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td><strong>cos x</strong></td>
+          <td>1</td>
+          <td>√3/2</td>
+          <td>√2/2</td>
+          <td>1/2</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td><strong>tan x</strong></td>
+          <td>0</td>
+          <td>√3/3&nbsp;≈0.577</td>
+          <td>1</td>
+          <td>√3&nbsp;≈1.73</td>
+          <td>∞ (нма)</td>
+        </tr>
+        <tr>
+          <td><strong>cot x</strong></td>
+          <td>∞ (нма)</td>
+          <td>√3&nbsp;≈1.73</td>
+          <td>1</td>
+          <td>√3/3&nbsp;≈0.577</td>
+          <td>0</td>
+        </tr>
+      </table>
+
+      <div class="info-box yellow">
+        <span class="info-icon">💡</span>
+        <strong>Трик за sin:</strong> стойностите са √0/2, √1/2, √2/2, √3/2, √4/2 = 0, 1/2, √2/2, √3/2, 1. За cos — обратно!
+      </div>
+    </div>
+
+    <div class="card teal">
+      <div class="card-title">📝 Важни идентичности</div>
+      <div class="card-subtitle">Тези формули се ползват много на тест</div>
+
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num">①</div>
+          <div class="step-content">
+            <div class="step-title">Питагорова идентичност</div>
+            <div class="formula">sin²x + cos²x = 1</div>
+            <div class="step-body">От тук: <code>sin²x = 1 - cos²x</code> и <code>cos²x = 1 - sin²x</code></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">②</div>
+          <div class="step-content">
+            <div class="step-title">Тангенс и котангенс</div>
+            <div class="formula">tan x = sin x / cos x &nbsp;&nbsp; cot x = cos x / sin x</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">③</div>
+          <div class="step-content">
+            <div class="step-title">Граничните случаи</div>
+            <div class="step-body"><code>sin 0 = 0</code>, <code>cos 0 = 1</code>, <code>sin(π/2) = 1</code>, <code>cos(π/2) = 0</code></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">④</div>
+          <div class="step-content">
+            <div class="step-title">Отрицателни ъгли</div>
+            <div class="formula">sin(-x) = -sin(x) &nbsp;&nbsp; cos(-x) = cos(x)</div>
+            <div class="step-body">sin е <strong>нечетна</strong>, cos е <strong>четна</strong> функция!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title">🧠 Тест — Попълни таблицата</div>
+      <div class="card-subtitle">Въведи стойностите и провери сам. Прави го 3 пъти!</div>
+
+      <div class="quiz-grid" id="quizGrid">
+        <div class="quiz-cell header"></div>
+        <div class="quiz-cell header">0°</div>
+        <div class="quiz-cell header">30°</div>
+        <div class="quiz-cell header">45°</div>
+        <div class="quiz-cell header">60°</div>
+        <div class="quiz-cell header">90°</div>
+        <!-- sin row -->
+        <div class="quiz-cell row-header">sin</div>
+        <div class="quiz-cell"><input type="text" id="q0" placeholder="?"></div>
+        <div class="quiz-cell"><input type="text" id="q1" placeholder="?"></div>
+        <div class="quiz-cell"><input type="text" id="q2" placeholder="?"></div>
+        <div class="quiz-cell"><input type="text" id="q3" placeholder="?"></div>
+        <div class="quiz-cell"><input type="text" id="q4" placeholder="?"></div>
+        <!-- cos row -->
+        <div class="quiz-cell row-header">cos</div>
+        <div class="quiz-cell"><input type="text" id="q5" placeholder="?"></div>
+        <div class="quiz-cell"><input type="text" id="q6" placeholder="?"></div>
+        <div class="quiz-cell"><input type="text" id="q7" placeholder="?"></div>
+        <div class="quiz-cell"><input type="text" id="q8" placeholder="?"></div>
+        <div class="quiz-cell"><input type="text" id="q9" placeholder="?"></div>
+        <!-- tan row -->
+        <div class="quiz-cell row-header">tan</div>
+        <div class="quiz-cell"><input type="text" id="q10" placeholder="?"></div>
+        <div class="quiz-cell"><input type="text" id="q11" placeholder="?"></div>
+        <div class="quiz-cell"><input type="text" id="q12" placeholder="?"></div>
+        <div class="quiz-cell"><input type="text" id="q13" placeholder="?"></div>
+        <div class="quiz-cell"><input type="text" id="q14" placeholder="?"></div>
+      </div>
+
+      <div class="quiz-actions">
+        <button class="btn-small btn-check" onclick="checkQuiz()">✓ Провери</button>
+        <button class="btn-small btn-reset" onclick="resetQuiz()">↺ Изчисти</button>
+        <button class="btn-small btn-show" onclick="showAnswers()">👁 Покажи</button>
+      </div>
+      <div id="quiz-result"></div>
+    </div>
+
+    <div class="nav-actions">
+      <div></div>
+      <button class="btn btn-primary" onclick="nextSection()">Блок 2: Допустими стойности →</button>
+    </div>
+  </div>
+
+  <!-- ========== БЛОК 2: ДОПУСТИМИ СТОЙНОСТИ ========== -->
+  <div class="section" id="sec1">
+    <div class="section-header">
+      <div class="section-icon teal">🔢</div>
+      <div class="section-meta">
+        <h2>Допустими стойности (Domain)</h2>
+        <p>Кога функцията е дефинирана?</p>
+      </div>
+      <div class="time-chip">⏱ ~1 ч</div>
+    </div>
+
+    <div class="card teal">
+      <div class="card-title">📋 Правилата — Наизуст!</div>
+      <div class="card-subtitle">Три основни ограничения</div>
+
+      <div class="rule-grid">
+        <div class="rule-item">
+          <div class="rule-type">📌 ДРОБ</div>
+          <div class="rule-desc">Знаменателят <span>≠ 0</span><br><br>Намираш кога = 0 и изключваш тези x-ове</div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-type">📌 КОРЕН (четен)</div>
+          <div class="rule-desc">Изразът под корена <span>≥ 0</span><br><br>Решаваш неравенство: изразът ≥ 0</div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-type">📌 ЛОГАРИТЪМ</div>
+          <div class="rule-desc">Аргументът <span>> 0</span><br><br>Решаваш неравенство: изразът > 0</div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-type">📌 КОМБИНАЦИЯ</div>
+          <div class="rule-desc">Прилагаш <span>всички</span> правила и намираш пресечението им</div>
+        </div>
+      </div>
+
+      <div class="info-box red">
+        <span class="info-icon">⚠️</span>
+        <strong>Важно:</strong> Когато нямаш нито корен, нито дроб, нито логаритъм — D(f) = ℝ (всички реални числа)!
+      </div>
+    </div>
+
+    <div class="card yellow">
+      <div class="card-title">📘 Примери стъпка по стъпка</div>
+
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num">Ex1</div>
+          <div class="step-content">
+            <div class="step-title">f(x) = √(x − 3)</div>
+            <div class="step-body">
+              Корен → изразът ≥ 0<br>
+              <code>x − 3 ≥ 0</code><br>
+              <code>x ≥ 3</code><br>
+              <strong>D(f) = [3, +∞)</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">Ex2</div>
+          <div class="step-content">
+            <div class="step-title">f(x) = 1 / (x² − 4)</div>
+            <div class="step-body">
+              Дроб → знаменател ≠ 0<br>
+              <code>x² − 4 = 0 → x² = 4 → x = ±2</code><br>
+              Изключваме x = 2 и x = −2<br>
+              <strong>D(f) = ℝ \ {−2, 2}</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">Ex3</div>
+          <div class="step-content">
+            <div class="step-title">f(x) = log(2x + 1)</div>
+            <div class="step-body">
+              Логаритъм → аргументът > 0<br>
+              <code>2x + 1 > 0</code><br>
+              <code>2x > −1</code><br>
+              <code>x > −1/2</code><br>
+              <strong>D(f) = (−1/2, +∞)</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">Ex4</div>
+          <div class="step-content">
+            <div class="step-title">f(x) = √(x² − 9)</div>
+            <div class="step-body">
+              Корен → x² − 9 ≥ 0<br>
+              <code>x² ≥ 9 → |x| ≥ 3</code><br>
+              Значи: x ≤ −3 или x ≥ 3<br>
+              <strong>D(f) = (−∞, −3] ∪ [3, +∞)</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">Ex5</div>
+          <div class="step-content">
+            <div class="step-title">f(x) = √(x − 1) / (x − 3) &nbsp; [комбинирана!]</div>
+            <div class="step-body">
+              Корен: <code>x − 1 ≥ 0 → x ≥ 1</code><br>
+              Дроб: <code>x − 3 ≠ 0 → x ≠ 3</code><br>
+              Пресичаме: x ≥ 1 И x ≠ 3<br>
+              <strong>D(f) = [1, 3) ∪ (3, +∞)</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card red">
+      <div class="card-title">✏️ Задачи за практика</div>
+      <div class="card-subtitle">Кликни на задача за да видиш решението — но първо опитай сам!</div>
+
+      <div class="exercise-list">
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 01</div>
+          <div class="ex-question">f(x) = √(5 − x)</div>
+          <div class="ex-hint">💡 Каква е условието за корен?</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Корен → изразът под корена ≥ 0<br>
+            <code>5 − x ≥ 0</code><br>
+            <code>−x ≥ −5</code><br>
+            <code>x ≤ 5</code> (знакът се обръща при деление с −1!)<br><br>
+            <strong>D(f) = (−∞, 5]</strong>
+          </div>
+        </div>
+
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 02</div>
+          <div class="ex-question">f(x) = 1 / (x² + x − 6)</div>
+          <div class="ex-hint">💡 Намери корените на знаменателя (разложи на множители)</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Дроб → знаменател ≠ 0<br>
+            <code>x² + x − 6 = 0</code><br>
+            Разлагаме: <code>(x + 3)(x − 2) = 0</code><br>
+            <code>x = −3</code> или <code>x = 2</code><br><br>
+            <strong>D(f) = ℝ \ {−3, 2}</strong>
+          </div>
+        </div>
+
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 03</div>
+          <div class="ex-question">f(x) = ln(3x − 6)</div>
+          <div class="ex-hint">💡 Логаритъмът иска аргумент > 0</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Логаритъм → аргументът > 0<br>
+            <code>3x − 6 > 0</code><br>
+            <code>3x > 6</code><br>
+            <code>x > 2</code><br><br>
+            <strong>D(f) = (2, +∞)</strong>
+          </div>
+        </div>
+
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 04</div>
+          <div class="ex-question">f(x) = √(x + 4) / (x² − 1)</div>
+          <div class="ex-hint">💡 Комбинирана — прилагаш и двете правила!</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            <strong>Условие 1 (корен):</strong> x + 4 ≥ 0 → x ≥ −4<br>
+            <strong>Условие 2 (дроб):</strong> x² − 1 ≠ 0 → x ≠ ±1<br>
+            Пресичаме x ≥ −4 с x ≠ −1 и x ≠ 1:<br><br>
+            <strong>D(f) = [−4, −1) ∪ (−1, 1) ∪ (1, +∞)</strong>
+          </div>
+        </div>
+
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 05</div>
+          <div class="ex-question">f(x) = √(4 − x²)</div>
+          <div class="ex-hint">💡 Разложи 4 − x² = (2−x)(2+x)</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Корен → 4 − x² ≥ 0<br>
+            <code>4 − x² ≥ 0 → x² ≤ 4 → |x| ≤ 2</code><br>
+            Значи: −2 ≤ x ≤ 2<br><br>
+            <strong>D(f) = [−2, 2]</strong>
+          </div>
+        </div>
+
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 06</div>
+          <div class="ex-question">f(x) = log₂(x² − 3x + 2)</div>
+          <div class="ex-hint">💡 Разложи x² − 3x + 2 и намери кога > 0</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Логаритъм → x² − 3x + 2 > 0<br>
+            Разлагаме: <code>(x − 1)(x − 2) > 0</code><br>
+            Произведението > 0 когато двата множителя имат еднакъв знак:<br>
+            • x < 1: двата отрицателни → произведение положително ✓<br>
+            • 1 < x < 2: (x−1) > 0, (x−2) < 0 → отрицателно ✗<br>
+            • x > 2: двата положителни → положително ✓<br><br>
+            <strong>D(f) = (−∞, 1) ∪ (2, +∞)</strong>
+          </div>
+        </div>
+
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 07</div>
+          <div class="ex-question">f(x) = √(x − 2) + ln(x + 1)</div>
+          <div class="ex-hint">💡 Две условия едновременно — намери пресечението!</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            <strong>Условие 1 (корен):</strong> x − 2 ≥ 0 → x ≥ 2<br>
+            <strong>Условие 2 (логаритъм):</strong> x + 1 > 0 → x > −1<br>
+            Пресичаме: x ≥ 2 И x > −1<br>
+            По-строгото условие е x ≥ 2<br><br>
+            <strong>D(f) = [2, +∞)</strong>
+          </div>
+        </div>
+
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 08</div>
+          <div class="ex-question">f(x) = 1/√(x − 5)</div>
+          <div class="ex-hint">💡 Корен в знаменател → две условия наведнъж!</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Дроб → знаменателят ≠ 0<br>
+            Корен → изразът ≥ 0, но тъй като е в знаменател → > 0 (строго!)<br>
+            <code>x − 5 > 0 → x > 5</code><br><br>
+            <strong>D(f) = (5, +∞)</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Блок 1</button>
+      <button class="btn btn-primary" onclick="nextSection()">Блок 3: Графики →</button>
+    </div>
+  </div>
+
+  <!-- ========== БЛОК 3: ГРАФИКИ ========== -->
+  <div class="section" id="sec2">
+    <div class="section-header">
+      <div class="section-icon red">📈</div>
+      <div class="section-meta">
+        <h2>Графики на елементарни функции</h2>
+        <p>Разпознавай формата по погледа</p>
+      </div>
+      <div class="time-chip">⏱ ~1.5 ч</div>
+    </div>
+
+    <div class="card red">
+      <div class="card-title">🎨 Осемте основни графики</div>
+      <div class="card-subtitle">Нарисувани интерактивно — кликни на графика за детайли</div>
+      <div class="graph-grid" id="graphGrid"></div>
+    </div>
+
+    <div class="card yellow">
+      <div class="card-title">📝 Ключови характеристики</div>
+      <div class="card-subtitle">Запомни тези за всяка функция</div>
+
+      <div class="exercise-list">
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ФУНКЦИЯ</div>
+          <div class="ex-question">y = x² (парабола)</div>
+          <div class="reveal-hint">👆 Кликни за детайли</div>
+          <div class="ex-answer">
+            <strong>Форма:</strong> U-образна, симетрична спрямо y-оста<br>
+            <strong>Минимум:</strong> (0, 0) — върхът на параболата<br>
+            <strong>D(f) = ℝ, E(f) = [0, +∞)</strong><br>
+            <strong>Нули:</strong> x = 0<br>
+            <strong>Нарастваща</strong> за x > 0, <strong>намаляваща</strong> за x &lt; 0
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ФУНКЦИЯ</div>
+          <div class="ex-question">y = x³ (кубична)</div>
+          <div class="reveal-hint">👆 Кликни за детайли</div>
+          <div class="ex-answer">
+            <strong>Форма:</strong> S-образна, нечетна функция (симетрична спрямо началото)<br>
+            <strong>D(f) = ℝ, E(f) = ℝ</strong><br>
+            <strong>Нули:</strong> x = 0<br>
+            <strong>Нарастваща</strong> навсякъде<br>
+            <strong>Инфлексна точка:</strong> (0, 0)
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ФУНКЦИЯ</div>
+          <div class="ex-question">y = √x (корен)</div>
+          <div class="reveal-hint">👆 Кликни за детайли</div>
+          <div class="ex-answer">
+            <strong>Форма:</strong> Започва от (0,0), расте но все по-бавно<br>
+            <strong>D(f) = [0, +∞), E(f) = [0, +∞)</strong><br>
+            <strong>Нули:</strong> x = 0<br>
+            <strong>Нарастваща</strong> навсякъде, но вдлъбната (расте бавно)
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ФУНКЦИЯ</div>
+          <div class="ex-question">y = 1/x (хипербола)</div>
+          <div class="reveal-hint">👆 Кликни за детайли</div>
+          <div class="ex-answer">
+            <strong>Форма:</strong> Два клона в I и III квадрант<br>
+            <strong>D(f) = ℝ \ {0}, E(f) = ℝ \ {0}</strong><br>
+            <strong>Асимптоти:</strong> x = 0 (вертикална), y = 0 (хоризонтална)<br>
+            <strong>Нечетна функция</strong>: f(−x) = −f(x)<br>
+            <strong>Нули:</strong> няма
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ФУНКЦИЯ</div>
+          <div class="ex-question">y = eˣ (експонента)</div>
+          <div class="reveal-hint">👆 Кликни за детайли</div>
+          <div class="ex-answer">
+            <strong>Форма:</strong> Расте много бързо надясно, клони към 0 наляво<br>
+            <strong>D(f) = ℝ, E(f) = (0, +∞)</strong><br>
+            <strong>Минава през:</strong> (0, 1) — защото e⁰ = 1<br>
+            <strong>Хоризонтална асимптота:</strong> y = 0 (за x → −∞)<br>
+            <strong>Нули:</strong> няма (винаги > 0)
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ФУНКЦИЯ</div>
+          <div class="ex-question">y = ln(x) (натурален логаритъм)</div>
+          <div class="reveal-hint">👆 Кликни за детайли</div>
+          <div class="ex-answer">
+            <strong>Форма:</strong> Обратна на eˣ — отразена по y = x<br>
+            <strong>D(f) = (0, +∞), E(f) = ℝ</strong><br>
+            <strong>Минава през:</strong> (1, 0) — защото ln(1) = 0<br>
+            <strong>Вертикална асимптота:</strong> x = 0 (за x → 0⁺)<br>
+            <strong>Нули:</strong> x = 1
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ФУНКЦИЯ</div>
+          <div class="ex-question">y = sin(x)</div>
+          <div class="reveal-hint">👆 Кликни за детайли</div>
+          <div class="ex-answer">
+            <strong>Форма:</strong> Вълна, период 2π<br>
+            <strong>D(f) = ℝ, E(f) = [−1, 1]</strong><br>
+            <strong>Нули:</strong> x = kπ (k целое число)<br>
+            <strong>Максимум 1</strong> при x = π/2 + 2kπ<br>
+            <strong>Минимум −1</strong> при x = −π/2 + 2kπ<br>
+            <strong>Нечетна функция:</strong> sin(−x) = −sin(x)
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ФУНКЦИЯ</div>
+          <div class="ex-question">y = cos(x)</div>
+          <div class="reveal-hint">👆 Кликни за детайли</div>
+          <div class="ex-answer">
+            <strong>Форма:</strong> Вълна, период 2π, изместена с π/2 спрямо sin<br>
+            <strong>D(f) = ℝ, E(f) = [−1, 1]</strong><br>
+            <strong>Нули:</strong> x = π/2 + kπ<br>
+            <strong>Максимум 1</strong> при x = 2kπ (включително x = 0)<br>
+            <strong>Минимум −1</strong> при x = π + 2kπ<br>
+            <strong>Четна функция:</strong> cos(−x) = cos(x)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box yellow">
+      <span class="info-icon">✏️</span>
+      <strong>Упражнение:</strong> Затвори браузъра и нарисувай на лист хартия всичките 8 графики. Отбележи нули, максимуми, минимуми и асимптоти. Провери после!
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Блок 2</button>
+      <button class="btn btn-primary" onclick="nextSection()">Блок 4: Граници →</button>
+    </div>
+  </div>
+
+  <!-- ========== БЛОК 4: ГРАНИЦИ ========== -->
+  <div class="section" id="sec3">
+    <div class="section-header">
+      <div class="section-icon purple">∞</div>
+      <div class="section-meta">
+        <h2>Въведение в граници</h2>
+        <p>Концепцията + базовите случаи</p>
+      </div>
+      <div class="time-chip">⏱ ~1 ч</div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title">💡 Какво е граница?</div>
+      <div class="card-subtitle">Разбери интуицията преди формулите</div>
+
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num">?</div>
+          <div class="step-content">
+            <div class="step-title">Идеята</div>
+            <div class="step-body">
+              lim(x→a) f(x) = L означава: <em>Когато x се приближава към a (но не е равно на a), f(x) се приближава към L.</em><br><br>
+              Важно: <strong>x никога не достига a</strong> — само се приближава!
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Пример интуитивно</div>
+            <div class="step-body">
+              f(x) = x² при x → 3<br>
+              x = 2.9 → f = 8.41<br>
+              x = 2.99 → f = 8.9401<br>
+              x = 2.999 → f = 8.994001<br>
+              → приближава се към <strong>9</strong><br>
+              Значи: lim(x→3) x² = 9
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card yellow">
+      <div class="card-title">📋 Основни правила за граници</div>
+      <div class="card-subtitle">Тези работят ако граничните стойности съществуват</div>
+
+      <div class="formula">lim(x→a) c = c &nbsp;&nbsp;&nbsp;&nbsp; (граница на константа = константата)</div>
+      <div class="formula">lim(x→a) x = a &nbsp;&nbsp;&nbsp;&nbsp; (граница на x = точката)</div>
+      <div class="formula">lim(x→a) [f(x) ± g(x)] = lim f(x) ± lim g(x)</div>
+      <div class="formula">lim(x→a) [f(x) · g(x)] = lim f(x) · lim g(x)</div>
+      <div class="formula">lim(x→a) f(x)/g(x) = lim f(x) / lim g(x) &nbsp;&nbsp; [само ако знаменателят ≠ 0!]</div>
+
+      <div class="info-box yellow" style="margin-top:16px">
+        <span class="info-icon">💡</span>
+        <strong>Директно заместване:</strong> Ако след заместване на x с a не получаваш 0/0, ∞/∞ или 0·∞ — просто замести и готово!
+      </div>
+    </div>
+
+    <div class="card teal">
+      <div class="card-title">⚠️ Неопределени форми</div>
+      <div class="card-subtitle">Кога директното заместване НЕ работи</div>
+
+      <div class="limit-types">
+        <div class="limit-type">
+          <div class="sym">0/0</div>
+          <div class="desc">Нула разделена на нула — трябва факторизация или съкращение</div>
+        </div>
+        <div class="limit-type">
+          <div class="sym">∞/∞</div>
+          <div class="desc">Безкрайност върху безкрайност — деление по най-висока степен</div>
+        </div>
+        <div class="limit-type">
+          <div class="sym">0 · ∞</div>
+          <div class="desc">Нула по безкрайност — преобразуваш в дроб</div>
+        </div>
+        <div class="limit-type">
+          <div class="sym">∞ − ∞</div>
+          <div class="desc">Разлика от безкрайности — умножение по спрегнато</div>
+        </div>
+        <div class="limit-type">
+          <div class="sym">1<sup>∞</sup></div>
+          <div class="desc">Единица на степен безкрайност — свежда се до числото e</div>
+        </div>
+      </div>
+
+      <div class="info-box red">
+        <span class="info-icon">⚠️</span>
+        <strong>Ако получиш неопределена форма</strong> — СПРИ! Не пиши резултата, а приложи техника (ще учим утре детайлно).
+      </div>
+    </div>
+
+    <div class="card red">
+      <div class="card-title">✏️ Задачи — Директно заместване</div>
+      <div class="card-subtitle">Първо проверявай дали не получаваш неопределена форма!</div>
+
+      <div class="exercise-list">
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 01 — Лесна</div>
+          <div class="ex-question">lim(x→3) (x² + 2x − 1)</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Директно заместване: няма дроб, корен проблем.<br>
+            x = 3: <code>3² + 2·3 − 1 = 9 + 6 − 1 = 14</code><br><br>
+            <strong>Отговор: 14</strong>
+          </div>
+        </div>
+
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 02 — Лесна</div>
+          <div class="ex-question">lim(x→2) (x³ − 3x + 1)</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Директно заместване:<br>
+            x = 2: <code>2³ − 3·2 + 1 = 8 − 6 + 1 = 3</code><br><br>
+            <strong>Отговор: 3</strong>
+          </div>
+        </div>
+
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 03 — Дроб без проблем</div>
+          <div class="ex-question">lim(x→1) (x + 5) / (x + 2)</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Проверяваме знаменателя при x = 1: <code>1 + 2 = 3 ≠ 0</code> ✓<br>
+            Директно заместване:<br>
+            <code>(1 + 5) / (1 + 2) = 6/3 = 2</code><br><br>
+            <strong>Отговор: 2</strong>
+          </div>
+        </div>
+
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 04 — Неопределена форма!</div>
+          <div class="ex-question">lim(x→2) (x² − 4) / (x − 2)</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            Опитваме директно при x = 2: <code>(4 − 4)/(2 − 2) = 0/0</code> ⚠️ Неопределена форма!<br><br>
+            Факторизираме числителя:<br>
+            <code>x² − 4 = (x − 2)(x + 2)</code><br>
+            <code>lim (x−2)(x+2)/(x−2) = lim (x+2)</code> (съкращаваме x−2)<br>
+            При x → 2: <code>2 + 2 = 4</code><br><br>
+            <strong>Отговор: 4</strong>
+          </div>
+        </div>
+
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 05 — Неопределена форма!</div>
+          <div class="ex-question">lim(x→3) (x² − 9) / (x − 3)</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            При x = 3: <code>(9 − 9)/(3 − 3) = 0/0</code> ⚠️<br><br>
+            Факторизираме:<br>
+            <code>x² − 9 = (x − 3)(x + 3)</code><br>
+            <code>lim (x−3)(x+3)/(x−3) = lim (x+3)</code><br>
+            При x → 3: <code>3 + 3 = 6</code><br><br>
+            <strong>Отговор: 6</strong>
+          </div>
+        </div>
+
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 06 — Граница при безкрайност</div>
+          <div class="ex-question">lim(x→∞) (3x + 1) / (x − 2)</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            При x → ∞: горе и долу → ∞, форма ∞/∞ ⚠️<br><br>
+            Делим горе и долу по x (най-висока степен):<br>
+            <code>(3x/x + 1/x) / (x/x − 2/x) = (3 + 1/x) / (1 − 2/x)</code><br>
+            При x → ∞: 1/x → 0<br>
+            <code>= (3 + 0) / (1 − 0) = 3/1 = 3</code><br><br>
+            <strong>Отговор: 3</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title">🌟 Обобщение на Ден 1</div>
+      <div class="card-subtitle">Провери дали си усвоил всичко</div>
+
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num">✓</div>
+          <div class="step-content">
+            <div class="step-title">Тригонометрична таблица</div>
+            <div class="step-body">Знаеш ли sin, cos, tan за 0°, 30°, 45°, 60°, 90°?</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">✓</div>
+          <div class="step-content">
+            <div class="step-title">Допустими стойности</div>
+            <div class="step-body">Знаеш ли трите правила (дроб, корен, логаритъм)?</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">✓</div>
+          <div class="step-content">
+            <div class="step-title">Графики</div>
+            <div class="step-body">Можеш ли да нарисуваш 8-те основни функции от памет?</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">✓</div>
+          <div class="step-content">
+            <div class="step-title">Граници</div>
+            <div class="step-body">Разпознаваш ли кога можеш да заместваш директно и кога не?</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-box yellow" style="margin-top: 20px">
+        <span class="info-icon">🌙</span>
+        <strong>Преди сън:</strong> Попълни тригонометричната таблица още веднъж от памет. Утре — Ден 2: всички техники за граници!
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Блок 3</button>
+      <button class="btn btn-primary" onclick="goTo(0)">↩ Начало</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ---- Navigation ----
+  let current = 0;
+  const totalSections = 4;
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const sections = document.querySelectorAll('.section');
+
+  function goTo(idx) {
+    sections[current].classList.remove('active');
+    navBtns[current].classList.remove('active');
+    current = idx;
+    sections[current].classList.add('active');
+    navBtns[current].classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    resetTimer();
+  }
+
+  function nextSection() { if (current < totalSections - 1) { navBtns[current].classList.add('done'); goTo(current + 1); } }
+  function prevSection() { if (current > 0) goTo(current - 1); }
+
+  // ---- Exercise toggle ----
+  function toggleEx(el) { el.classList.toggle('revealed'); }
+
+  // ---- Trig Quiz ----
+  const answers = [
+    '0', '1/2', '√2/2', '√3/2', '1',   // sin
+    '1', '√3/2', '√2/2', '1/2', '0',   // cos
+    '0', '√3/3', '1', '√3', '∞'         // tan
+  ];
+
+  const acceptableAnswers = [
+    ['0'],
+    ['1/2', '0.5'],
+    ['√2/2', 'sqrt(2)/2', '√2/2≈0.71', '0.707'],
+    ['√3/2', 'sqrt(3)/2', '0.866'],
+    ['1'],
+    ['1'],
+    ['√3/2', 'sqrt(3)/2', '0.866'],
+    ['√2/2', 'sqrt(2)/2', '0.707'],
+    ['1/2', '0.5'],
+    ['0'],
+    ['0'],
+    ['√3/3', 'sqrt(3)/3', '1/√3', '1/sqrt(3)', '0.577'],
+    ['1'],
+    ['√3', 'sqrt(3)', '1.73'],
+    ['∞', 'няма', 'nqma', 'undefined', '∞ (нма)']
+  ];
+
+  function checkQuiz() {
+    let correct = 0;
+    const cells = document.querySelectorAll('#quizGrid .quiz-cell:not(.header):not(.row-header)');
+    cells.forEach((cell, i) => {
+      const input = cell.querySelector('input');
+      if (!input) return;
+      const val = input.value.trim().toLowerCase().replace(/\s/g, '');
+      const expected = acceptableAnswers[i].map(a => a.toLowerCase().replace(/\s/g, ''));
+      if (expected.includes(val)) {
+        cell.classList.add('correct'); cell.classList.remove('wrong'); correct++;
+      } else if (val) {
+        cell.classList.add('wrong'); cell.classList.remove('correct');
+      }
+    });
+    const res = document.getElementById('quiz-result');
+    const total = 15;
+    res.style.color = correct === total ? '#34d399' : correct >= 10 ? '#f0c040' : '#f87171';
+    res.textContent = `Резултат: ${correct}/${total} — ${correct === total ? '🎉 Отлично!' : correct >= 10 ? '👍 Добре, повтори грешките!' : '📚 Учи още малко!'}`;
+  }
+
+  function resetQuiz() {
+    document.querySelectorAll('#quizGrid input').forEach(i => { i.value = ''; });
+    document.querySelectorAll('#quizGrid .quiz-cell').forEach(c => {
+      c.classList.remove('correct', 'wrong');
+    });
+    document.getElementById('quiz-result').textContent = '';
+  }
+
+  function showAnswers() {
+    const inputs = document.querySelectorAll('#quizGrid input');
+    inputs.forEach((inp, i) => { inp.value = answers[i]; });
+    document.querySelectorAll('#quizGrid .quiz-cell:not(.header):not(.row-header)').forEach(c => {
+      c.classList.add('correct'); c.classList.remove('wrong');
+    });
+    document.getElementById('quiz-result').style.color = '#34d399';
+    document.getElementById('quiz-result').textContent = 'Показани верни отговори — затвори и попълни от памет!';
+  }
+
+  // ---- Draw graphs ----
+  const graphDefs = [
+    { label: 'y = x²', color: '#f0c040', draw: (ctx, w, h, cx, cy, sc) => {
+      ctx.beginPath();
+      for (let x = -cx/sc; x <= cx/sc; x += 0.05) {
+        const px = cx + x*sc, py = cy - x*x*sc*0.4;
+        x === Math.ceil(-cx/sc) ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+      }
+      ctx.stroke();
+    }},
+    { label: 'y = x³', color: '#4ecdc4', draw: (ctx, w, h, cx, cy, sc) => {
+      ctx.beginPath();
+      for (let x = -cx/sc; x <= cx/sc; x += 0.05) {
+        const px = cx + x*sc, py = cy - x*x*x*sc*0.1;
+        x === Math.ceil(-cx/sc) ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+      }
+      ctx.stroke();
+    }},
+    { label: 'y = √x', color: '#a78bfa', draw: (ctx, w, h, cx, cy, sc) => {
+      ctx.beginPath();
+      let first = true;
+      for (let x = 0; x <= cx/sc; x += 0.05) {
+        const px = cx + x*sc, py = cy - Math.sqrt(x)*sc*0.7;
+        first ? ctx.moveTo(px,py) : ctx.lineTo(px,py); first = false;
+      }
+      ctx.stroke();
+    }},
+    { label: 'y = 1/x', color: '#ff6b6b', draw: (ctx, w, h, cx, cy, sc) => {
+      ctx.beginPath(); let first = true;
+      for (let x = 0.15; x <= cx/sc; x += 0.05) {
+        const py = cy - (1/x)*sc*0.5;
+        if (py > -20 && py < h+20) { first ? ctx.moveTo(cx+x*sc,py) : ctx.lineTo(cx+x*sc,py); first = false; }
+        else first = true;
+      }
+      ctx.stroke();
+      ctx.beginPath(); first = true;
+      for (let x = -cx/sc; x <= -0.15; x += 0.05) {
+        const py = cy - (1/x)*sc*0.5;
+        if (py > -20 && py < h+20) { first ? ctx.moveTo(cx+x*sc,py) : ctx.lineTo(cx+x*sc,py); first = false; }
+        else first = true;
+      }
+      ctx.stroke();
+    }},
+    { label: 'y = eˣ', color: '#f0c040', draw: (ctx, w, h, cx, cy, sc) => {
+      ctx.beginPath(); let first = true;
+      for (let x = -cx/sc; x <= cx/sc; x += 0.05) {
+        const py = cy - Math.exp(x)*sc*0.25;
+        if (py > -20 && py < h+20) { first ? ctx.moveTo(cx+x*sc,py) : ctx.lineTo(cx+x*sc,py); first = false; }
+        else first = true;
+      }
+      ctx.stroke();
+    }},
+    { label: 'y = ln(x)', color: '#4ecdc4', draw: (ctx, w, h, cx, cy, sc) => {
+      ctx.beginPath(); let first = true;
+      for (let x = 0.05; x <= cx/sc; x += 0.05) {
+        const py = cy - Math.log(x)*sc*0.5;
+        if (py > -20 && py < h+20) { first ? ctx.moveTo(cx+x*sc,py) : ctx.lineTo(cx+x*sc,py); first = false; }
+        else first = true;
+      }
+      ctx.stroke();
+    }},
+    { label: 'y = sin(x)', color: '#ff6b6b', draw: (ctx, w, h, cx, cy, sc) => {
+      ctx.beginPath();
+      for (let x = -cx/sc; x <= cx/sc; x += 0.05) {
+        const py = cy - Math.sin(x)*sc*0.6;
+        x === Math.ceil(-cx/sc) ? ctx.moveTo(cx+x*sc,py) : ctx.lineTo(cx+x*sc,py);
+      }
+      ctx.stroke();
+    }},
+    { label: 'y = cos(x)', color: '#a78bfa', draw: (ctx, w, h, cx, cy, sc) => {
+      ctx.beginPath();
+      for (let x = -cx/sc; x <= cx/sc; x += 0.05) {
+        const py = cy - Math.cos(x)*sc*0.6;
+        x === Math.ceil(-cx/sc) ? ctx.moveTo(cx+x*sc,py) : ctx.lineTo(cx+x*sc,py);
+      }
+      ctx.stroke();
+    }},
+  ];
+
+  function drawGraph(canvas, def) {
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    const cx = w/2, cy = h/2, sc = 30;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Background
+    ctx.fillStyle = '#13161e';
+    ctx.fillRect(0, 0, w, h);
+
+    // Grid
+    ctx.strokeStyle = '#252a38';
+    ctx.lineWidth = 0.5;
+    for (let i = -5; i <= 5; i++) {
+      ctx.beginPath(); ctx.moveTo(cx + i*sc, 0); ctx.lineTo(cx + i*sc, h); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, cy + i*sc); ctx.lineTo(w, cy + i*sc); ctx.stroke();
+    }
+
+    // Axes
+    ctx.strokeStyle = '#6b7280';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke();
+
+    // Origin
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '9px JetBrains Mono';
+    ctx.fillText('0', cx+3, cy+10);
+
+    // Curve
+    ctx.strokeStyle = def.color;
+    ctx.lineWidth = 2;
+    ctx.shadowColor = def.color;
+    ctx.shadowBlur = 8;
+    def.draw(ctx, w, h, cx, cy, sc);
+    ctx.shadowBlur = 0;
+  }
+
+  function buildGraphGrid() {
+    const grid = document.getElementById('graphGrid');
+    graphDefs.forEach(def => {
+      const card = document.createElement('div');
+      card.className = 'graph-card';
+      const canvas = document.createElement('canvas');
+      canvas.width = 180; canvas.height = 130;
+      card.appendChild(canvas);
+      const label = document.createElement('div');
+      label.className = 'graph-label';
+      label.textContent = def.label;
+      card.appendChild(label);
+      grid.appendChild(card);
+      setTimeout(() => drawGraph(canvas, def), 100);
+    });
+  }
+
+  buildGraphGrid();
+
+  // ---- Timer ----
+  let timerDuration = 90 * 60;
+  let timerRemaining = timerDuration;
+  let timerInterval = null;
+  let timerRunning = false;
+
+  const blockTimes = [90*60, 60*60, 90*60, 60*60];
+
+  function resetTimer() {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    timerRemaining = blockTimes[current];
+    timerDuration = blockTimes[current];
+    document.getElementById('timerBtn').textContent = '▶ Старт';
+    updateTimerDisplay();
+  }
+
+  function toggleTimer() {
+    if (timerRunning) {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      document.getElementById('timerBtn').textContent = '▶ Продължи';
+    } else {
+      timerRunning = true;
+      document.getElementById('timerBtn').textContent = '⏸ Пауза';
+      timerInterval = setInterval(() => {
+        if (timerRemaining > 0) {
+          timerRemaining--;
+          updateTimerDisplay();
+        } else {
+          clearInterval(timerInterval);
+          timerRunning = false;
+          document.getElementById('timerBtn').textContent = '✓ Готово!';
+        }
+      }, 1000);
+    }
+  }
+
+  function updateTimerDisplay() {
+    const h = Math.floor(timerRemaining / 3600);
+    const m = Math.floor((timerRemaining % 3600) / 60);
+    const s = timerRemaining % 60;
+    const display = h > 0
+      ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+      : `${m}:${String(s).padStart(2,'0')}`;
+    document.getElementById('timerVal').textContent = display;
+    const pct = (timerRemaining / timerDuration) * 100;
+    document.getElementById('timerFill').style.width = pct + '%';
+    document.getElementById('timerFill').style.background =
+      pct > 50 ? 'linear-gradient(90deg, #f0c040, #4ecdc4)' :
+      pct > 20 ? 'linear-gradient(90deg, #f0c040, #ff6b6b)' : '#f87171';
+  }
+
+  updateTimerDisplay();
+</script>
+</body>
+</html>

@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ден 3 — Изследване на функция</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+  :root{
+    --bg:#0d0a08;--surface:#151210;--surface2:#1e1a14;
+    --border:#2e2518;--accent:#f59e0b;--accent2:#ef4444;
+    --accent3:#10b981;--accent4:#3b82f6;
+    --text:#faf5eb;--muted:#78654a;
+    --correct:#10b981;--wrong:#ef4444;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(245,158,11,0.06) 0%,transparent 60%),
+               radial-gradient(ellipse 50% 40% at 80% 80%,rgba(16,185,129,0.04) 0%,transparent 60%);}
+  .container{max-width:900px;margin:0 auto;padding:40px 24px;position:relative;z-index:1;}
+  .header{text-align:center;margin-bottom:50px;animation:fadeDown 0.7s ease;}
+  .day-badge{display:inline-block;background:linear-gradient(135deg,var(--accent),#d97706);color:#000;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:3px;padding:6px 18px;border-radius:20px;margin-bottom:18px;text-transform:uppercase;}
+  h1{font-family:'Playfair Display',serif;font-size:clamp(30px,6vw,52px);font-weight:900;line-height:1.1;background:linear-gradient(135deg,var(--text) 0%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px;}
+  .subtitle{color:var(--muted);font-size:15px;font-weight:300;}
+  .progress-nav{display:flex;gap:8px;margin-bottom:36px;flex-wrap:wrap;animation:fadeUp 0.6s ease 0.2s both;}
+  .nav-btn{flex:1;min-width:120px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;text-align:center;}
+  .nav-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .nav-btn.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+  .nav-btn.done{border-color:var(--correct);color:var(--correct);}
+  .section{display:none;animation:fadeUp 0.4s ease;}
+  .section.active{display:block;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:26px;margin-bottom:18px;position:relative;overflow:hidden;}
+  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+  .card.amber::before{background:linear-gradient(90deg,var(--accent),transparent);}
+  .card.red::before{background:linear-gradient(90deg,var(--accent2),transparent);}
+  .card.green::before{background:linear-gradient(90deg,var(--accent3),transparent);}
+  .card.blue::before{background:linear-gradient(90deg,var(--accent4),transparent);}
+  .card-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+  .card-subtitle{color:var(--muted);font-size:13px;margin-bottom:18px;}
+  .formula{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:13px 17px;font-family:'JetBrains Mono',monospace;font-size:14px;color:#fcd34d;margin:10px 0;line-height:1.7;}
+  .formula.red{border-left-color:var(--accent2);color:#fca5a5;}
+  .formula.green{border-left-color:var(--accent3);color:#6ee7b7;}
+  .formula.blue{border-left-color:var(--accent4);color:#93c5fd;}
+  .algo-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;margin:14px 0;}
+  .algo-table th{background:var(--surface2);padding:10px 14px;text-align:left;color:var(--accent);font-weight:600;font-size:12px;letter-spacing:1px;}
+  .algo-table td{padding:11px 14px;border-top:1px solid var(--border);vertical-align:top;}
+  .algo-table tr:hover td{background:var(--surface2);}
+  .algo-table td:first-child{font-family:'JetBrains Mono',monospace;color:var(--accent);font-weight:700;white-space:nowrap;width:40px;}
+  .algo-table td:nth-child(2){font-weight:600;color:var(--text);width:220px;}
+  .algo-table td:last-child{color:var(--muted);font-size:13px;}
+  .step-list{display:flex;flex-direction:column;gap:10px;margin:14px 0;}
+  .step{display:flex;gap:14px;align-items:flex-start;}
+  .step-num{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#000;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+  .step-num.red{background:var(--accent2);color:#fff;}
+  .step-num.green{background:var(--accent3);color:#000;}
+  .step-num.blue{background:var(--accent4);color:#fff;}
+  .step-content{flex:1;}
+  .step-title{font-weight:600;font-size:15px;margin-bottom:4px;}
+  .step-body{font-size:14px;color:var(--muted);line-height:1.6;}
+  .step-body code{font-family:'JetBrains Mono',monospace;background:var(--surface2);padding:2px 6px;border-radius:4px;color:#93c5fd;font-size:13px;}
+  .step-body strong{color:var(--text);}
+  .exercise-list{display:flex;flex-direction:column;gap:12px;margin:14px 0;}
+  .exercise{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:17px;cursor:pointer;transition:all 0.2s;}
+  .exercise:hover{border-color:var(--accent);}
+  .exercise.revealed{border-color:var(--correct);}
+  .ex-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;margin-bottom:5px;}
+  .ex-question{font-family:'JetBrains Mono',monospace;font-size:17px;color:var(--text);margin-bottom:8px;}
+  .ex-hint{font-size:13px;color:var(--accent);margin-bottom:8px;}
+  .ex-answer{display:none;padding:14px;background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);border-radius:8px;font-size:14px;line-height:1.9;}
+  .exercise.revealed .ex-answer{display:block;}
+  .ex-answer code{font-family:'JetBrains Mono',monospace;color:#93c5fd;background:var(--surface);padding:2px 6px;border-radius:4px;font-size:13px;}
+  .ex-answer strong{color:var(--correct);}
+  .reveal-hint{font-size:12px;color:var(--muted);font-style:italic;}
+  .exercise.revealed .reveal-hint{display:none;}
+  .info-box{border-radius:10px;padding:13px 17px;font-size:14px;line-height:1.6;margin:12px 0;}
+  .info-box.amber{background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);}
+  .info-box.red{background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);}
+  .info-box.green{background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);}
+  .info-box.blue{background:rgba(59,130,246,0.07);border:1px solid rgba(59,130,246,0.2);}
+  .nav-actions{display:flex;gap:12px;justify-content:space-between;margin-top:28px;}
+  .btn{padding:12px 26px;border-radius:10px;border:none;font-family:'Inter',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+  .btn-primary{background:var(--accent);color:#000;}
+  .btn-primary:hover{background:#d97706;transform:translateY(-1px);}
+  .btn-secondary{background:var(--surface);border:1px solid var(--border);color:var(--text);}
+  .btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+  .section-header{display:flex;align-items:center;gap:12px;margin-bottom:22px;}
+  .section-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+  .section-icon.amber{background:rgba(245,158,11,0.12);}
+  .section-icon.red{background:rgba(239,68,68,0.12);}
+  .section-icon.green{background:rgba(16,185,129,0.12);}
+  .section-icon.blue{background:rgba(59,130,246,0.12);}
+  .section-meta{flex:1;}
+  .section-meta h2{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;}
+  .section-meta p{font-size:13px;color:var(--muted);margin-top:2px;}
+  .time-chip{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+  .sign-row{display:flex;align-items:center;gap:0;margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:13px;flex-wrap:wrap;}
+  .sign-cell{padding:8px 12px;background:var(--surface2);border:1px solid var(--border);text-align:center;min-width:60px;}
+  .sign-cell.header{color:var(--accent);font-weight:600;}
+  .sign-cell.pos{color:var(--correct);}
+  .sign-cell.neg{color:var(--accent2);}
+  .sign-cell.zero{color:var(--accent);}
+  hr{border:none;border-top:1px solid var(--border);margin:18px 0;}
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="day-badge">📅 ДЕН 3</div>
+    <h1>Изследване на функция</h1>
+    <p class="subtitle">Алгоритъм · Асимптоти · Екстремуми · Инфлексни точки · Два пълни примера</p>
+  </div>
+
+  <div class="progress-nav">
+    <button class="nav-btn active" onclick="goTo(0)">📋 Алгоритъм<br><small>14 стъпки</small></button>
+    <button class="nav-btn" onclick="goTo(1)">📐 Асимптоти<br><small>3 вида</small></button>
+    <button class="nav-btn" onclick="goTo(2)">📈 Пример 1<br><small>рационална</small></button>
+    <button class="nav-btn" onclick="goTo(3)">📉 Пример 2<br><small>с корен/exp</small></button>
+    <button class="nav-btn" onclick="goTo(4)">✏️ Задачи<br><small>практика</small></button>
+  </div>
+
+  <!-- БЛОК 1: АЛГОРИТЪМ -->
+  <div class="section active" id="sec0">
+    <div class="section-header">
+      <div class="section-icon amber">📋</div>
+      <div class="section-meta"><h2>Алгоритъм за пълно изследване</h2><p>Следвай стъпките механично — нищо не ще пропуснеш</p></div>
+      <div class="time-chip">⏱ ~30 мин</div>
+    </div>
+    <div class="card amber">
+      <div class="card-title">🗺️ Пълният алгоритъм — 14 стъпки</div>
+      <div class="card-subtitle">Научи ги наизуст в този ред</div>
+      <table class="algo-table">
+        <tr><th>#</th><th>Стъпка</th><th>Какво правиш</th></tr>
+        <tr><td>1</td><td>Дефиниционно множество</td><td>Намираш D(f) — кога функцията е дефинирана</td></tr>
+        <tr><td>2</td><td>Четност / Нечетност</td><td>Проверяваш f(−x): = f(x) четна, = −f(x) нечетна, иначе — нито</td></tr>
+        <tr><td>3</td><td>Нули на функцията</td><td>Решаваш f(x) = 0</td></tr>
+        <tr><td>4</td><td>Знак на функцията</td><td>Проверяваш знака в интервалите между нулите и "лошите" точки</td></tr>
+        <tr><td>5</td><td>Граници</td><td>При x→±∞ и в точките извън D(f)</td></tr>
+        <tr><td>6</td><td>Хоризонтални асимптоти</td><td>lim(x→±∞) f(x) = L → y = L е хориз. асимптота</td></tr>
+        <tr><td>7</td><td>Вертикални асимптоти</td><td>В точките x = a ∉ D(f) където |f(x)| → ∞</td></tr>
+        <tr><td>8</td><td>Наклонени асимптоти</td><td>k = lim f(x)/x; b = lim [f(x)−kx]; y = kx+b</td></tr>
+        <tr><td>9</td><td>Първа производна f'(x)</td><td>Намираш f'(x), решаваш f'(x) = 0</td></tr>
+        <tr><td>10</td><td>Нарастване/Намаляване</td><td>f' > 0 → нараства; f' < 0 → намалява</td></tr>
+        <tr><td>11</td><td>Локални екстремуми</td><td>В критичните точки: ако f' сменя знак → екстремум</td></tr>
+        <tr><td>12</td><td>Втора производна f''(x)</td><td>Намираш f''(x), решаваш f''(x) = 0</td></tr>
+        <tr><td>13</td><td>Изпъкналост/Вдлъбнатост</td><td>f'' > 0 → изпъкнала надолу (U); f'' < 0 → вдлъбната (∩)</td></tr>
+        <tr><td>14</td><td>Инфлексни точки</td><td>Там където f'' сменя знак</td></tr>
+      </table>
+      <div class="info-box amber">
+        ⚡ <strong>На теста:</strong> Имаш 10 подусловия. Следвай алгоритъма в ред и не прескачай стъпки — всяка следваща разчита на предишната!
+      </div>
+    </div>
+
+    <div class="card green">
+      <div class="card-title">🧠 Ключови правила за знаците</div>
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num">f'</div>
+          <div class="step-content">
+            <div class="step-title">Първа производна → Монотонност & Екстремуми</div>
+            <div class="step-body">
+              <strong>f' > 0</strong> → нарастваща | <strong>f' < 0</strong> → намаляваща<br>
+              Критична точка x₀: f'(x₀) = 0 или f' не съществува<br>
+              • f' сменя + → − : <strong>локален максимум</strong><br>
+              • f' сменя − → + : <strong>локален минимум</strong><br>
+              • f' не сменя знак: <strong>нито максимум, нито минимум</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num green">f''</div>
+          <div class="step-content">
+            <div class="step-title">Втора производна → Изпъкналост & Инфлексни точки</div>
+            <div class="step-body">
+              <strong>f'' > 0</strong> → изпъкнала надолу (U-форма, вдлъбната нагоре)<br>
+              <strong>f'' < 0</strong> → изпъкнала нагоре (∩-форма, вдлъбната надолу)<br>
+              <strong>Инфлексна точка:</strong> там където f'' сменя знак
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <div></div>
+      <button class="btn btn-primary" onclick="nextSection()">Асимптоти →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 2: АСИМПТОТИ -->
+  <div class="section" id="sec1">
+    <div class="section-header">
+      <div class="section-icon red">📐</div>
+      <div class="section-meta"><h2>Асимптоти</h2><p>Три вида — формули и примери</p></div>
+      <div class="time-chip">⏱ ~30 мин</div>
+    </div>
+
+    <div class="card red">
+      <div class="card-title">1️⃣ Вертикални асимптоти</div>
+      <div class="card-subtitle">x = a — вертикална права</div>
+      <div class="formula red">Вертикална асимптота x = a ако: lim(x→a⁺) f(x) = ±∞ или lim(x→a⁻) f(x) = ±∞</div>
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num red">Ex</div>
+          <div class="step-content">
+            <div class="step-body">
+              f(x) = 1/(x−2) → точката x = 2 ∉ D(f)<br>
+              <code>lim(x→2⁺) 1/(x−2) = +∞</code><br>
+              <code>lim(x→2⁻) 1/(x−2) = −∞</code><br>
+              <strong>Вертикална асимптота: x = 2</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card amber">
+      <div class="card-title">2️⃣ Хоризонтални асимптоти</div>
+      <div class="card-subtitle">y = L — хоризонтална права</div>
+      <div class="formula">Хоризонтална асимптота y = L ако: lim(x→+∞) f(x) = L или lim(x→−∞) f(x) = L</div>
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num">Ex</div>
+          <div class="step-content">
+            <div class="step-body">
+              f(x) = (2x+1)/(x−3)<br>
+              <code>lim(x→∞) (2x+1)/(x−3) = 2</code><br>
+              <strong>Хоризонтална асимптота: y = 2</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="info-box amber">
+        💡 Ако има хоризонтална асимптота с k=0, <strong>няма</strong> наклонена асимптота (и обратното)!
+      </div>
+    </div>
+
+    <div class="card blue">
+      <div class="card-title">3️⃣ Наклонени асимптоти</div>
+      <div class="card-subtitle">y = kx + b — наклонена права</div>
+      <div class="formula blue">k = lim(x→∞) f(x)/x</div>
+      <div class="formula blue">b = lim(x→∞) [f(x) − kx]</div>
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num blue">Ex</div>
+          <div class="step-content">
+            <div class="step-body">
+              f(x) = (x² + 1)/x = x + 1/x<br>
+              <code>k = lim(x²+1)/x² = 1</code><br>
+              <code>b = lim [(x²+1)/x − x] = lim 1/x = 0</code><br>
+              <strong>Наклонена асимптота: y = x</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="info-box red">
+        ⚠️ Наклонена асимптота търсиш САМО ако няма хоризонтална (k ≠ 0). Ако lim f(x)/x = 0, то асимптотата е хоризонтална y=b.
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Алгоритъм</button>
+      <button class="btn btn-primary" onclick="nextSection()">Пример 1 →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 3: ПРИМЕР 1 -->
+  <div class="section" id="sec2">
+    <div class="section-header">
+      <div class="section-icon green">📈</div>
+      <div class="section-meta"><h2>Пример 1 — Пълно изследване</h2><p>f(x) = (x² − 1) / (x² − 4)</p></div>
+      <div class="time-chip">⏱ ~45 мин</div>
+    </div>
+
+    <div class="card green">
+      <div class="card-title">f(x) = (x² − 1) / (x² − 4)</div>
+      <div class="card-subtitle">Следваме алгоритъма стъпка по стъпка</div>
+
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Дефиниционно множество</div>
+            <div class="step-body">
+              x² − 4 ≠ 0 → x ≠ ±2<br>
+              <strong>D(f) = ℝ \ {−2, 2}</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num green">2</div>
+          <div class="step-content">
+            <div class="step-title">Четност</div>
+            <div class="step-body">
+              f(−x) = ((−x)²−1)/((−x)²−4) = (x²−1)/(x²−4) = f(x)<br>
+              <strong>Четна функция! Симетрична спрямо y-оста.</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">Нули: f(x) = 0</div>
+            <div class="step-body">
+              x²−1 = 0 → x = ±1<br>
+              <strong>Нули: x = 1 и x = −1</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num green">4</div>
+          <div class="step-content">
+            <div class="step-title">Знак на функцията</div>
+            <div class="step-body">
+              Критични точки: −2, −1, 1, 2<br>
+              f(x) = (x−1)(x+1) / [(x−2)(x+2)]<br><br>
+              <div class="sign-row">
+                <div class="sign-cell header">x</div>
+                <div class="sign-cell">(-∞,-2)</div>
+                <div class="sign-cell zero">-2</div>
+                <div class="sign-cell">(-2,-1)</div>
+                <div class="sign-cell zero">-1</div>
+                <div class="sign-cell">(−1,1)</div>
+                <div class="sign-cell zero">1</div>
+                <div class="sign-cell">(1,2)</div>
+                <div class="sign-cell zero">2</div>
+                <div class="sign-cell">(2,+∞)</div>
+              </div>
+              <div class="sign-row">
+                <div class="sign-cell header">f(x)</div>
+                <div class="sign-cell pos">+</div>
+                <div class="sign-cell zero">∞</div>
+                <div class="sign-cell neg">−</div>
+                <div class="sign-cell zero">0</div>
+                <div class="sign-cell pos">+</div>
+                <div class="sign-cell zero">0</div>
+                <div class="sign-cell neg">−</div>
+                <div class="sign-cell zero">∞</div>
+                <div class="sign-cell pos">+</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <div class="step-title">Граници</div>
+            <div class="step-body">
+              <code>lim(x→∞) (x²−1)/(x²−4) = 1</code> (хориз. асимптота)<br>
+              <code>lim(x→2⁺) = +∞</code>; <code>lim(x→2⁻) = −∞</code> → x=2 верт. асимптота<br>
+              <code>lim(x→−2⁺) = −∞</code>; <code>lim(x→−2⁻) = +∞</code> → x=−2 верт. асимптота
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num green">6-8</div>
+          <div class="step-content">
+            <div class="step-title">Асимптоти</div>
+            <div class="step-body">
+              <strong>Хоризонтална:</strong> y = 1<br>
+              <strong>Вертикални:</strong> x = 2, x = −2<br>
+              <strong>Наклонена:</strong> няма (има хоризонтална)
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">9</div>
+          <div class="step-content">
+            <div class="step-title">Първа производна</div>
+            <div class="step-body">
+              f'(x) = [2x(x²−4) − (x²−1)·2x] / (x²−4)²<br>
+              = [2x³−8x − 2x³+2x] / (x²−4)²<br>
+              = <code>−6x / (x²−4)²</code><br>
+              f'(x) = 0 → x = 0<br>
+              <strong>Критична точка: x = 0</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num green">10-11</div>
+          <div class="step-content">
+            <div class="step-title">Монотонност & Екстремуми</div>
+            <div class="step-body">
+              f'(x) = −6x/(x²−4)²; знаменателят винаги > 0<br>
+              • x &lt; 0 (и x≠−2): −6x > 0 → <strong>f' > 0 → нараства</strong><br>
+              • x > 0 (и x≠2): −6x &lt; 0 → <strong>f' &lt; 0 → намалява</strong><br>
+              При x=0: f' сменя + → − → <strong>локален максимум</strong><br>
+              f(0) = (0−1)/(0−4) = 1/4<br>
+              <strong>Максимум: (0, 1/4)</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">12</div>
+          <div class="step-content">
+            <div class="step-title">Втора производна</div>
+            <div class="step-body">
+              f''(x) = [−6(x²−4)² − (−6x)·2(x²−4)·2x] / (x²−4)⁴<br>
+              = [−6(x²−4) + 24x²] / (x²−4)³<br>
+              = <code>(18x²+24) / (x²−4)³</code><br>
+              Числителят 18x²+24 > 0 винаги!<br>
+              f''(x) = 0 → няма реални решения
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num green">13-14</div>
+          <div class="step-content">
+            <div class="step-title">Изпъкналост & Инфлексни точки</div>
+            <div class="step-body">
+              Знакът на f'' се определя от (x²−4)³:<br>
+              • |x| > 2: (x²−4)³ > 0 → <strong>f'' > 0 → изпъкнала надолу (U)</strong><br>
+              • |x| &lt; 2: (x²−4)³ &lt; 0 → <strong>f'' &lt; 0 → вдлъбната (∩)</strong><br>
+              <strong>Инфлексни точки: няма</strong> (f'' не сменя знак в D(f))
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Асимптоти</button>
+      <button class="btn btn-primary" onclick="nextSection()">Пример 2 →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 4: ПРИМЕР 2 -->
+  <div class="section" id="sec3">
+    <div class="section-header">
+      <div class="section-icon blue">📉</div>
+      <div class="section-meta"><h2>Пример 2 — Пълно изследване</h2><p>f(x) = x·eˣ</p></div>
+      <div class="time-chip">⏱ ~40 мин</div>
+    </div>
+
+    <div class="card blue">
+      <div class="card-title">f(x) = x · eˣ</div>
+      <div class="card-subtitle">Следваме алгоритъма</div>
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Дефиниционно множество</div>
+            <div class="step-body"><strong>D(f) = ℝ</strong> (няма ограничения)</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num blue">2</div>
+          <div class="step-content">
+            <div class="step-title">Четност</div>
+            <div class="step-body">
+              f(−x) = (−x)·e^(−x) = −xe^(−x) ≠ f(x) и ≠ −f(x)<br>
+              <strong>Нито четна, нито нечетна</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">Нули</div>
+            <div class="step-body">
+              x·eˣ = 0 → x = 0 (eˣ > 0 винаги!)<br>
+              <strong>Нула: x = 0</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num blue">4</div>
+          <div class="step-content">
+            <div class="step-title">Знак</div>
+            <div class="step-body">
+              eˣ > 0 винаги → знакът = знака на x<br>
+              • x &lt; 0: f(x) &lt; 0 | • x > 0: f(x) > 0
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5-8</div>
+          <div class="step-content">
+            <div class="step-title">Граници & Асимптоти</div>
+            <div class="step-body">
+              <code>lim(x→+∞) xeˣ = +∞</code> (и двете → +∞)<br>
+              <code>lim(x→−∞) xeˣ = 0</code> (форма −∞·0; eˣ → 0 по-бързо)<br>
+              <strong>Хоризонтална асимптота: y = 0</strong> (за x→−∞)<br>
+              Вертикални: няма | Наклонени: няма
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num blue">9</div>
+          <div class="step-content">
+            <div class="step-title">Първа производна</div>
+            <div class="step-body">
+              f'(x) = (x)'·eˣ + x·(eˣ)' = eˣ + x·eˣ = <code>eˣ(1 + x)</code><br>
+              f'(x) = 0 → eˣ(1+x) = 0 → x = −1<br>
+              <strong>Критична точка: x = −1</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">10-11</div>
+          <div class="step-content">
+            <div class="step-title">Монотонност & Екстремуми</div>
+            <div class="step-body">
+              eˣ > 0 винаги → знакът = знака на (1+x)<br>
+              • x &lt; −1: (1+x) &lt; 0 → f' &lt; 0 → <strong>намалява</strong><br>
+              • x > −1: (1+x) > 0 → f' > 0 → <strong>нараства</strong><br>
+              f' сменя − → + при x=−1 → <strong>локален минимум</strong><br>
+              f(−1) = (−1)·e^(−1) = −1/e<br>
+              <strong>Минимум: (−1, −1/e)</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num blue">12</div>
+          <div class="step-content">
+            <div class="step-title">Втора производна</div>
+            <div class="step-body">
+              f''(x) = [eˣ(1+x)]' = eˣ(1+x) + eˣ·1 = <code>eˣ(2+x)</code><br>
+              f''(x) = 0 → x = −2
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">13-14</div>
+          <div class="step-content">
+            <div class="step-title">Изпъкналост & Инфлексни точки</div>
+            <div class="step-body">
+              Знакът = знака на (2+x):<br>
+              • x &lt; −2: f'' &lt; 0 → <strong>вдлъбната (∩)</strong><br>
+              • x > −2: f'' > 0 → <strong>изпъкнала надолу (U)</strong><br>
+              f'' сменя знак при x=−2 → <strong>инфлексна точка!</strong><br>
+              f(−2) = −2·e^(−2) = −2/e²<br>
+              <strong>Инфлексна точка: (−2, −2/e²)</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Пример 1</button>
+      <button class="btn btn-primary" onclick="nextSection()">Задачи →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 5: ЗАДАЧИ -->
+  <div class="section" id="sec4">
+    <div class="section-header">
+      <div class="section-icon amber">✏️</div>
+      <div class="section-meta"><h2>Задачи за практика</h2><p>Изследвай функциите по алгоритъма</p></div>
+      <div class="time-chip">⏱ ~1.5 ч</div>
+    </div>
+
+    <div class="card amber">
+      <div class="card-title">Задачи по отделни стъпки</div>
+      <div class="card-subtitle">Не е нужно да правиш пълно изследване — само посочената стъпка</div>
+      <div class="exercise-list">
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 01 — Асимптоти</div>
+          <div class="ex-question">f(x) = (2x² + 1) / (x² − x − 2)</div>
+          <div class="ex-hint">💡 Намери всички асимптоти</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            <strong>D(f):</strong> x²−x−2 = (x−2)(x+1) = 0 → x≠2, x≠−1<br><br>
+            <strong>Вертикални:</strong> x = 2, x = −1 (границите → ±∞)<br><br>
+            <strong>Хоризонтална:</strong> lim(x→∞) (2x²+1)/(x²−x−2) = 2/1 = <strong>y = 2</strong><br><br>
+            <strong>Наклонена:</strong> няма (има хоризонтална)
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 02 — Екстремуми</div>
+          <div class="ex-question">f(x) = x³ − 3x + 2</div>
+          <div class="ex-hint">💡 Намери f', критичните точки и определи вида им</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            <code>f'(x) = 3x² − 3 = 3(x²−1) = 3(x−1)(x+1)</code><br>
+            f'(x) = 0 → x = ±1<br><br>
+            Знак на f':<br>
+            • x &lt; −1: f' > 0 нараства<br>
+            • −1 &lt; x &lt; 1: f' &lt; 0 намалява<br>
+            • x > 1: f' > 0 нараства<br><br>
+            <strong>Максимум при x=−1:</strong> f(−1) = −1+3+2 = 4 → точка (−1, 4)<br>
+            <strong>Минимум при x=1:</strong> f(1) = 1−3+2 = 0 → точка (1, 0)
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 03 — Инфлексни точки</div>
+          <div class="ex-question">f(x) = x⁴ − 6x²</div>
+          <div class="ex-hint">💡 Намери f'' и определи инфлексните точки</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            <code>f'(x) = 4x³ − 12x</code><br>
+            <code>f''(x) = 12x² − 12 = 12(x²−1) = 12(x−1)(x+1)</code><br>
+            f''(x) = 0 → x = ±1<br><br>
+            Знак на f'':<br>
+            • x &lt; −1: f'' > 0 (U)<br>
+            • −1 &lt; x &lt; 1: f'' &lt; 0 (∩)<br>
+            • x > 1: f'' > 0 (U)<br><br>
+            f'' сменя знак при x=±1 →<br>
+            <strong>Инфлексни точки: (−1, −5) и (1, −5)</strong><br>
+            f(1) = 1−6 = −5 ✓
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 04 — Пълно изследване (кратко)</div>
+          <div class="ex-question">f(x) = x / (x + 1)</div>
+          <div class="ex-hint">💡 Намери D(f), нули, асимптоти, монотонност</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            <strong>D(f):</strong> x ≠ −1 → ℝ\{−1}<br><br>
+            <strong>Нули:</strong> x = 0<br><br>
+            <strong>Асимптоти:</strong><br>
+            • Вертикална: x = −1<br>
+            • Хоризонтална: lim x/(x+1) = 1 → y = 1<br><br>
+            <strong>f'(x):</strong> правило за частно:<br>
+            <code>f'(x) = [1·(x+1) − x·1]/(x+1)² = 1/(x+1)²</code><br>
+            f'(x) > 0 винаги (освен x=−1) → <strong>нараства навсякъде</strong><br>
+            <strong>Екстремуми: няма</strong><br><br>
+            <strong>f''(x):</strong> <code>−2/(x+1)³</code><br>
+            • x &lt; −1: f'' > 0 (U) | x > −1: f'' &lt; 0 (∩)<br>
+            <strong>Инфлексни точки: няма</strong> (x=−1 не е в D(f))
+          </div>
+        </div>
+        <div class="exercise" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 05 — Пълно изследване</div>
+          <div class="ex-question">f(x) = x² · e^(−x)</div>
+          <div class="ex-hint">💡 Използвай правилото за произведение + верижно</div>
+          <div class="reveal-hint">👆 Кликни за решение</div>
+          <div class="ex-answer">
+            <strong>D(f) = ℝ</strong><br>
+            <strong>Нули:</strong> x = 0<br>
+            <strong>Знак:</strong> x²≥0 и e^(−x)>0 → f(x) ≥ 0 (само при x=0 е 0)<br><br>
+            <strong>Граници:</strong><br>
+            lim(x→+∞) x²e^(−x) = 0 (e^(−x) побеждава) → y=0 хориз. асимптота<br>
+            lim(x→−∞) x²e^(−x) = +∞<br><br>
+            <strong>f'(x):</strong> <code>2x·e^(−x) + x²·(−e^(−x)) = e^(−x)(2x−x²) = xe^(−x)(2−x)</code><br>
+            f'=0 → x=0 или x=2<br>
+            • x&lt;0: f'&lt;0 | 0&lt;x&lt;2: f'>0 | x>2: f'&lt;0<br>
+            <strong>Минимум (0,0), Максимум (2, 4e⁻²) = (2, 4/e²)</strong><br><br>
+            <strong>f''(x):</strong> <code>e^(−x)(x²−4x+2)</code><br>
+            f''=0 → x = 2±√2<br>
+            <strong>Инфлексни точки при x = 2−√2 ≈ 0.59 и x = 2+√2 ≈ 3.41</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box amber">
+      🌟 <strong>Финален съвет за теста:</strong> Когато изследваш функция, ВИНАГИ изписвай алгоритъма в ред. Дори да пропуснеш нещо, преподавателят вижда логиката и дава частични точки. Никога не прескачай стъпки без да отбележиш защо!
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Пример 2</button>
+      <button class="btn btn-primary" onclick="goTo(0)">↩ Начало</button>
+    </div>
+  </div>
+</div>
+<script>
+  let current=0;
+  const navBtns=document.querySelectorAll('.nav-btn');
+  const sections=document.querySelectorAll('.section');
+  function goTo(idx){sections[current].classList.remove('active');navBtns[current].classList.remove('active');current=idx;sections[current].classList.add('active');navBtns[current].classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+  function nextSection(){if(current<4){navBtns[current].classList.add('done');goTo(current+1);}}
+  function prevSection(){if(current>0)goTo(current-1);}
+  function toggleEx(el){el.classList.toggle('revealed');}
+</script>
+</body>
+</html>
