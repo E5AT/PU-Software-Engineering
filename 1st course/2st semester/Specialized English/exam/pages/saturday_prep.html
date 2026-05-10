@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eng Prep — Saturday</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0e0e11;--surface:#18181d;--surface2:#22222a;--border:#2e2e3a;--accent:#7c6ffa;--accent2:#fa6f9b;--accent3:#6ffad4;--text:#e8e8f0;--muted:#7a7a90;--success:#4ade80;--danger:#f87171;--radius:10px;--font-head:'Syne',sans-serif;--font-mono:'IBM Plex Mono',monospace}
+body{background:var(--bg);color:var(--text);font-family:var(--font-mono);min-height:100vh}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-family:var(--font-head);font-weight:800;font-size:1.1rem}
+.logo span{color:var(--accent)}
+.logo .day{color:var(--accent2)}
+.progress-bar-wrap{display:flex;align-items:center;gap:10px;font-size:.75rem;color:var(--muted)}
+.progress-bar-track{width:160px;height:4px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-bar-fill{height:100%;background:var(--accent);border-radius:4px;transition:width .4s ease}
+.nav{display:flex;gap:4px;padding:1rem 2rem 0;overflow-x:auto}
+.nav-tab{background:none;border:1px solid var(--border);color:var(--muted);font-family:var(--font-mono);font-size:.72rem;padding:6px 14px;border-radius:6px;cursor:pointer;white-space:nowrap;transition:all .15s}
+.nav-tab:hover{border-color:var(--accent);color:var(--text)}
+.nav-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+.nav-tab.done{border-color:var(--success);color:var(--success)}
+main{padding:2rem;max-width:860px;margin:0 auto}
+.section{display:none}.section.active{display:block}
+.section-title{font-family:var(--font-head);font-size:1.5rem;font-weight:800;margin-bottom:.3rem}
+.section-subtitle{color:var(--muted);font-size:.78rem;margin-bottom:1.5rem}
+.tag{display:inline-block;font-size:.65rem;padding:2px 7px;border-radius:4px;border:1px solid var(--border);color:var(--muted);margin-right:4px}
+.match-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:600px){.match-wrap{grid-template-columns:1fr}}
+.match-col-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem}
+.match-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem 1rem;cursor:pointer;font-size:.82rem;line-height:1.5;transition:all .15s;user-select:none}
+.match-item:hover{border-color:var(--accent)}
+.match-item.selected{border-color:var(--accent);background:rgba(124,111,250,.12)}
+.match-item.matched-correct{border-color:var(--success);background:rgba(74,222,128,.10);color:var(--success);cursor:default}
+.match-item.matched-wrong{border-color:var(--danger);background:rgba(248,113,113,.10);animation:shake .3s}
+.match-num{font-size:.65rem;color:var(--muted);margin-bottom:3px}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.wordbox{background:var(--surface);border:1px dashed var(--border);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;flex-wrap:wrap;gap:8px}
+.wordbox-label{font-size:.68rem;color:var(--muted);width:100%;margin-bottom:4px;text-transform:uppercase;letter-spacing:.07em}
+.word-chip{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:.78rem;cursor:pointer;transition:all .15s}
+.word-chip:hover{border-color:var(--accent2);color:var(--accent2)}
+.word-chip.used{opacity:.3;pointer-events:none;text-decoration:line-through}
+.word-chip.active-sel{border-color:var(--accent2);color:var(--accent2)}
+.gap-sentences{display:flex;flex-direction:column;gap:1rem}
+.gap-sentence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem 1rem;font-size:.83rem;line-height:2}
+.sent-num{font-size:.65rem;color:var(--muted);display:block;margin-bottom:2px}
+.gap{display:inline-block;min-width:120px;height:22px;border-bottom:2px solid var(--accent);vertical-align:middle;margin:0 4px;text-align:center;font-size:.82rem;color:var(--accent3);cursor:pointer;padding:0 6px;transition:border-color .15s}
+.gap:hover{border-color:var(--accent2)}
+.gap.filled{border-color:var(--accent3)}
+.gap.correct{border-color:var(--success);color:var(--success)}
+.gap.wrong{border-color:var(--danger);color:var(--danger)}
+.btn{font-family:var(--font-mono);font-size:.78rem;padding:8px 18px;border-radius:7px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;transition:all .15s}
+.btn:hover{background:var(--accent);color:#fff}
+.btn-row{display:flex;gap:10px;margin-top:1.25rem;flex-wrap:wrap;align-items:center}
+.score-badge{font-size:.75rem;padding:4px 10px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);color:var(--muted)}
+.score-badge.perfect{border-color:var(--success);color:var(--success)}
+.result-msg{margin-top:1rem;padding:.75rem 1rem;border-radius:var(--radius);font-size:.8rem;display:none}
+.result-msg.show{display:block}
+.result-msg.ok{background:rgba(74,222,128,.1);border:1px solid var(--success);color:var(--success)}
+.result-msg.bad{background:rgba(248,113,113,.1);border:1px solid var(--danger);color:var(--danger)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">eng<span>prep</span>.exe — <span class="day">събота</span></div>
+  <div class="progress-bar-wrap">
+    <span id="progress-label">0 / 4 done</span>
+    <div class="progress-bar-track"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+</header>
+<div class="nav" id="nav"></div>
+<main>
+
+  <div class="section active" id="sec-0">
+    <div class="section-title">Exercise 1A — Matching</div>
+    <div class="section-subtitle">Match each word to its definition. <span class="tag">matching</span></div>
+    <div class="match-wrap">
+      <div><div class="match-col-label">Terms</div><div id="m0-left" style="display:flex;flex-direction:column;gap:8px"></div></div>
+      <div><div class="match-col-label">Definitions</div><div id="m0-right" style="display:flex;flex-direction:column;gap:8px"></div></div>
+    </div>
+    <div class="btn-row"><button class="btn" onclick="resetMatch(0)">↺ Reset</button><span class="score-badge" id="m0-score"></span></div>
+    <div class="result-msg" id="m0-result"></div>
+  </div>
+
+  <div class="section" id="sec-1">
+    <div class="section-title">Exercise 1A — Gap Fill</div>
+    <div class="section-subtitle">Click a word, then click a gap. <span class="tag">gap fill</span></div>
+    <div class="wordbox" id="wb1"><div class="wordbox-label">Word Box</div></div>
+    <div class="gap-sentences" id="gs1"></div>
+    <div class="btn-row"><button class="btn" onclick="checkGaps(1)">✓ Check</button><button class="btn" onclick="resetGaps(1)">↺ Reset</button><span class="score-badge" id="g1-score"></span></div>
+    <div class="result-msg" id="g1-result"></div>
+  </div>
+
+  <div class="section" id="sec-2">
+    <div class="section-title">Exercise 1B — Matching</div>
+    <div class="section-subtitle">Match each term to its definition. <span class="tag">matching</span></div>
+    <div class="match-wrap">
+      <div><div class="match-col-label">Terms</div><div id="m2-left" style="display:flex;flex-direction:column;gap:8px"></div></div>
+      <div><div class="match-col-label">Definitions</div><div id="m2-right" style="display:flex;flex-direction:column;gap:8px"></div></div>
+    </div>
+    <div class="btn-row"><button class="btn" onclick="resetMatch(2)">↺ Reset</button><span class="score-badge" id="m2-score"></span></div>
+    <div class="result-msg" id="m2-result"></div>
+  </div>
+
+  <div class="section" id="sec-3">
+    <div class="section-title">Exercise 1B — Gap Fill</div>
+    <div class="section-subtitle">Click a word, then click a gap. <span class="tag">gap fill</span></div>
+    <div class="wordbox" id="wb3"><div class="wordbox-label">Word Box</div></div>
+    <div class="gap-sentences" id="gs3"></div>
+    <div class="btn-row"><button class="btn" onclick="checkGaps(3)">✓ Check</button><button class="btn" onclick="resetGaps(3)">↺ Reset</button><span class="score-badge" id="g3-score"></span></div>
+    <div class="result-msg" id="g3-result"></div>
+  </div>
+
+</main>
+<script>
+const matchSets={
+  0:{
+    terms:['transparent','adapting','get something off the ground','engagement','cost-efficient','beneficial','entrepreneur'],
+    defs:['Able to be seen through clearly','Adjusting','Start developing something successfully','Desire to take active part in something','With an optimal balance of value to price','Giving good results','Business founder'],
+    answers:[0,1,2,3,4,5,6]
+  },
+  2:{
+    terms:['Keep track of','Hireability','Streamline','Jump through hoops','Earn','Facilitate','Optimize','Display','Dive into','Break down'],
+    defs:['Be informed about','Ability to be hired','Make a process faster or more efficient','Go through a complex procedure','Achieve or obtain through work','Make (something) easier','Improve to its maximum potential','Show something visually','Study / explore something in-depth','Divide into smaller parts'],
+    answers:[0,1,2,3,4,5,6,7,8,9]
+  }
+};
+
+const gapSets={
+  1:{
+    words:['capitalize on','gaining traction','come up with','early adopter','primary','hover'],
+    sentences:[
+      {text:"John always _____ brilliant creative ideas.",answers:['come up with']},
+      {text:"I think AR is going to _____ in the next couple of years.",answers:['gaining traction']},
+      {text:"He knows how to _____ market trends, that's why he is so successful.",answers:['capitalize on']},
+      {text:"Our company was an _____ of VR technology. We've been using it since the late 2000s!",answers:['early adopter']},
+      {text:"Our _____ objective is to gain more users.",answers:['primary']},
+      {text:"If you _____ your mouse over this button, it will change its color.",answers:['hover']}
+    ]
+  },
+  3:{
+    words:['facing','reproduce','postpone','smoothly','pitfalls','garbled','clickable','swamped with','slip through the cracks','upfront','over','fail to','constraints','key deliverables','deliverables','rule of thumb','outlining'],
+    sentences:[
+      {text:"I'm _____ a very difficult problem.",answers:['facing']},
+      {text:"I haven't managed to _____ this issue in my browser.",answers:['reproduce']},
+      {text:"We had to _____ the project release date because there were a few critical bugs we needed to fix.",answers:['postpone']},
+      {text:"Everything went _____ and we didn't experience any unexpected _____.",answers:['smoothly','pitfalls']},
+      {text:"The client is experiencing an issue where text appears _____ on some of the slides.",answers:['garbled']},
+      {text:"Is this a link? It's not _____.",answers:['clickable']},
+      {text:"We got _____ tasks and a couple things _____ unfortunately.",answers:['swamped with','slip through the cracks']},
+      {text:"We can start working on the project upon receipt of full _____ payment.",answers:['upfront']},
+      {text:"We got _____ 200 requests: 208 to be exact.",answers:['over']},
+      {text:"I have _____ mention something very important when we started the meeting so I'm going to mention it now.",answers:['fail to']},
+      {text:"Despite our time and budget _____, we have managed to clarify our _____ and create all _____ features.",answers:['constraints','key deliverables','deliverables']},
+      {text:"A classic _____ for effective meetings is to _____ the agenda before diving into the details.",answers:['rule of thumb','outlining']}
+    ]
+  }
+};
+
+const TOTAL=4;
+const sectionDone=[false,false,false,false];
+const matchState={
+  0:{selectedLeft:null,selectedRight:null,matched:{},defOrder:[]},
+  2:{selectedLeft:null,selectedRight:null,matched:{},defOrder:[]}
+};
+const gapState={
+  1:{selected:null,filled:{}},
+  3:{selected:null,filled:{}}
+};
+let currentSection=0;
+
+const tabLabels=['1A — Matching','1A — Gap Fill','1B — Matching','1B — Gap Fill'];
+
+function buildNav(){
+  const nav=document.getElementById('nav');
+  nav.innerHTML='';
+  tabLabels.forEach((label,i)=>{
+    const btn=document.createElement('button');
+    btn.className='nav-tab'+(i===currentSection?' active':'')+(sectionDone[i]?' done':'');
+    btn.textContent=(sectionDone[i]?'✓ ':'')+label;
+    btn.onclick=()=>switchSection(i);
+    nav.appendChild(btn);
+  });
+}
+
+function switchSection(i){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-'+i).classList.add('active');
+  currentSection=i;
+  buildNav();
+}
+
+function updateProgress(){
+  const done=sectionDone.filter(Boolean).length;
+  document.getElementById('progress-label').textContent=done+' / '+TOTAL+' done';
+  document.getElementById('progress-fill').style.width=Math.round(done/TOTAL*100)+'%';
+  buildNav();
+}
+
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+function buildMatch(setIdx){
+  const set=matchSets[setIdx];
+  const state=matchState[setIdx];
+  state.selectedLeft=null;state.selectedRight=null;state.matched={};
+  const defOrder=shuffle(set.defs.map((_,i)=>i));
+  state.defOrder=defOrder;
+  const leftEl=document.getElementById('m'+setIdx+'-left');
+  const rightEl=document.getElementById('m'+setIdx+'-right');
+  leftEl.innerHTML='';rightEl.innerHTML='';
+  set.terms.forEach((term,i)=>{
+    const div=document.createElement('div');
+    div.className='match-item';
+    div.innerHTML='<div class="match-num">'+(i+1)+'</div>'+term;
+    div.onclick=()=>clickLeft(setIdx,i);
+    leftEl.appendChild(div);
+  });
+  defOrder.forEach((defIdx,pos)=>{
+    const div=document.createElement('div');
+    div.className='match-item';
+    div.dataset.defidx=defIdx;
+    div.innerHTML='<div class="match-num">'+String.fromCharCode(97+pos)+')</div>'+set.defs[defIdx];
+    div.onclick=()=>clickRight(setIdx,defIdx);
+    rightEl.appendChild(div);
+  });
+  const sc=document.getElementById('m'+setIdx+'-score');
+  if(sc){sc.textContent='';sc.classList.remove('perfect');}
+  const res=document.getElementById('m'+setIdx+'-result');
+  if(res){res.className='result-msg';res.textContent='';}
+}
+
+function clickLeft(setIdx,termIdx){
+  const state=matchState[setIdx];
+  if(state.matched[termIdx]!==undefined)return;
+  document.getElementById('m'+setIdx+'-left').querySelectorAll('.match-item').forEach(el=>el.classList.remove('selected'));
+  state.selectedLeft=termIdx;
+  document.getElementById('m'+setIdx+'-left').querySelectorAll('.match-item')[termIdx].classList.add('selected');
+  if(state.selectedRight!==null)tryMatch(setIdx);
+}
+
+function clickRight(setIdx,defIdx){
+  const state=matchState[setIdx];
+  if(Object.values(state.matched).includes(defIdx))return;
+  document.getElementById('m'+setIdx+'-right').querySelectorAll('.match-item').forEach(el=>el.classList.remove('selected'));
+  state.selectedRight=defIdx;
+  document.getElementById('m'+setIdx+'-right').querySelector('[data-defidx="'+defIdx+'"]').classList.add('selected');
+  if(state.selectedLeft!==null)tryMatch(setIdx);
+}
+
+function tryMatch(setIdx){
+  const state=matchState[setIdx];
+  const set=matchSets[setIdx];
+  const termIdx=state.selectedLeft;
+  const defIdx=state.selectedRight;
+  const leftEl=document.getElementById('m'+setIdx+'-left');
+  const rightEl=document.getElementById('m'+setIdx+'-right');
+  const leftItem=leftEl.querySelectorAll('.match-item')[termIdx];
+  const rightItem=rightEl.querySelector('[data-defidx="'+defIdx+'"]');
+  if(set.answers[termIdx]===defIdx){
+    state.matched[termIdx]=defIdx;
+    leftItem.classList.remove('selected');leftItem.classList.add('matched-correct');
+    rightItem.classList.remove('selected');rightItem.classList.add('matched-correct');
+    state.selectedLeft=null;state.selectedRight=null;
+    updateMatchScore(setIdx);
+  } else {
+    leftItem.classList.add('matched-wrong');rightItem.classList.add('matched-wrong');
+    setTimeout(()=>{
+      leftItem.classList.remove('matched-wrong','selected');
+      rightItem.classList.remove('matched-wrong','selected');
+    },500);
+    state.selectedLeft=null;state.selectedRight=null;
+  }
+}
+
+function updateMatchScore(setIdx){
+  const state=matchState[setIdx];
+  const set=matchSets[setIdx];
+  const total=set.terms.length;
+  const done=Object.keys(state.matched).length;
+  const sc=document.getElementById('m'+setIdx+'-score');
+  sc.textContent=done+' / '+total;
+  if(done===total){
+    sc.classList.add('perfect');
+    sectionDone[setIdx]=true;
+    updateProgress();
+    const res=document.getElementById('m'+setIdx+'-result');
+    res.className='result-msg ok show';
+    res.textContent='✓ Perfect! All '+total+' matched correctly.';
+  }
+}
+
+function resetMatch(setIdx){buildMatch(setIdx);}
+
+function buildGaps(secIdx){
+  const data=gapSets[secIdx];
+  gapState[secIdx]={selected:null,filled:{}};
+  const state=gapState[secIdx];
+  const wbEl=document.getElementById('wb'+secIdx);
+  wbEl.innerHTML='<div class="wordbox-label">Word Box</div>';
+  shuffle(data.words).forEach(w=>{
+    const chip=document.createElement('span');
+    chip.className='word-chip';
+    chip.dataset.word=w;
+    chip.textContent=w;
+    chip.onclick=()=>selectWord(secIdx,w,chip);
+    wbEl.appendChild(chip);
+  });
+  const gsEl=document.getElementById('gs'+secIdx);
+  gsEl.innerHTML='';
+  data.sentences.forEach((sent,sIdx)=>{
+    const div=document.createElement('div');
+    div.className='gap-sentence';
+    const numDiv=document.createElement('span');
+    numDiv.className='sent-num';
+    numDiv.textContent=(sIdx+1)+'.';
+    div.appendChild(numDiv);
+    const parts=sent.text.split('_____');
+    const gapCount=sent.answers.length;
+    parts.forEach((part,pIdx)=>{
+      if(part)div.appendChild(document.createTextNode(part));
+      if(pIdx<gapCount){
+        const gapSpan=document.createElement('span');
+        gapSpan.className='gap';
+        gapSpan.dataset.s=sIdx;
+        gapSpan.dataset.g=pIdx;
+        gapSpan.onclick=()=>fillGap(secIdx,sIdx,pIdx);
+        div.appendChild(gapSpan);
+      }
+    });
+    gsEl.appendChild(div);
+  });
+  const sc=document.getElementById('g'+secIdx+'-score');
+  if(sc){sc.textContent='';sc.classList.remove('perfect');}
+  const res=document.getElementById('g'+secIdx+'-result');
+  if(res){res.className='result-msg';res.textContent='';}
+}
+
+function selectWord(secIdx,word,chipEl){
+  const state=gapState[secIdx];
+  const wbEl=document.getElementById('wb'+secIdx);
+  if(state.selected===word){
+    state.selected=null;
+    wbEl.querySelectorAll('.word-chip').forEach(c=>c.classList.remove('active-sel'));
+    return;
+  }
+  state.selected=word;
+  wbEl.querySelectorAll('.word-chip').forEach(c=>c.classList.remove('active-sel'));
+  chipEl.classList.add('active-sel');
+}
+
+function fillGap(secIdx,sIdx,gIdx){
+  const state=gapState[secIdx];
+  const key=sIdx+'_'+gIdx;
+  const gsEl=document.getElementById('gs'+secIdx);
+  const gapEl=gsEl.querySelector('[data-s="'+sIdx+'"][data-g="'+gIdx+'"]');
+  if(!state.selected){
+    if(state.filled[key]){
+      delete state.filled[key];
+      gapEl.textContent='';
+      gapEl.className='gap';
+      updateChipsUsed(secIdx);
+    }
+    return;
+  }
+  state.filled[key]=state.selected;
+  gapEl.textContent=state.selected;
+  gapEl.className='gap filled';
+  state.selected=null;
+  document.getElementById('wb'+secIdx).querySelectorAll('.word-chip').forEach(c=>c.classList.remove('active-sel'));
+  updateChipsUsed(secIdx);
+}
+
+function updateChipsUsed(secIdx){
+  const state=gapState[secIdx];
+  const usedWords=Object.values(state.filled);
+  const wbEl=document.getElementById('wb'+secIdx);
+  wbEl.querySelectorAll('.word-chip').forEach(chip=>{
+    const word=chip.dataset.word;
+    const usedCount=usedWords.filter(w=>w===word).length;
+    const chipCount=wbEl.querySelectorAll('.word-chip[data-word="'+word.replace(/"/g,'\\"')+'"]').length;
+    chip.classList.toggle('used',usedCount>=chipCount);
+  });
+}
+
+function checkGaps(secIdx){
+  const data=gapSets[secIdx];
+  const state=gapState[secIdx];
+  const gsEl=document.getElementById('gs'+secIdx);
+  let correct=0,total=0;
+  data.sentences.forEach((sent,sIdx)=>{
+    sent.answers.forEach((ans,gIdx)=>{
+      total++;
+      const key=sIdx+'_'+gIdx;
+      const gapEl=gsEl.querySelector('[data-s="'+sIdx+'"][data-g="'+gIdx+'"]');
+      const filled=state.filled[key];
+      if(filled&&filled.toLowerCase()===ans.toLowerCase()){correct++;gapEl.className='gap correct';}
+      else{gapEl.className='gap wrong';}
+    });
+  });
+  const sc=document.getElementById('g'+secIdx+'-score');
+  sc.textContent=correct+' / '+total;
+  const res=document.getElementById('g'+secIdx+'-result');
+  if(correct===total){
+    sc.classList.add('perfect');
+    res.className='result-msg ok show';
+    res.textContent='✓ Perfect! All '+total+' gaps correct.';
+    sectionDone[secIdx]=true;
+    updateProgress();
+  } else {
+    sc.classList.remove('perfect');
+    res.className='result-msg bad show';
+    res.textContent='✗ '+correct+' correct, '+(total-correct)+' wrong. Грешните са в червено.';
+  }
+}
+
+function resetGaps(secIdx){buildGaps(secIdx);}
+
+buildNav();
+buildMatch(0);
+buildGaps(1);
+buildMatch(2);
+buildGaps(3);
+updateProgress();
+</script>
+</body>
+</html>

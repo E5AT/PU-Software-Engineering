@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Specialized English — Exam Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0e11;
+    --surface: #18181d;
+    --surface2: #22222a;
+    --border: #2e2e3a;
+    --accent: #7c6ffa;
+    --accent2: #fa6f9b;
+    --accent3: #6ffad4;
+    --text: #e8e8f0;
+    --muted: #7a7a90;
+    --success: #4ade80;
+    --danger: #f87171;
+    --radius: 10px;
+    --font-head: 'Syne', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* ─── Header ─────────────────────────────── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1.25rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: -0.02em;
+  }
+  .logo span { color: var(--accent); }
+  .progress-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  .progress-bar-track {
+    width: 160px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  /* ─── Nav tabs ────────────────────────────── */
+  .nav {
+    display: flex;
+    gap: 4px;
+    padding: 1rem 2rem 0;
+    overflow-x: auto;
+  }
+  .nav-tab {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .nav-tab:hover { border-color: var(--accent); color: var(--text); }
+  .nav-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 500; }
+  .nav-tab.done { border-color: var(--success); color: var(--success); }
+
+  /* ─── Main area ───────────────────────────── */
+  main { padding: 2rem; max-width: 860px; margin: 0 auto; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .section-title {
+    font-family: var(--font-head);
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 0.3rem;
+  }
+  .section-subtitle {
+    color: var(--muted);
+    font-size: 0.78rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* ─── Matching exercise ───────────────────── */
+  .match-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 600px) { .match-wrap { grid-template-columns: 1fr; } }
+
+  .match-col-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+  }
+
+  .match-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .match-item:hover { border-color: var(--accent); }
+  .match-item.selected { border-color: var(--accent); background: rgba(124,111,250,0.12); }
+  .match-item.matched-correct { border-color: var(--success); background: rgba(74,222,128,0.10); color: var(--success); cursor: default; }
+  .match-item.matched-wrong { border-color: var(--danger); background: rgba(248,113,113,0.10); animation: shake 0.3s; }
+  .match-item.disabled { cursor: default; opacity: 0.5; }
+
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+
+  .match-num {
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-bottom: 3px;
+  }
+
+  /* ─── Gap fill ────────────────────────────── */
+  .wordbox {
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .wordbox-label {
+    font-size: 0.68rem;
+    color: var(--muted);
+    width: 100%;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+  .word-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .word-chip:hover { border-color: var(--accent2); color: var(--accent2); }
+  .word-chip.used { opacity: 0.3; pointer-events: none; text-decoration: line-through; }
+
+  .gap-sentences { display: flex; flex-direction: column; gap: 1rem; }
+  .gap-sentence {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    font-size: 0.83rem;
+    line-height: 1.9;
+    position: relative;
+  }
+  .gap-sentence .sent-num {
+    font-size: 0.65rem;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 2px;
+  }
+  .gap {
+    display: inline-block;
+    min-width: 110px;
+    height: 22px;
+    border-bottom: 2px solid var(--accent);
+    vertical-align: middle;
+    margin: 0 4px;
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--accent3);
+    cursor: pointer;
+    position: relative;
+    padding: 0 6px;
+    transition: border-color 0.15s;
+  }
+  .gap:hover { border-color: var(--accent2); }
+  .gap.filled { border-color: var(--accent3); }
+  .gap.correct { border-color: var(--success); color: var(--success); }
+  .gap.wrong { border-color: var(--danger); color: var(--danger); }
+  .gap.empty-click { border-color: var(--danger); animation: shake 0.3s; }
+
+  /* ─── Buttons ─────────────────────────────── */
+  .btn {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    padding: 8px 18px;
+    border-radius: 7px;
+    border: 1px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:hover { background: var(--accent); color: #fff; }
+  .btn-success { border-color: var(--success); color: var(--success); }
+  .btn-success:hover { background: var(--success); color: #000; }
+  .btn-row { display: flex; gap: 10px; margin-top: 1.25rem; flex-wrap: wrap; align-items: center; }
+
+  /* ─── Score badge ─────────────────────────── */
+  .score-badge {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .score-badge.perfect { border-color: var(--success); color: var(--success); }
+
+  /* ─── Result overlay ──────────────────────── */
+  .result-msg {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    font-size: 0.8rem;
+    display: none;
+  }
+  .result-msg.show { display: block; }
+  .result-msg.ok { background: rgba(74,222,128,0.1); border: 1px solid var(--success); color: var(--success); }
+  .result-msg.bad { background: rgba(248,113,113,0.1); border: 1px solid var(--danger); color: var(--danger); }
+
+  /* ─── Divider ─────────────────────────────── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+  /* ─── Definitions list (vocab) ────────────── */
+  .vocab-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .vocab-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.7rem 1rem;
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+  .vocab-term { color: var(--accent); font-weight: 500; }
+  .vocab-def { color: var(--muted); }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    margin-right: 4px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">eng<span>prep</span>.exe</div>
+  <div class="progress-bar-wrap">
+    <span id="progress-label">0 / 7 done</span>
+    <div class="progress-bar-track"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+</header>
+
+<div class="nav" id="nav"></div>
+
+<main>
+  <!-- ══════════════════════════════════════════════
+       SECTION 0 — IT Roles (Matching)
+  ══════════════════════════════════════════════ -->
+  <div class="section active" id="sec-0">
+    <div class="section-title">IT Roles</div>
+    <div class="section-subtitle">Match each role to its definition. <span class="tag">matching</span></div>
+    <div class="match-wrap">
+      <div>
+        <div class="match-col-label">Roles</div>
+        <div id="m0-left" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+      <div>
+        <div class="match-col-label">Definitions</div>
+        <div id="m0-right" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="resetMatch(0)">↺ Reset</button>
+      <span class="score-badge" id="m0-score"></span>
+    </div>
+    <div class="result-msg" id="m0-result"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 1 — General Vocab (Matching)
+  ══════════════════════════════════════════════ -->
+  <div class="section" id="sec-1">
+    <div class="section-title">General Vocabulary</div>
+    <div class="section-subtitle">Match each word to its meaning. <span class="tag">matching</span></div>
+    <div class="match-wrap">
+      <div>
+        <div class="match-col-label">Words</div>
+        <div id="m1-left" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+      <div>
+        <div class="match-col-label">Definitions</div>
+        <div id="m1-right" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="resetMatch(1)">↺ Reset</button>
+      <span class="score-badge" id="m1-score"></span>
+    </div>
+    <div class="result-msg" id="m1-result"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 2 — Business Vocab (Matching)
+  ══════════════════════════════════════════════ -->
+  <div class="section" id="sec-2">
+    <div class="section-title">Business Vocabulary</div>
+    <div class="section-subtitle">Match each term to its meaning. <span class="tag">matching</span></div>
+    <div class="match-wrap">
+      <div>
+        <div class="match-col-label">Terms</div>
+        <div id="m2-left" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+      <div>
+        <div class="match-col-label">Definitions</div>
+        <div id="m2-right" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="resetMatch(2)">↺ Reset</button>
+      <span class="score-badge" id="m2-score"></span>
+    </div>
+    <div class="result-msg" id="m2-result"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 3 — AI/Tech + QA Vocab (Matching)
+  ══════════════════════════════════════════════ -->
+  <div class="section" id="sec-3">
+    <div class="section-title">AI/Tech & QA Vocabulary</div>
+    <div class="section-subtitle">Match each term to its meaning. <span class="tag">matching</span></div>
+    <div class="match-wrap">
+      <div>
+        <div class="match-col-label">Terms</div>
+        <div id="m3-left" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+      <div>
+        <div class="match-col-label">Definitions</div>
+        <div id="m3-right" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="resetMatch(3)">↺ Reset</button>
+      <span class="score-badge" id="m3-score"></span>
+    </div>
+    <div class="result-msg" id="m3-result"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 4 — Verb Phrases + Market (Gap Fill)
+  ══════════════════════════════════════════════ -->
+  <div class="section" id="sec-4">
+    <div class="section-title">Verb Phrases & Market Expressions</div>
+    <div class="section-subtitle">Click a word from the box, then click the gap to fill it. <span class="tag">gap fill</span></div>
+
+    <div class="wordbox" id="wb4">
+      <div class="wordbox-label">Word Box</div>
+    </div>
+    <div class="gap-sentences" id="gs4"></div>
+    <div class="btn-row">
+      <button class="btn" onclick="checkGaps(4)">✓ Check answers</button>
+      <button class="btn" onclick="resetGaps(4)">↺ Reset</button>
+      <span class="score-badge" id="g4-score"></span>
+    </div>
+    <div class="result-msg" id="g4-result"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 5 — AI Text & Prepositions (Gap Fill)
+  ══════════════════════════════════════════════ -->
+  <div class="section" id="sec-5">
+    <div class="section-title">AI Text & Prepositions</div>
+    <div class="section-subtitle">Click a word from the box, then click the gap to fill it. <span class="tag">gap fill</span></div>
+
+    <div class="wordbox" id="wb5">
+      <div class="wordbox-label">Word Box</div>
+    </div>
+    <div class="gap-sentences" id="gs5"></div>
+    <div class="btn-row">
+      <button class="btn" onclick="checkGaps(5)">✓ Check answers</button>
+      <button class="btn" onclick="resetGaps(5)">↺ Reset</button>
+      <span class="score-badge" id="g5-score"></span>
+    </div>
+    <div class="result-msg" id="g5-result"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 6 — Connectives, AR, Bug Report (Gap Fill)
+  ══════════════════════════════════════════════ -->
+  <div class="section" id="sec-6">
+    <div class="section-title">Connectives, AR & Bug Report</div>
+    <div class="section-subtitle">Click a word from the box, then click the gap to fill it. <span class="tag">gap fill</span></div>
+
+    <div class="wordbox" id="wb6">
+      <div class="wordbox-label">Word Box</div>
+    </div>
+    <div class="gap-sentences" id="gs6"></div>
+    <div class="btn-row">
+      <button class="btn" onclick="checkGaps(6)">✓ Check answers</button>
+      <button class="btn" onclick="resetGaps(6)">↺ Reset</button>
+      <span class="score-badge" id="g6-score"></span>
+    </div>
+    <div class="result-msg" id="g6-result"></div>
+  </div>
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════════════
+
+const matchSets = [
+  // 0 — IT Roles
+  {
+    terms: [
+      'UX Writer',
+      'Data Scientist',
+      'Web Developer',
+      'DevOps Engineer',
+      'Blockchain Developer'
+    ],
+    defs: [
+      'A person who creates the texts that appear in the interface of websites and apps.',
+      'A person who is responsible for collecting and analysing large data sets.',
+      'A person who designs and develops websites and website applications.',
+      'An IT professional who oversees code releases and deployments and optimizes development process.',
+      'A person who builds applications based on blockchain architecture or protocols.'
+    ],
+    answers: [0, 1, 2, 3, 4]
+    // term[i] matches defs[answers[i]]
+    // UX Writer -> def[0], Data Scientist -> def[1], Web Dev -> def[2], DevOps -> def[3], Blockchain -> def[4]
+  },
+  // 1 — General vocab
+  {
+    terms: [
+      'Encounter', 'Career path', 'Stakeholders', 'Expertise', 'Despite',
+      'Core', 'Broad range', 'From scratch', 'Optimize', 'These days', 'In a nutshell'
+    ],
+    defs: [
+      'come across or experience something',
+      'the way you progress in your work',
+      'people who have an interest in a certain business',
+      'expert knowledge and skills',
+      'in spite of',
+      'fundamental',
+      'a wide variety',
+      'from the very beginning',
+      'make something more effective',
+      'nowadays',
+      'in a few words'
+    ],
+    answers: [0,1,2,3,4,5,6,7,8,9,10]
+  },
+  // 2 — Business vocab
+  {
+    terms: [
+      'Pain point','Scalable','Pivot','To be in charge','Bring (someone) on board',
+      'Expenses','Take into account','Annual','Jack of all trades','Prospective',
+      'Come across','Concise','At stake'
+    ],
+    defs: [
+      'A problem that a business / service can solve',
+      'Having an ability to grow bigger',
+      'Change the course of the existing strategy',
+      'To be the main person responsible for something',
+      'Ask someone to join the team',
+      'Costs',
+      'Consider',
+      'Yearly',
+      'Someone who can handle many different responsibilities',
+      'Likely to happen',
+      'Encounter',
+      'Short and informative',
+      'At risk'
+    ],
+    answers: [0,1,2,3,4,5,6,7,8,9,10,11,12]
+  },
+  // 3 — AI/Tech + QA
+  {
+    terms: [
+      'Breakthrough','Term','Tackle (an issue)','Fascinating',
+      'Render something obsolete','Overestimate',
+      'Smoke testing','Acceptance criteria','Regression testing','Test case','Edge case'
+    ],
+    defs: [
+      'a sudden important discovery or development',
+      'a word or phrase used to describe a thing or to express a concept',
+      'to attempt to deal with something',
+      'very interesting',
+      'make something useless and old-fashioned',
+      'the opposite of "underestimate"',
+      'A type of software testing that determines whether the deployed build is stable or not',
+      'A set of predefined requirements that must be met in order to mark a user story complete',
+      'A type of software testing to confirm a recent code change has not adversely affected existing features',
+      'Describes an action performed on a system to determine if it satisfies software requirements',
+      'A bug that is uncommon for users to encounter'
+    ],
+    answers: [0,1,2,3,4,5,6,7,8,9,10]
+  }
+];
+
+// Gap-fill sets
+// Each gap item: { sentence parts (array, gaps are ""), answers (array of correct words per gap) }
+// words: the word box words
+// sentences: array of { parts: ['text', null, 'text', null, 'text'], answers: ['word1','word2'] }
+
+const gapSets = [
+  // 4 — Verb phrases + Market expressions
+  {
+    words: [
+      'Collect','Handle','Keep up with','Compete','Specialize in','Qualify','Shorten','Take on',
+      'market economy','beat','to market','on the market','break into','a new market',
+      'go-to-market strategy','cornered the market','in the market','Marketer'
+    ],
+    sentences: [
+      { text: '_____ user data.', gaps: [null], answers: ['Collect'] },
+      { text: '_____ for a job.', gaps: [null], answers: ['Qualify'] },
+      { text: '_____ with other people.', gaps: [null], answers: ['Compete'] },
+      { text: '_____ a difficult task.', gaps: [null], answers: ['Take on'] },
+      { text: '_____ web development.', gaps: [null], answers: ['Specialize in'] },
+      { text: '_____ development time.', gaps: [null], answers: ['Shorten'] },
+      { text: '_____ customer requests.', gaps: [null], answers: ['Handle'] },
+      { text: '_____ the latest trends.', gaps: [null], answers: ['Keep up with'] },
+      { text: 'The United States is a _____ where prices are determined by supply and demand.', gaps: [null], answers: ['market economy'] },
+      { text: 'Their competitors _____ them _____.', gaps: [null, null], answers: ['beat','to market'] },
+      { text: 'This is the best solution _____ right now.', gaps: [null], answers: ['on the market'] },
+      { text: 'A company always takes a risk when it tries to _____ _____.', gaps: [null, null], answers: ['break into','a new market'] },
+      { text: 'We need to create a strong _____ if we want our product to be successful from the first day of launch.', gaps: [null], answers: ['go-to-market strategy'] },
+      { text: "That company has _____ and become the leading desktop manufacturer.", gaps: [null], answers: ['cornered the market'] },
+      { text: "I'm _____ for a new pair of headphones.", gaps: [null], answers: ['in the market'] },
+      { text: 'Have you considered hiring a _____ to help you with promoting your services?', gaps: [null], answers: ['Marketer'] },
+    ]
+  },
+  // 5 — AI Text + Prepositions
+  {
+    words: [
+      'taking over','drive','leveraged','point out','downside','low-skilled','high-skilled',
+      'for','up','by','at','out','of','to','into','in','on'
+    ],
+    sentences: [
+      { text: 'AI is often shown destroying humans and _____ the world.', gaps: [null], answers: ['taking over'] },
+      { text: 'AI is used to gather user data and convert it into predictions that businesses can use to _____ their strategy.', gaps: [null], answers: ['drive'] },
+      { text: 'AI is even _____ for lie detection and emotional recognition.', gaps: [null], answers: ['leveraged'] },
+      { text: 'Some people _____ that one big _____ of AI is that it replaces a lot of jobs.', gaps: [null,null], answers: ['point out','downside'] },
+      { text: 'AI is going to remove some _____ jobs but create more _____ jobs.', gaps: [null,null], answers: ['low-skilled','high-skilled'] },
+      { text: "I'm looking _____ a new job in technical recruiting.", gaps: [null], answers: ['for'] },
+      { text: 'You need to back _____ your opinions with facts.', gaps: [null], answers: ['up'] },
+      { text: 'The number of programming jobs is growing _____ the day.', gaps: [null], answers: ['by'] },
+      { text: 'You will need to change your work routine _____ some point.', gaps: [null], answers: ['at'] },
+      { text: "PHP is going _____ of use.", gaps: [null], answers: ['out'] },
+      { text: 'You have a natural talent for logical thinking that you can tap _____.', gaps: [null], answers: ['into'] },
+      { text: 'It is up _____ you what you decide to do.', gaps: [null], answers: ['to'] },
+      { text: 'She can easily take advantage _____ this situation.', gaps: [null], answers: ['of'] },
+      { text: "He's an amazing coder, _____ top of being a great guy.", gaps: [null], answers: ['on'] },
+      { text: 'He coded the entire application _____ C++.', gaps: [null], answers: ['in'] },
+    ]
+  },
+  // 6 — Connectives + AR + Bug report
+  {
+    words: [
+      'Overall','That said','On top of that','Chances are',
+      'come up with','gaining traction','capitalize on','early adopter','primary','hover',
+      'facing','reproduce','pitfalls','garbled','clickable','upfront','constraints','key deliverables','deliverables','rule of thumb','over','fail to','swamped with','slip through the cracks'
+    ],
+    sentences: [
+      { text: 'It was a web development course. _____ I was very happy with how the course was structured.', gaps: [null], answers: ['Overall'] },
+      { text: '_____, there were certain parts that were very difficult and not explained in enough detail.', gaps: [null], answers: ['That said'] },
+      { text: '_____, there were also plenty of quizzes and gamification features.', gaps: [null], answers: ['On top of that'] },
+      { text: "_____, if you've ever googled 'web development course', you've seen it on the first page.", gaps: [null], answers: ['Chances are'] },
+      { text: 'John always _____ brilliant creative ideas.', gaps: [null], answers: ['come up with'] },
+      { text: 'I think AR is going to _____ in the next couple of years.', gaps: [null], answers: ['gaining traction'] },
+      { text: 'He knows how to _____ market trends.', gaps: [null], answers: ['capitalize on'] },
+      { text: "Our company was an _____ of VR technology.", gaps: [null], answers: ['early adopter'] },
+      { text: 'Our _____ objective is to gain more users.', gaps: [null], answers: ['primary'] },
+      { text: 'If you _____ your mouse over this button, it will change its color.', gaps: [null], answers: ['hover'] },
+      { text: "I'm _____ a very difficult problem.", gaps: [null], answers: ['facing'] },
+      { text: "I haven't managed to _____ this issue in my browser.", gaps: [null], answers: ['reproduce'] },
+      { text: 'Everything went smoothly and we didn\'t experience any unexpected _____.', gaps: [null], answers: ['pitfalls'] },
+      { text: 'Text appears _____ on some of the slides.', gaps: [null], answers: ['garbled'] },
+      { text: "Is this a link? It's not _____.", gaps: [null], answers: ['clickable'] },
+      { text: 'We can start working upon receipt of full _____ payment.', gaps: [null], answers: ['upfront'] },
+      { text: 'We got _____ 200 requests — 208 to be exact.', gaps: [null], answers: ['over'] },
+      { text: 'I _____ mention something very important when we started the meeting.', gaps: [null], answers: ['fail to'] },
+      { text: 'Despite our time and budget _____, we created all _____ features.', gaps: [null,null], answers: ['constraints','key deliverables'] },
+      { text: 'A classic _____ for effective meetings is to outline the agenda before diving into details.', gaps: [null], answers: ['rule of thumb'] },
+      { text: 'We got _____ tasks and a couple things _____ unfortunately.', gaps: [null,null], answers: ['swamped with','slip through the cracks'] },
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+const TOTAL_SECTIONS = 7;
+const sectionDone = new Array(TOTAL_SECTIONS).fill(false);
+
+const matchState = [
+  { selectedLeft: null, selectedRight: null, matched: {}, wrongFlash: null },
+  { selectedLeft: null, selectedRight: null, matched: {}, wrongFlash: null },
+  { selectedLeft: null, selectedRight: null, matched: {}, wrongFlash: null },
+  { selectedLeft: null, selectedRight: null, matched: {}, wrongFlash: null },
+];
+
+const gapState = [
+  null, null, null, null, // slots 0-3 are matching
+  { selected: null, filled: {}, checked: false },
+  { selected: null, filled: {}, checked: false },
+  { selected: null, filled: {}, checked: false },
+];
+
+// ═══════════════════════════════════════════════════════
+//  NAV
+// ═══════════════════════════════════════════════════════
+const tabLabels = [
+  'IT Roles', 'General Vocab', 'Business', 'AI/Tech & QA',
+  'Verb+Market', 'AI+Prepositions', 'Connectives+AR+Bugs'
+];
+
+function buildNav() {
+  const nav = document.getElementById('nav');
+  nav.innerHTML = '';
+  tabLabels.forEach((label, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'nav-tab' + (i === 0 ? ' active' : '') + (sectionDone[i] ? ' done' : '');
+    btn.textContent = (sectionDone[i] ? '✓ ' : '') + label;
+    btn.onclick = () => switchSection(i);
+    nav.appendChild(btn);
+  });
+}
+
+let currentSection = 0;
+function switchSection(i) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + i).classList.add('active');
+  currentSection = i;
+  buildNav();
+  document.querySelectorAll('.nav-tab').forEach((t, idx) => {
+    if (idx === i) t.classList.add('active');
+  });
+}
+
+function updateProgress() {
+  const done = sectionDone.filter(Boolean).length;
+  document.getElementById('progress-label').textContent = done + ' / ' + TOTAL_SECTIONS + ' done';
+  document.getElementById('progress-fill').style.width = Math.round(done / TOTAL_SECTIONS * 100) + '%';
+  buildNav();
+}
+
+// ═══════════════════════════════════════════════════════
+//  MATCHING ENGINE
+// ═══════════════════════════════════════════════════════
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function buildMatch(setIdx) {
+  const set = matchSets[setIdx];
+  const state = matchState[setIdx];
+  state.selectedLeft = null;
+  state.selectedRight = null;
+  state.matched = {};
+
+  // Shuffled def order for display
+  const defOrder = shuffle(set.defs.map((_, i) => i));
+  state.defOrder = defOrder;
+
+  const leftEl = document.getElementById('m' + setIdx + '-left');
+  const rightEl = document.getElementById('m' + setIdx + '-right');
+  leftEl.innerHTML = '';
+  rightEl.innerHTML = '';
+
+  set.terms.forEach((term, i) => {
+    const div = document.createElement('div');
+    div.className = 'match-item';
+    div.dataset.idx = i;
+    div.innerHTML = '<div class="match-num">' + (i + 1) + '</div>' + term;
+    div.onclick = () => clickLeft(setIdx, i);
+    leftEl.appendChild(div);
+  });
+
+  defOrder.forEach((defIdx, pos) => {
+    const div = document.createElement('div');
+    div.className = 'match-item';
+    div.dataset.defidx = defIdx;
+    div.innerHTML = '<div class="match-num">' + String.fromCharCode(97 + pos) + ')</div>' + set.defs[defIdx];
+    div.onclick = () => clickRight(setIdx, defIdx);
+    rightEl.appendChild(div);
+  });
+
+  document.getElementById('m' + setIdx + '-score').textContent = '';
+  const res = document.getElementById('m' + setIdx + '-result');
+  res.className = 'result-msg';
+  res.textContent = '';
+}
+
+function clickLeft(setIdx, termIdx) {
+  const state = matchState[setIdx];
+  if (state.matched[termIdx] !== undefined) return;
+
+  // deselect prev
+  const leftEl = document.getElementById('m' + setIdx + '-left');
+  leftEl.querySelectorAll('.match-item').forEach(el => el.classList.remove('selected'));
+
+  state.selectedLeft = termIdx;
+  leftEl.querySelectorAll('.match-item')[termIdx].classList.add('selected');
+
+  if (state.selectedRight !== null) tryMatch(setIdx);
+}
+
+function clickRight(setIdx, defIdx) {
+  const state = matchState[setIdx];
+  // Check if this def is already matched
+  const alreadyMatchedTerm = Object.entries(state.matched).find(([t, d]) => d === defIdx);
+  if (alreadyMatchedTerm) return;
+
+  const rightEl = document.getElementById('m' + setIdx + '-right');
+  rightEl.querySelectorAll('.match-item').forEach(el => el.classList.remove('selected'));
+  state.selectedRight = defIdx;
+  rightEl.querySelectorAll('[data-defidx="' + defIdx + '"]')[0].classList.add('selected');
+
+  if (state.selectedLeft !== null) tryMatch(setIdx);
+}
+
+function tryMatch(setIdx) {
+  const state = matchState[setIdx];
+  const set = matchSets[setIdx];
+  const termIdx = state.selectedLeft;
+  const defIdx = state.selectedRight;
+  const correctDef = set.answers[termIdx];
+
+  const leftEl = document.getElementById('m' + setIdx + '-left');
+  const rightEl = document.getElementById('m' + setIdx + '-right');
+  const leftItem = leftEl.querySelectorAll('.match-item')[termIdx];
+  const rightItem = rightEl.querySelectorAll('[data-defidx="' + defIdx + '"]')[0];
+
+  if (correctDef === defIdx) {
+    // Correct
+    state.matched[termIdx] = defIdx;
+    leftItem.classList.remove('selected');
+    leftItem.classList.add('matched-correct');
+    rightItem.classList.remove('selected');
+    rightItem.classList.add('matched-correct');
+    state.selectedLeft = null;
+    state.selectedRight = null;
+    updateMatchScore(setIdx);
+  } else {
+    // Wrong
+    leftItem.classList.add('matched-wrong');
+    rightItem.classList.add('matched-wrong');
+    setTimeout(() => {
+      leftItem.classList.remove('matched-wrong', 'selected');
+      rightItem.classList.remove('matched-wrong', 'selected');
+    }, 500);
+    state.selectedLeft = null;
+    state.selectedRight = null;
+  }
+}
+
+function updateMatchScore(setIdx) {
+  const state = matchState[setIdx];
+  const set = matchSets[setIdx];
+  const total = set.terms.length;
+  const done = Object.keys(state.matched).length;
+  const scoreEl = document.getElementById('m' + setIdx + '-score');
+  scoreEl.textContent = done + ' / ' + total;
+  if (done === total) {
+    scoreEl.classList.add('perfect');
+    sectionDone[setIdx] = true;
+    updateProgress();
+    const res = document.getElementById('m' + setIdx + '-result');
+    res.className = 'result-msg ok show';
+    res.textContent = '✓ Perfect! All ' + total + ' matched correctly.';
+  }
+}
+
+function resetMatch(setIdx) {
+  buildMatch(setIdx);
+}
+
+// ═══════════════════════════════════════════════════════
+//  GAP-FILL ENGINE
+// ═══════════════════════════════════════════════════════
+function buildGaps(secIdx) {
+  const dataIdx = secIdx - 4;
+  const data = gapSets[dataIdx];
+  const state = gapState[secIdx];
+
+  const wbEl = document.getElementById('wb' + secIdx);
+  wbEl.innerHTML = '<div class="wordbox-label">Word Box</div>';
+  shuffle(data.words).forEach(w => {
+    const chip = document.createElement('span');
+    chip.className = 'word-chip';
+    chip.dataset.word = w;
+    chip.textContent = w;
+    chip.onclick = () => selectWord(secIdx, w);
+    wbEl.appendChild(chip);
+  });
+
+  const gsEl = document.getElementById('gs' + secIdx);
+  gsEl.innerHTML = '';
+
+  data.sentences.forEach((sent, sIdx) => {
+    const div = document.createElement('div');
+    div.className = 'gap-sentence';
+
+    const numDiv = document.createElement('span');
+    numDiv.className = 'sent-num';
+    numDiv.textContent = (sIdx + 1) + '.';
+    div.appendChild(numDiv);
+
+    // Build sentence with gaps
+    const gapCount = sent.answers.length;
+    const parts = sent.text.split('_____');
+    parts.forEach((part, pIdx) => {
+      if (part) {
+        div.appendChild(document.createTextNode(part));
+      }
+      if (pIdx < gapCount) {
+        const gapSpan = document.createElement('span');
+        gapSpan.className = 'gap';
+        gapSpan.dataset.s = sIdx;
+        gapSpan.dataset.g = pIdx;
+        gapSpan.textContent = '';
+        gapSpan.onclick = () => fillGap(secIdx, sIdx, pIdx);
+        div.appendChild(gapSpan);
+      }
+    });
+
+    gsEl.appendChild(div);
+  });
+
+  state.selected = null;
+  state.filled = {};
+  state.checked = false;
+
+  document.getElementById('g' + secIdx + '-score').textContent = '';
+  const res = document.getElementById('g' + secIdx + '-result');
+  res.className = 'result-msg';
+  res.textContent = '';
+}
+
+function selectWord(secIdx, word) {
+  const state = gapState[secIdx];
+  // Toggle
+  if (state.selected === word) {
+    state.selected = null;
+  } else {
+    state.selected = word;
+  }
+  // Highlight chips
+  const wbEl = document.getElementById('wb' + secIdx);
+  wbEl.querySelectorAll('.word-chip').forEach(chip => {
+    chip.style.borderColor = (chip.dataset.word === state.selected) ? 'var(--accent2)' : '';
+    chip.style.color = (chip.dataset.word === state.selected) ? 'var(--accent2)' : '';
+  });
+}
+
+function fillGap(secIdx, sIdx, gIdx) {
+  const state = gapState[secIdx];
+  const key = sIdx + '_' + gIdx;
+  const gsEl = document.getElementById('gs' + secIdx);
+  const gapEl = gsEl.querySelector('[data-s="' + sIdx + '"][data-g="' + gIdx + '"]');
+
+  if (!state.selected) {
+    // Clear gap if clicking filled gap
+    if (state.filled[key]) {
+      // restore word chip
+      const oldWord = state.filled[key];
+      delete state.filled[key];
+      gapEl.textContent = '';
+      gapEl.className = 'gap';
+      updateWordChipUsed(secIdx);
+    }
+    return;
+  }
+
+  // If gap already filled, return old word
+  if (state.filled[key]) {
+    delete state.filled[key];
+  }
+
+  state.filled[key] = state.selected;
+  gapEl.textContent = state.selected;
+  gapEl.className = 'gap filled';
+
+  // Deselect word
+  state.selected = null;
+  updateWordChipUsed(secIdx);
+}
+
+function updateWordChipUsed(secIdx) {
+  const state = gapState[secIdx];
+  const usedWords = Object.values(state.filled);
+  const wbEl = document.getElementById('wb' + secIdx);
+  wbEl.querySelectorAll('.word-chip').forEach(chip => {
+    chip.style.borderColor = '';
+    chip.style.color = '';
+    // Some words appear multiple times — only mark used if count exhausted
+    const word = chip.dataset.word;
+    const usedCount = usedWords.filter(w => w === word).length;
+    // Count how many chips have the same word
+    const chipCount = wbEl.querySelectorAll('[data-word="' + word + '"]').length;
+    chip.classList.toggle('used', usedCount >= chipCount);
+  });
+}
+
+function checkGaps(secIdx) {
+  const dataIdx = secIdx - 4;
+  const data = gapSets[dataIdx];
+  const state = gapState[secIdx];
+
+  let correct = 0;
+  let total = 0;
+
+  const gsEl = document.getElementById('gs' + secIdx);
+
+  data.sentences.forEach((sent, sIdx) => {
+    sent.answers.forEach((ans, gIdx) => {
+      total++;
+      const key = sIdx + '_' + gIdx;
+      const gapEl = gsEl.querySelector('[data-s="' + sIdx + '"][data-g="' + gIdx + '"]');
+      const filled = state.filled[key];
+      if (filled && filled.toLowerCase() === ans.toLowerCase()) {
+        correct++;
+        gapEl.className = 'gap correct';
+      } else if (filled) {
+        gapEl.className = 'gap wrong';
+      } else {
+        gapEl.className = 'gap wrong';
+      }
+    });
+  });
+
+  const scoreEl = document.getElementById('g' + secIdx + '-score');
+  scoreEl.textContent = correct + ' / ' + total;
+  if (correct === total) scoreEl.classList.add('perfect');
+  else scoreEl.classList.remove('perfect');
+
+  const res = document.getElementById('g' + secIdx + '-result');
+  if (correct === total) {
+    res.className = 'result-msg ok show';
+    res.textContent = '✓ Perfect score! All ' + total + ' gaps correct.';
+    sectionDone[secIdx] = true;
+    updateProgress();
+  } else {
+    res.className = 'result-msg bad show';
+    res.textContent = '✗ ' + correct + ' correct, ' + (total - correct) + ' wrong. Wrong gaps are highlighted in red. Fix them and try again!';
+  }
+}
+
+function resetGaps(secIdx) {
+  gapState[secIdx] = { selected: null, filled: {}, checked: false };
+  buildGaps(secIdx);
+}
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+buildNav();
+matchSets.forEach((_, i) => buildMatch(i));
+[4, 5, 6].forEach(i => buildGaps(i));
+updateProgress();
+</script>
+</body>
+</html>
