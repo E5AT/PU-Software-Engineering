@@ -12,6 +12,7 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -43,30 +44,42 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="First\Animal.cs" />
-    <Compile Include="First\Bird.cs" />
-    <Compile Include="First\Mammal.cs" />
-    <Compile Include="First\Zoo.cs" />
-    <Compile Include="Fourth\Club.cs" />
-    <Compile Include="Fourth\Sporthsman.cs" />
-    <Compile Include="Fourth\Subscriber.cs" />
-    <Compile Include="Fourth\Trainer.cs" />
+    <Compile Include="Claude\Fifth\Apartment.cs" />
+    <Compile Include="Claude\Fifth\Hotel.cs" />
+    <Compile Include="Claude\Fifth\Room.cs" />
+    <Compile Include="Claude\Fifth\Standard.cs" />
+    <Compile Include="Claude\First\Animal.cs" />
+    <Compile Include="Claude\First\Bird.cs" />
+    <Compile Include="Claude\First\Mammal.cs" />
+    <Compile Include="Claude\First\Zoo.cs" />
+    <Compile Include="Claude\Fourth\Club.cs" />
+    <Compile Include="Claude\Fourth\Sporthsman.cs" />
+    <Compile Include="Claude\Fourth\Subscriber.cs" />
+    <Compile Include="Claude\Fourth\Trainer.cs" />
+    <Compile Include="Claude\Second\Car.cs" />
+    <Compile Include="Claude\Second\Fleet.cs" />
+    <Compile Include="Claude\Second\Truck.cs" />
+    <Compile Include="Claude\Second\Vehicle.cs" />
+    <Compile Include="Claude\Sixth\Course.cs" />
+    <Compile Include="Claude\Sixth\LiveCourse.cs" />
+    <Compile Include="Claude\Sixth\Platform.cs" />
+    <Compile Include="Claude\Sixth\VideoCourse.cs" />
+    <Compile Include="Claude\Third\Company.cs" />
+    <Compile Include="Claude\Third\Employee.cs" />
+    <Compile Include="Claude\Third\Manager.cs" />
+    <Compile Include="Claude\Third\Programmer.cs" />
+    <Compile Include="Gemini\1\Car.cs" />
+    <Compile Include="Gemini\1\RentalManager.cs" />
+    <Compile Include="Gemini\1\Truck.cs" />
+    <Compile Include="Gemini\1\Vehicle.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Second\Car.cs" />
-    <Compile Include="Second\Fleet.cs" />
-    <Compile Include="Second\Truck.cs" />
-    <Compile Include="Second\Vehicle.cs" />
-    <Compile Include="Third\Company.cs" />
-    <Compile Include="Third\Employee.cs" />
-    <Compile Include="Third\Manager.cs" />
-    <Compile Include="Third\Programmer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Fifth\" />
+    <Folder Include="Claude\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
