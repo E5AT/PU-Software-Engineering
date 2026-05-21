@@ -68,6 +68,11 @@
     <Compile Include="Claude\Third\Employee.cs" />
     <Compile Include="Claude\Third\Manager.cs" />
     <Compile Include="Claude\Third\Programmer.cs" />
+    <Compile Include="Device\Device.cs" />
+    <Compile Include="Device\Lamp.cs" />
+    <Compile Include="Device\Room.cs" />
+    <Compile Include="Device\SmartHome.cs" />
+    <Compile Include="Device\Thermostat.cs" />
     <Compile Include="Gemini\1\Car.cs" />
     <Compile Include="Gemini\1\RentalManager.cs" />
     <Compile Include="Gemini\1\Truck.cs" />
