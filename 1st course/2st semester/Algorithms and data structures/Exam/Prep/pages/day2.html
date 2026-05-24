@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ден 2 — Стек, Опашка и Хеш таблици</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0d0a14;
+    --surface: #13101e;
+    --surface2: #1a1628;
+    --border: #252038;
+    --accent: #c084fc; /* Лилав акцент за Ден 2 */
+    --accent-hover: #d8b4fe;
+    --text: #ede9f8;
+    --muted: #8b839c;
+    --correct: #34d399;
+    --wrong: #f87171;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background: radial-gradient(ellipse 80% 80% at 50% -20%, rgba(192, 132, 252, 0.05), transparent);
+  }
+
+  /* ЛЯВА НАВИГАЦИЯ */
+  .sidebar {
+    width: 280px; background: var(--surface); border-right: 1px solid var(--border);
+    padding: 2rem 1.5rem; display: flex; flex-direction: column; z-index: 10;
+    position: fixed; height: 100vh; overflow-y: auto;
+  }
+  .branding { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; color: var(--accent); margin-bottom: 2.5rem; letter-spacing: 0.5px; }
+  .branding span { color: var(--text); }
+  
+  .nav-btn {
+    background: transparent; border: none; color: var(--muted); padding: 0.875rem 1rem;
+    text-align: left; font-size: 0.95rem; font-family: 'Inter', sans-serif;
+    border-radius: 8px; cursor: pointer; transition: all 0.2s; margin-bottom: 0.5rem;
+    font-weight: 500; display: flex; align-items: center; gap: 10px;
+  }
+  .nav-btn:hover { background: var(--surface2); color: var(--text); }
+  .nav-btn.active { background: rgba(192, 132, 252, 0.1); color: var(--accent); font-weight: 600; box-shadow: inset 3px 0 0 var(--accent); }
+
+  /* ТАЙМЕР ПОМОДОРО */
+  .timer-widget {
+    margin-top: auto; background: var(--surface2); padding: 1.25rem; border-radius: 12px;
+    border: 1px solid var(--border); text-align: center;
+  }
+  .timer-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 0.5rem; font-weight: 600; }
+  .timer-val { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 600; color: var(--text); margin-bottom: 1rem; }
+  .timer-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 1rem; }
+  .timer-fill { height: 100%; width: 100%; background: var(--accent); transition: width 1s linear; }
+  .timer-controls { display: flex; gap: 0.5rem; justify-content: center; }
+  .timer-btn {
+    background: var(--surface); color: var(--text); border: 1px solid var(--border);
+    padding: 0.4rem 0.75rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem;
+    font-weight: 500; transition: all 0.2s;
+  }
+  .timer-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ОСНОВНО СЪДЪРЖАНИЕ */
+  .main-content { margin-left: 280px; flex: 1; padding: 3rem 4rem; z-index: 1; max-width: 1000px; }
+  .section { display: none; animation: fadeIn 0.4s ease forwards; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-tag { display: inline-block; padding: 0.3rem 0.75rem; background: rgba(192, 132, 252, 0.1); color: var(--accent); border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-bottom: 1rem; letter-spacing: 0.5px; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2.8rem; margin-bottom: 1.5rem; line-height: 1.2; font-weight: 900; }
+  h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin: 2rem 0 1rem; color: var(--accent); }
+  p { line-height: 1.7; margin-bottom: 1.2rem; color: #d1d5db; font-size: 1.05rem; }
+  ul, ol { margin-left: 1.5rem; margin-bottom: 1.5rem; color: #d1d5db; line-height: 1.7; }
+  li { margin-bottom: 0.5rem; }
+  strong { color: #fff; }
+
+  /* КОДОВИ БЛОКОВЕ */
+  code { font-family: 'JetBrains Mono', monospace; background: var(--surface2); padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; color: #f472b6; }
+  pre { background: #090a0f; border: 1px solid var(--border); padding: 1.5rem; border-radius: 10px; overflow-x: auto; margin-bottom: 1.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; line-height: 1.5; color: #e8eaf0; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2); }
+  .c-keyword { color: #c084fc; } .c-type { color: #4ecdc4; } .c-string { color: #34d399; } .c-comment { color: var(--muted); font-style: italic; }
+
+  /* INFO BOXES */
+  .info-box { padding: 1.25rem 1.5rem; border-radius: 10px; margin-bottom: 1.5rem; border-left: 4px solid; background: var(--surface2); line-height: 1.6; }
+  .info-box.purple { border-color: var(--accent); }
+  .info-box.red { border-color: var(--wrong); background: rgba(248, 113, 113, 0.05); }
+  .info-box.green { border-color: var(--correct); background: rgba(52, 211, 153, 0.05); }
+
+  /* ИНТЕРАКТИВНИ ЗАДАЧИ */
+  .exercise-grid { display: grid; gap: 1.5rem; margin-top: 2rem; }
+  .exercise { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
+  .exercise:hover { border-color: rgba(192, 132, 252, 0.5); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+  .exercise.active { border-color: var(--accent); background: var(--surface2); cursor: default; transform: none; box-shadow: none; }
+  .ex-num { font-size: 0.75rem; font-weight: 700; color: var(--accent); letter-spacing: 1px; margin-bottom: 0.5rem; }
+  .ex-question { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+  .reveal-hint { font-size: 0.9rem; color: var(--muted); font-style: italic; display: flex; align-items: center; gap: 5px; }
+  .ex-answer { display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px dashed var(--border); animation: fadeIn 0.4s ease; color: #d1d5db; }
+  .exercise.active .ex-answer { display: block; }
+  .exercise.active .reveal-hint { display: none; }
+
+  /* ТАБЛИЦИ */
+  table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; background: var(--surface); border-radius: 8px; overflow: hidden; }
+  th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: var(--surface2); color: var(--accent); font-weight: 600; font-family: 'Playfair Display', serif; }
+  tr:last-child td { border-bottom: none; }
+
+  /* БУТОНИ ЗА НАВИГАЦИЯ */
+  .nav-actions { display: flex; justify-content: space-between; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+  .btn { padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; font-size: 0.95rem; }
+  .btn-primary { background: var(--accent); color: #000; border: none; }
+  .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); }
+  .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--surface2); border-color: var(--muted); }
+
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="branding">АСД <span>Ден 2</span></div>
+  <nav>
+    <button class="nav-btn active" onclick="goTo(0)">01. Въведение</button>
+    <button class="nav-btn" onclick="goTo(1)">02. Стек и Опашка</button>
+    <button class="nav-btn" onclick="goTo(2)">03. Постфиксен запис</button>
+    <button class="nav-btn" onclick="goTo(3)">04. Хеш таблици</button>
+    <button class="nav-btn" onclick="goTo(4)">05. Тренировка</button>
+  </nav>
+  
+  <div class="timer-widget">
+    <div class="timer-title">Спринт за учене</div>
+    <div class="timer-val" id="timerVal">45:00</div>
+    <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+    <div class="timer-controls">
+      <button class="timer-btn" onclick="toggleTimer()" id="timerBtn">▶ Старт</button>
+      <button class="timer-btn" onclick="resetTimer()">↺ Рестарт</button>
+    </div>
+  </div>
+</aside>
+
+<main class="main-content">
+
+  <!-- СЕКЦИЯ 0: Въведение -->
+  <div class="section active">
+    <span class="section-tag">Линейни структури и Търсене</span>
+    <h1>Ден 2: Стек, Опашка и Хеш таблици</h1>
+    <p>Добре дошъл във втория ден! След като си припомни масивите и списъците, днес надграждаме със структури, които налагат <strong>строги правила</strong> за добавяне и извличане на елементи (LIFO и FIFO).</p>
+    
+    <div class="info-box purple">
+      <strong>🎯 Фокус за изпита:</strong> Професорът често дава задачи за пресмятане на <em>Постфиксен запис</em> на лист. Трябва да знаеш и как се справят хеш-таблиците с <em>колизии (collisions)</em> чрез свързани списъци.
+    </div>
+    
+    <h2>Какво покриваме днес:</h2>
+    <ul>
+      <li><strong>Тема 8:</strong> Стек и Опашка. Разлики, реализации (.NET <code>Stack&lt;T&gt;</code> и <code>Queue&lt;T&gt;</code>).</li>
+      <li><strong>Приложение:</strong> Оценка на Постфиксен запис чрез стек.</li>
+      <li><strong>Тема 9:</strong> Хеш таблици (Речници / <code>Dictionary</code>). Вътрешна логика и сложност.</li>
+    </ul>
+
+    <div class="nav-actions" style="justify-content: flex-end;">
+      <button class="btn btn-primary" onclick="nextSection()">Към Стек и Опашка →</button>
+    </div>
+  </div>
+
+  <!-- СЕКЦИЯ 1: Стек и Опашка -->
+  <div class="section">
+    <span class="section-tag">Тема 8 от Конспекта</span>
+    <h1>Стек и Опашка (Stack & Queue)</h1>
+    
+    <h2>1. Стек (Stack) — LIFO</h2>
+    <p>Поведение <strong>Last-In-First-Out</strong> (последен влязъл, пръв излязъл). Представи си го като купчина чинии.</p>
+    <ul>
+      <li><code>Push(T)</code>: Добавя елемент на върха на стека (O(1)).</li>
+      <li><code>Pop()</code>: Връща и премахва най-горния елемент (O(1)).</li>
+      <li><code>Peek()</code>: Само връща най-горния елемент, без да го трие.</li>
+    </ul>
+    
+    <h2>2. Опашка (Queue) — FIFO</h2>
+    <p>Поведение <strong>First-In-First-Out</strong> (пръв влязъл, пръв излязъл). Като реална опашка в магазин.</p>
+    <ul>
+      <li><code>Enqueue(T)</code>: Добавя елемент в края на опашката (O(1)).</li>
+      <li><code>Dequeue()</code>: Връща и премахва елемента от началото на опашката (O(1)).</li>
+      <li><code>Peek()</code>: Само връща първия елемент.</li>
+    </ul>
+
+    <h2>3. Реализации: Масив срещу Свързан списък</h2>
+    <table>
+      <tr>
+        <th>Реализация</th>
+        <th>Предимства</th>
+        <th>Недостатъци</th>
+      </tr>
+      <tr>
+        <td><strong>С Масив</strong><br><em>(Както в .NET)</em></td>
+        <td>Много бърз достъп (кеш-ефективност). Заема малко памет (няма указатели). Опашката ползва <em>зациклен масив (circular array)</em>.</td>
+        <td>Изисква преоразмеряване, когато се напълни (бавна O(n) операция, макар и рядка).</td>
+      </tr>
+      <tr>
+        <td><strong>Със Свързан списък</strong><br><em>(Динамична)</em></td>
+        <td>Няма нужда от преоразмеряване. Памет се заделя "в движение" за всеки нов възел.</td>
+        <td>Повече памет заради указателите. Фрагментация в Heap-а.</td>
+      </tr>
+    </table>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-primary" onclick="nextSection()">Към Постфиксен запис →</button>
+    </div>
+  </div>
+
+  <!-- СЕКЦИЯ 2: Постфиксен запис -->
+  <div class="section">
+    <span class="section-tag">Тема 8 / Приложение</span>
+    <h1>Постфиксен запис (Обратен полски запис)</h1>
+    <p>Това е начин за изписване на математически изрази без скоби, където <strong>операторът стои след операндите си</strong>. Компютрите го обожават, защото се пресмята изключително лесно със Стек.</p>
+    
+    <div class="info-box purple">
+      <strong>Стандартен (инфиксен) запис:</strong> <code>(2 + 3) * 4</code><br>
+      <strong>Постфиксен запис:</strong> <code>2 3 + 4 *</code>
+    </div>
+
+    <h2>Алгоритъм за оценка със Стек (Важно за изпит!)</h2>
+    <p>Четем израза отляво надясно:</p>
+    <ol>
+      <li>Ако срещнеш <strong>число</strong>, добави го в стека (<code>Push</code>).</li>
+      <li>Ако срещнеш <strong>оператор</strong> (+, -, *, /):
+        <ul>
+          <li>Извади последните две числа от стека (<code>Pop</code>).</li>
+          <li><strong>Внимание:</strong> Първото извадено число е ВТОРИЯТ операнд, второто извадено е ПЪРВИЯТ операнд! (Важно при изваждане и деление).</li>
+          <li>Приложи операцията и върни резултата обратно в стека (<code>Push</code>).</li>
+        </ul>
+      </li>
+      <li>Накрая в стека ще остане само едно число – крайният резултат.</li>
+    </ol>
+
+<pre>
+<span class="c-comment">// Оценка на израза: 5 1 2 + 4 * + 3 -</span>
+<span class="c-comment">// Стекът се променя така:</span>
+<span class="c-comment">// [5] -> [5, 1] -> [5, 1, 2] -> "+" -> [5, 3] -> [5, 3, 4] -> "*" -> [5, 12] -> "+" -> [17] -> [17, 3] -> "-" -> [14]</span>
+</pre>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-primary" onclick="nextSection()">Към Хеш таблици →</button>
+    </div>
+  </div>
+
+  <!-- СЕКЦИЯ 3: Хеш таблици -->
+  <div class="section">
+    <span class="section-tag">Тема 9 от Конспекта</span>
+    <h1>Хеш таблици (Hash Tables / Dictionary)</h1>
+    <p>Хеш-таблицата е структура, която запазва двойки <strong>(Ключ, Стойност)</strong> и позволява изключително бързо търсене, добавяне и изтриване със средна сложност <strong>O(1)</strong>.</p>
+    
+    <h2>Как работи "под капака"?</h2>
+    <ol>
+      <li>Подаваш Ключ (напр. текст "Ivan").</li>
+      <li><strong>Хеш-функцията</strong> го превръща в цяло число (Хеш-код).</li>
+      <li>Индексът в масива се намира чрез: <code>index = hash_code % array_capacity</code>.</li>
+      <li>Стойността се записва на този <code>index</code>.</li>
+    </ol>
+
+    <h2>Колизии и справяне с тях</h2>
+    <p>Колизия възниква, когато <strong>два различни ключа дадат един и същ индекс</strong>. Как се решава това според конспекта:</p>
+    <div class="info-box green">
+      <strong>1. Нареждане в списък (Chaining):</strong><br>
+      На всеки индекс в масива вместо една стойност се пази Свързан списък. При колизия, новият елемент просто се добавя в списъка на съответния индекс. <em>Този метод се използва в .NET класа <code>Dictionary&lt;TKey, TValue&gt;</code>.</em><br><br>
+      <strong>2. Отворена адресация (Open Addressing):</strong><br>
+      При колизия се търси следващата "свободна" позиция директно в масива чрез различни стъпки (линейно, квадратично).
+    </div>
+
+    <h2>Реализация в .NET</h2>
+    <p>Основният клас е <code>Dictionary&lt;TKey, TValue&gt;</code> (от <code>System.Collections.Generic</code>). Когато таблицата се напълни над определен праг (Load Factor), тя се разширява (Rehashing) и всички елементи се пренареждат.</p>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-primary" onclick="nextSection()">Към Задачите →</button>
+    </div>
+  </div>
+
+  <!-- СЕКЦИЯ 4: Тренировка -->
+  <div class="section">
+    <span class="section-tag">Проверка на знанията</span>
+    <h1>Интерактивна тренировка</h1>
+    <p>Опитай да отговориш наум или на лист. Тези задачи са типични за изпита!</p>
+
+    <div class="exercise-grid">
+      <!-- Задача 1 -->
+      <div class="exercise" onclick="toggleEx(this)">
+        <div class="ex-num">ВЪПРОС 1 — ОЦЕНКА СЪС СТЕК</div>
+        <div class="ex-question">Пресметни следния постфиксен израз на лист, използвайки стек:<br><br><code>7 2 3 * -</code></div>
+        <div class="reveal-hint">👆 Кликни за отговор</div>
+        <div class="ex-answer">
+          <strong>Стъпка по стъпка:</strong><br>
+          1. 7 влиза в стека: <code>[7]</code><br>
+          2. 2 влиза в стека: <code>[7, 2]</code><br>
+          3. 3 влиза в стека: <code>[7, 2, 3]</code><br>
+          4. Оператор <code>*</code>: вадим 3 и 2. 2 * 3 = 6. Връщаме 6: <code>[7, 6]</code><br>
+          5. Оператор <code>-</code>: вадим 6 и 7. <strong>Внимание:</strong> 7 - 6 = 1. Връщаме 1.<br><br>
+          Крайният резултат е <strong>1</strong>.
+        </div>
+      </div>
+
+      <!-- Задача 2 -->
+      <div class="exercise" onclick="toggleEx(this)">
+        <div class="ex-num">ВЪПРОС 2 — СЛОЖНОСТ НА ХЕШ ТАБЛИЦА</div>
+        <div class="ex-question">Каква е времевата сложност (Big-O) за търсене на елемент в Хеш таблица в най-добрия и в най-лошия случай? Защо възниква най-лошият случай?</div>
+        <div class="reveal-hint">👆 Кликни за отговор</div>
+        <div class="ex-answer">
+          <strong>Най-добър/среден случай:</strong> <code>O(1)</code> (константно време).<br><br>
+          <strong>Най-лош случай:</strong> <code>O(n)</code> (линейно време).<br>
+          Най-лошият случай възниква, когато имаме изключително лоша хеш-функция и всички елементи попаднат в един и същ индекс (тотална колизия). Ако таблицата е реализирана с Chaining, търсенето се превръща в обхождане на един дълъг свързан списък от <code>n</code> елемента.
+        </div>
+      </div>
+
+      <!-- Задача 3 -->
+      <div class="exercise" onclick="toggleEx(this)">
+        <div class="ex-num">ВЪПРОС 3 — СИМУЛАЦИЯ НА ОПАШКА</div>
+        <div class="ex-question">Имаме празна опашка (Queue). Изпълняваме: <code>Enqueue(10)</code>, <code>Enqueue(20)</code>, <code>Dequeue()</code>, <code>Enqueue(30)</code>. Какво ще върне следващо извикване на <code>Peek()</code>?</div>
+        <div class="reveal-hint">👆 Кликни за отговор</div>
+        <div class="ex-answer">
+          Опашката работи на принципа FIFO (Пръв влязъл, пръв излязъл).<br>
+          1. Добавяме 10: <code>[10]</code><br>
+          2. Добавяме 20: <code>[10, 20]</code><br>
+          3. <code>Dequeue()</code> премахва и връща първия влязъл, т.е. 10. Остават: <code>[20]</code><br>
+          4. Добавяме 30: <code>[20, 30]</code><br>
+          5. <code>Peek()</code> връща (но не премахва) елемента в началото на опашката.<br><br>
+          Резултатът е <strong>20</strong>.
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Хеш таблици</button>
+      <button class="btn btn-primary" onclick="goTo(0)">↩ Обратно в началото</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  // НАВИГАЦИЯ
+  let current = 0;
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const sections = document.querySelectorAll('.section');
+
+  function goTo(idx) {
+    sections[current].classList.remove('active');
+    navBtns[current].classList.remove('active');
+    current = idx;
+    sections[current].classList.add('active');
+    navBtns[current].classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function nextSection() { if(current < sections.length - 1) goTo(current + 1); }
+  function prevSection() { if(current > 0) goTo(current - 1); }
+
+  // ЗАДАЧИ CLICK-TO-REVEAL
+  function toggleEx(el) {
+    el.classList.toggle('active');
+  }
+
+  // ПОМОДОРО ТАЙМЕР
+  let timerDuration = 45 * 60;
+  let timerRemaining = timerDuration;
+  let timerInterval;
+  let timerRunning = false;
+
+  function toggleTimer() {
+    if (timerRunning) {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      document.getElementById('timerBtn').textContent = '▶ Продължи';
+    } else {
+      timerRunning = true;
+      document.getElementById('timerBtn').textContent = '⏸ Пауза';
+      timerInterval = setInterval(() => {
+        if (timerRemaining > 0) {
+          timerRemaining--;
+          updateTimerDisplay();
+        } else {
+          clearInterval(timerInterval);
+          timerRunning = false;
+          document.getElementById('timerBtn').textContent = '✓ Готово!';
+        }
+      }, 1000);
+    }
+  }
+
+  function resetTimer() {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    timerRemaining = timerDuration;
+    document.getElementById('timerBtn').textContent = '▶ Старт';
+    updateTimerDisplay();
+  }
+
+  function updateTimerDisplay() {
+    const m = Math.floor(timerRemaining / 60);
+    const s = timerRemaining % 60;
+    document.getElementById('timerVal').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    const pct = (timerRemaining / timerDuration) * 100;
+    document.getElementById('timerFill').style.width = pct + '%';
+  }
+  
+  updateTimerDisplay();
+</script>
+</body>
+</html>

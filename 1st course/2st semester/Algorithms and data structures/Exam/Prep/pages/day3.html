@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ден 3 — Рекурсия и Итерация</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0a0f12;
+    --surface: #10161a;
+    --surface2: #161f25;
+    --border: #202e36;
+    --accent: #10b981; /* Emerald/Зелен акцент за Ден 3 */
+    --accent-hover: #34d399;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --correct: #10b981;
+    --wrong: #ef4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background: radial-gradient(ellipse 80% 80% at 50% -20%, rgba(16, 185, 129, 0.05), transparent);
+  }
+
+  /* ЛЯВА НАВИГАЦИЯ */
+  .sidebar {
+    width: 280px; background: var(--surface); border-right: 1px solid var(--border);
+    padding: 2rem 1.5rem; display: flex; flex-direction: column; z-index: 10;
+    position: fixed; height: 100vh; overflow-y: auto;
+  }
+  .branding { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; color: var(--accent); margin-bottom: 2.5rem; letter-spacing: 0.5px; }
+  .branding span { color: var(--text); }
+  
+  .nav-btn {
+    background: transparent; border: none; color: var(--muted); padding: 0.875rem 1rem;
+    text-align: left; font-size: 0.95rem; font-family: 'Inter', sans-serif;
+    border-radius: 8px; cursor: pointer; transition: all 0.2s; margin-bottom: 0.5rem;
+    font-weight: 500; display: flex; align-items: center; gap: 10px;
+  }
+  .nav-btn:hover { background: var(--surface2); color: var(--text); }
+  .nav-btn.active { background: rgba(16, 185, 129, 0.1); color: var(--accent); font-weight: 600; box-shadow: inset 3px 0 0 var(--accent); }
+
+  /* ТАЙМЕР ПОМОДОРО */
+  .timer-widget {
+    margin-top: auto; background: var(--surface2); padding: 1.25rem; border-radius: 12px;
+    border: 1px solid var(--border); text-align: center;
+  }
+  .timer-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 0.5rem; font-weight: 600; }
+  .timer-val { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 600; color: var(--text); margin-bottom: 1rem; }
+  .timer-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 1rem; }
+  .timer-fill { height: 100%; width: 100%; background: var(--accent); transition: width 1s linear; }
+  .timer-controls { display: flex; gap: 0.5rem; justify-content: center; }
+  .timer-btn {
+    background: var(--surface); color: var(--text); border: 1px solid var(--border);
+    padding: 0.4rem 0.75rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem;
+    font-weight: 500; transition: all 0.2s;
+  }
+  .timer-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ОСНОВНО СЪДЪРЖАНИЕ */
+  .main-content { margin-left: 280px; flex: 1; padding: 3rem 4rem; z-index: 1; max-width: 1000px; }
+  .section { display: none; animation: fadeIn 0.4s ease forwards; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-tag { display: inline-block; padding: 0.3rem 0.75rem; background: rgba(16, 185, 129, 0.1); color: var(--accent); border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-bottom: 1rem; letter-spacing: 0.5px; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2.8rem; margin-bottom: 1.5rem; line-height: 1.2; font-weight: 900; }
+  h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin: 2rem 0 1rem; color: var(--accent); }
+  p { line-height: 1.7; margin-bottom: 1.2rem; color: #cbd5e1; font-size: 1.05rem; }
+  ul, ol { margin-left: 1.5rem; margin-bottom: 1.5rem; color: #cbd5e1; line-height: 1.7; }
+  li { margin-bottom: 0.5rem; }
+  strong { color: #fff; }
+
+  /* КОДОВИ БЛОКОВЕ */
+  code { font-family: 'JetBrains Mono', monospace; background: var(--surface2); padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; color: #6ee7b7; }
+  pre { background: #070a0c; border: 1px solid var(--border); padding: 1.5rem; border-radius: 10px; overflow-x: auto; margin-bottom: 1.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; line-height: 1.5; color: #e2e8f0; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2); }
+  .c-keyword { color: #34d399; } .c-type { color: #38bdf8; } .c-string { color: #fcd34d; } .c-comment { color: var(--muted); font-style: italic; }
+
+  /* INFO BOXES */
+  .info-box { padding: 1.25rem 1.5rem; border-radius: 10px; margin-bottom: 1.5rem; border-left: 4px solid; background: var(--surface2); line-height: 1.6; }
+  .info-box.emerald { border-color: var(--accent); }
+  .info-box.red { border-color: var(--wrong); background: rgba(239, 68, 68, 0.05); }
+
+  /* ИНТЕРАКТИВНИ ЗАДАЧИ */
+  .exercise-grid { display: grid; gap: 1.5rem; margin-top: 2rem; }
+  .exercise { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
+  .exercise:hover { border-color: rgba(16, 185, 129, 0.5); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+  .exercise.active { border-color: var(--accent); background: var(--surface2); cursor: default; transform: none; box-shadow: none; }
+  .ex-num { font-size: 0.75rem; font-weight: 700; color: var(--accent); letter-spacing: 1px; margin-bottom: 0.5rem; }
+  .ex-question { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+  .reveal-hint { font-size: 0.9rem; color: var(--muted); font-style: italic; display: flex; align-items: center; gap: 5px; }
+  .ex-answer { display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px dashed var(--border); animation: fadeIn 0.4s ease; color: #cbd5e1; }
+  .exercise.active .ex-answer { display: block; }
+  .exercise.active .reveal-hint { display: none; }
+
+  /* ТАБЛИЦИ */
+  table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; background: var(--surface); border-radius: 8px; overflow: hidden; }
+  th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: var(--surface2); color: var(--accent); font-weight: 600; font-family: 'Playfair Display', serif; }
+  tr:last-child td { border-bottom: none; }
+
+  /* БУТОНИ ЗА НАВИГАЦИЯ */
+  .nav-actions { display: flex; justify-content: space-between; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+  .btn { padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; font-size: 0.95rem; }
+  .btn-primary { background: var(--accent); color: #000; border: none; }
+  .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); }
+  .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--surface2); border-color: var(--muted); }
+
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="branding">АСД <span>Ден 3</span></div>
+  <nav>
+    <button class="nav-btn active" onclick="goTo(0)">01. Въведение</button>
+    <button class="nav-btn" onclick="goTo(1)">02. Рекурсия и Итерация</button>
+    <button class="nav-btn" onclick="goTo(2)">03. Фибоначи (Опасности)</button>
+    <button class="nav-btn" onclick="goTo(3)">04. Ханойски кули</button>
+    <button class="nav-btn" onclick="goTo(4)">05. Тренировка</button>
+  </nav>
+  
+  <div class="timer-widget">
+    <div class="timer-title">Спринт за учене</div>
+    <div class="timer-val" id="timerVal">45:00</div>
+    <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+    <div class="timer-controls">
+      <button class="timer-btn" onclick="toggleTimer()" id="timerBtn">▶ Старт</button>
+      <button class="timer-btn" onclick="resetTimer()">↺ Рестарт</button>
+    </div>
+  </div>
+</aside>
+
+<main class="main-content">
+
+  <!-- СЕКЦИЯ 0: Въведение -->
+  <div class="section active">
+    <span class="section-tag">Парадигми за програмиране</span>
+    <h1>Ден 3: Рекурсия и Итерация</h1>
+    <p>Дотук разгледахме къде съхраняваме данните. Сега преминаваме към това <strong>как обработваме</strong> тези данни. Рекурсията е един от най-мощните инструменти в програмирането, но крие сериозни рискове за производителността, ако не се използва правилно.</p>
+    
+    <div class="info-box emerald">
+      <strong>🎯 Фокус за изпита:</strong> Проф. Голев изисква да знаеш разликата в паметта между рекурсия и цикъл, какво представлява <em>препълването на стека (Stack Overflow)</em> и защо директната рекурсия при Фибоначи е изключително лоша идея.
+    </div>
+    
+    <h2>Какво покриваме днес:</h2>
+    <ul>
+      <li><strong>Тема 2:</strong> Рекурсивни и итеративни алгоритми. Разлики в управлението на паметта.</li>
+      <li><strong>Примери:</strong> Изчисляване на n! (факториел) и числа на Фибоначи.</li>
+      <li><strong>Ханойски кули:</strong> Класическата рекурсивна задача, нейната реализация и времева сложност O(2ⁿ).</li>
+    </ul>
+
+    <div class="nav-actions" style="justify-content: flex-end;">
+      <button class="btn btn-primary" onclick="nextSection()">Към Теорията →</button>
+    </div>
+  </div>
+
+  <!-- СЕКЦИЯ 1: Рекурсия и Итерация -->
+  <div class="section">
+    <span class="section-tag">Тема 2 от Конспекта</span>
+    <h1>Сравнение на Рекурсия и Итерация</h1>
+    
+    <p><strong>Рекурсия</strong> е подход, при който един метод извиква сам себе си, докато стигне до <em>дъно</em> (базов случай). <strong>Итерация</strong> е използването на цикли (<code>for</code>, <code>while</code>) за повтаряне на блок от код.</p>
+
+    <table>
+      <tr>
+        <th>Характеристика</th>
+        <th>Рекурсия</th>
+        <th>Итерация (Цикли)</th>
+      </tr>
+      <tr>
+        <td><strong>Памет</strong></td>
+        <td>Консумира повече ресурси, защото всяко извикване заделя нова рамка (Stack Frame) в системния стек.</td>
+        <td>Много по-ефективна. Работи в рамките на една единствена стек рамка.</td>
+      </tr>
+      <tr>
+        <td><strong>Четимост</strong></td>
+        <td>Води до елегантни и кратки решения (особено при обхождане на дървета/графи).</td>
+        <td>Може да стане сложна и дълга за специфични математически проблеми.</td>
+      </tr>
+      <tr>
+        <td><strong>Грешки</strong></td>
+        <td>Ако няма правилно "дъно" или извикванията са твърде много, се стига до <strong>StackOverflowException</strong>.</td>
+        <td>Опасност от безкрайни цикли (забиване), но не препълва паметта по същия начин.</td>
+      </tr>
+    </table>
+
+    <h2>Пример: Факториел (n!)</h2>
+    <p>И при двата варианта (рекурсия и цикъл) сложността е <strong>O(n)</strong>, но според проф. Голев за линейни процеси като този <em>винаги трябва да се предпочита итерацията</em>.</p>
+<pre>
+<span class="c-comment">// Рекурсивен подход (заема O(n) памет в стека)</span>
+<span class="c-keyword">long</span> Factorial(<span class="c-keyword">int</span> n) 
+{
+    <span class="c-keyword">if</span> (n <= 1) <span class="c-keyword">return</span> 1; <span class="c-comment">// Дъно</span>
+    <span class="c-keyword">return</span> n * Factorial(n - 1);
+}
+</pre>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-primary" onclick="nextSection()">Към Фибоначи →</button>
+    </div>
+  </div>
+
+  <!-- СЕКЦИЯ 2: Фибоначи -->
+  <div class="section">
+    <span class="section-tag">Оценка на сложността</span>
+    <h1>Числа на Фибоначи: Клопката на Рекурсията</h1>
+    <p>Редицата на Фибоначи се дефинира като: <code>f(n) = f(n-1) + f(n-2)</code>. На пръв поглед рекурсията изглежда идеална.</p>
+    
+    <div class="info-box red">
+      <strong>🚨 Внимание:</strong> Проф. Голев изрично подчертава, че директната рекурсия тук е изключително неефективна. Едни и същи числа се пресмятат многократно (т.нар. "дърво на извикванията" расте експлозивно). Сложността е експоненциална: <strong>O(2ⁿ)</strong>.
+    </div>
+
+    <h2>Лошият (Рекурсивен) Подход: O(2ⁿ) време</h2>
+<pre>
+<span class="c-keyword">long</span> FibRecursive(<span class="c-keyword">int</span> n) 
+{
+    <span class="c-keyword">if</span> (n == 0 || n == 1) <span class="c-keyword">return</span> n;
+    <span class="c-keyword">return</span> FibRecursive(n - 1) + FibRecursive(n - 2); <span class="c-comment">// Огромно дублиране на работа</span>
+}
+</pre>
+
+    <h2>Добрият (Итеративен) Подход: O(n) време</h2>
+    <p>С един прост цикъл, изчисляването на Фибоначи става линейно и изключително бързо!</p>
+<pre>
+<span class="c-keyword">long</span> FibIterative(<span class="c-keyword">int</span> n) 
+{
+    <span class="c-keyword">if</span> (n == 0 || n == 1) <span class="c-keyword">return</span> n;
+    
+    <span class="c-keyword">long</span> prev = 0, curr = 1, next = 0;
+    <span class="c-keyword">for</span> (<span class="c-keyword">int</span> i = 2; i <= n; i++) 
+    {
+        next = prev + curr;
+        prev = curr;
+        curr = next;
+    }
+    <span class="c-keyword">return</span> curr;
+}
+</pre>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-primary" onclick="nextSection()">Към Ханойски кули →</button>
+    </div>
+  </div>
+
+  <!-- СЕКЦИЯ 3: Ханойски кули -->
+  <div class="section">
+    <span class="section-tag">Класически алгоритъм (по Наков)</span>
+    <h1>Ханойски кули</h1>
+    <p>Преместването на <code>n</code> диска от Стълб 1 на Стълб 2, като използваме Стълб 3 за помощ и спазваме правилото "голям диск никога не се слага върху малък". Това е задача, която на практика <strong>няма как да се реши лесно без рекурсия</strong>.</p>
+    
+    <h2>Логика на алгоритъма:</h2>
+    <ol>
+      <li>Премести горните <code>n-1</code> диска от началния към помощния стълб.</li>
+      <li>Премести най-долния (най-голям) диск от началния към крайния стълб.</li>
+      <li>Премести онези <code>n-1</code> диска от помощния към крайния стълб.</li>
+    </ol>
+
+    <h2>C# Реализация</h2>
+<pre>
+<span class="c-keyword">void</span> SolveHanoi(<span class="c-keyword">int</span> n, <span class="c-type">char</span> start, <span class="c-type">char</span> end, <span class="c-type">char</span> temp) 
+{
+    <span class="c-keyword">if</span> (n == 1) 
+    {
+        Console.WriteLine(<span class="c-string">$"Премести диск 1 от {start} на {end}"</span>);
+        <span class="c-keyword">return</span>;
+    }
+    
+    <span class="c-comment">// 1. Местим n-1 диска на помощния</span>
+    SolveHanoi(n - 1, start, temp, end); 
+    
+    <span class="c-comment">// 2. Местим най-големия</span>
+    Console.WriteLine(<span class="c-string">$"Премести диск {n} от {start} на {end}"</span>);
+    
+    <span class="c-comment">// 3. Местим n-1 диска от помощния към крайния</span>
+    SolveHanoi(n - 1, temp, end, start); 
+}
+</pre>
+
+    <div class="info-box emerald">
+      <strong>Времева сложност:</strong> Броят на ходовете се описва с формулата <code>T(n) = 2ⁿ - 1</code>. Сложността е експоненциална <strong>O(2ⁿ)</strong>. Добавянето на само 1 нов диск удвоява времето за решаване!
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-primary" onclick="nextSection()">Към Задачите →</button>
+    </div>
+  </div>
+
+  <!-- СЕКЦИЯ 4: Тренировка -->
+  <div class="section">
+    <span class="section-tag">Проверка на знанията</span>
+    <h1>Интерактивна тренировка</h1>
+    <p>Реши тези въпроси наум, за да затвърдиш разликата между O(n) и O(2ⁿ).</p>
+
+    <div class="exercise-grid">
+      <!-- Задача 1 -->
+      <div class="exercise" onclick="toggleEx(this)">
+        <div class="ex-num">ВЪПРОС 1 — STACK OVERFLOW</div>
+        <div class="ex-question">Защо рекурсивните функции са предразположени към хвърляне на <code>StackOverflowException</code>, докато <code>while(true)</code> (безкраен цикъл) обикновено просто "забива" програмата, но не хвърля такава грешка?</div>
+        <div class="reveal-hint">👆 Кликни за отговор</div>
+        <div class="ex-answer">
+          При всяко рекурсивно извикване операционната система заделя нов блок памет (Stack Frame) за локалните променливи и адреса на връщане. Тъй като паметта на стека е малка и ограничена (обикновено 1-2 MB), твърде много извиквания бързо я изчерпват.<br><br>
+          От друга страна, един безкраен цикъл преизползва една и съща стек рамка отново и отново, така че памет не се губи – просто процесорът се товари.
+        </div>
+      </div>
+
+      <!-- Задача 2 -->
+      <div class="exercise" onclick="toggleEx(this)">
+        <div class="ex-num">ВЪПРОС 2 — ВРЕМЕВА СЛОЖНОСТ</div>
+        <div class="ex-question">Спрямо конспекта, каква е времевата сложност (Big-O) на итеративния подход за пресмятане на n-тото число на Фибоначи спрямо директния рекурсивен?</div>
+        <div class="reveal-hint">👆 Кликни за отговор</div>
+        <div class="ex-answer">
+          <strong>Итеративен (с for цикъл):</strong> Линейна сложност <code>O(n)</code>. Всяко число от 1 до n се пресмята точно веднъж.<br><br>
+          <strong>Директен рекурсивен:</strong> Експоненциална сложност <code>O(2ⁿ)</code> (по-точно <code>O(1.618ⁿ)</code>). Прави се огромно количество дублирани изчисления.
+        </div>
+      </div>
+
+      <!-- Задача 3 -->
+      <div class="exercise" onclick="toggleEx(this)">
+        <div class="ex-num">ВЪПРОС 3 — ХАНОЙСКИ КУЛИ (ИЗЧИСЛЕНИЕ)</div>
+        <div class="ex-question">Ако имаш 3 диска на Ханойските кули, колко минимални хода (премествания) са нужни, за да се реши задачата? А при 4 диска?</div>
+        <div class="reveal-hint">👆 Кликни за отговор</div>
+        <div class="ex-answer">
+          Формулата за броя на ходовете е <code>2ⁿ - 1</code>.<br><br>
+          За 3 диска: 2³ - 1 = 8 - 1 = <strong>7 хода</strong>.<br>
+          За 4 диска: 2⁴ - 1 = 16 - 1 = <strong>15 хода</strong>.
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Ханойски кули</button>
+      <button class="btn btn-primary" onclick="goTo(0)">↩ Обратно в началото</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  let current = 0;
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const sections = document.querySelectorAll('.section');
+
+  function goTo(idx) {
+    sections[current].classList.remove('active');
+    navBtns[current].classList.remove('active');
+    current = idx;
+    sections[current].classList.add('active');
+    navBtns[current].classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function nextSection() { if(current < sections.length - 1) goTo(current + 1); }
+  function prevSection() { if(current > 0) goTo(current - 1); }
+
+  function toggleEx(el) {
+    el.classList.toggle('active');
+  }
+
+  let timerDuration = 45 * 60;
+  let timerRemaining = timerDuration;
+  let timerInterval;
+  let timerRunning = false;
+
+  function toggleTimer() {
+    if (timerRunning) {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      document.getElementById('timerBtn').textContent = '▶ Продължи';
+    } else {
+      timerRunning = true;
+      document.getElementById('timerBtn').textContent = '⏸ Пауза';
+      timerInterval = setInterval(() => {
+        if (timerRemaining > 0) {
+          timerRemaining--;
+          updateTimerDisplay();
+        } else {
+          clearInterval(timerInterval);
+          timerRunning = false;
+          document.getElementById('timerBtn').textContent = '✓ Готово!';
+        }
+      }, 1000);
+    }
+  }
+
+  function resetTimer() {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    timerRemaining = timerDuration;
+    document.getElementById('timerBtn').textContent = '▶ Старт';
+    updateTimerDisplay();
+  }
+
+  function updateTimerDisplay() {
+    const m = Math.floor(timerRemaining / 60);
+    const s = timerRemaining % 60;
+    document.getElementById('timerVal').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    const pct = (timerRemaining / timerDuration) * 100;
+    document.getElementById('timerFill').style.width = pct + '%';
+  }
+  
+  updateTimerDisplay();
+</script>
+</body>
+</html>

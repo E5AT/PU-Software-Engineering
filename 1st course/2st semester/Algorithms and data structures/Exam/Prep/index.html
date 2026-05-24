@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="bg">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>АСД | Учебно Табло</title>
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap");
+
+            :root {
+                --bg: #0a0b10;
+                --surface: #12131a;
+                --border: #2b2d3a;
+                --accent: #38bdf8;
+                --accent-hover: #7dd3fc;
+                --text: #f1f5f9;
+                --muted: #94a3b8;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
+                background: var(--bg);
+                color: var(--text);
+                font-family: "Inter", sans-serif;
+                padding: 2rem 1rem;
+                line-height: 1.6;
+            }
+
+            .container {
+                max-width: 1000px;
+                margin: 0 auto;
+            }
+
+            header {
+                text-align: center;
+                margin-bottom: 3rem;
+            }
+            h1 {
+                font-size: 2.5rem;
+                background: linear-gradient(to right, #38bdf8, #a855f7);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-bottom: 0.5rem;
+            }
+            .subtitle {
+                color: var(--muted);
+                font-size: 1.1rem;
+            }
+
+            .week-title {
+                margin-top: 2.5rem;
+                margin-bottom: 1rem;
+                font-size: 1.25rem;
+                color: #e2e8f0;
+                border-bottom: 1px solid var(--border);
+                padding-bottom: 0.5rem;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .week-title span {
+                background: rgba(56, 189, 248, 0.1);
+                color: var(--accent);
+                padding: 0.2rem 0.6rem;
+                border-radius: 6px;
+                font-size: 0.85rem;
+                font-weight: 600;
+            }
+
+            .grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 1.25rem;
+            }
+
+            .card {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                padding: 1.5rem;
+                border-radius: 12px;
+                text-decoration: none;
+                color: inherit;
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            }
+            .card::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 4px;
+                height: 100%;
+                background: var(--accent);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+            .card:hover {
+                border-color: var(--accent);
+                transform: translateY(-3px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            }
+            .card:hover::before {
+                opacity: 1;
+            }
+
+            .card h3 {
+                color: #fff;
+                margin-bottom: 0.5rem;
+                font-size: 1.15rem;
+            }
+            .card p {
+                color: var(--muted);
+                font-size: 0.95rem;
+            }
+
+            .card.extra::before {
+                background: #f43f5e;
+                opacity: 1;
+                width: 3px;
+            }
+            .card.extra h3 {
+                color: #fb7185;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h1>Алгоритми и Структури от Данни</h1>
+                <div class="subtitle">
+                    Интензивна 5-седмична програма за подготовка (C#)
+                </div>
+            </header>
+
+            <div class="week-title">
+                <span>Седмица 1</span> C# База и Линейни структури
+            </div>
+            <div class="grid">
+                <a href="pages/day1.html" class="card">
+                    <h3>Ден 1: Типове данни и Масиви</h3>
+                    <p>
+                        Припомняне на синтаксиса, управлението на паметта
+                        (Stack/Heap) и базовите структури: масиви, List и
+                        LinkedList.
+                    </p>
+                </a>
+                <a href="pages/day2.html" class="card">
+                    <h3>Ден 2: Стек, Опашка и Хеш таблици</h3>
+                    <p>
+                        Усвояване на LIFO/FIFO принципите. Пресмятане на
+                        постфиксен запис и решаване на колизии при речници
+                        (Dictionary).
+                    </p>
+                </a>
+            </div>
+
+            <div class="week-title">
+                <span>Седмица 2</span> Рекурсия и Прости сортировки
+            </div>
+            <div class="grid">
+                <a href="pages/day3.html" class="card">
+                    <h3>Ден 3: Рекурсия срещу Итерация</h3>
+                    <p>
+                        Сравнение на двата подхода. Ханойски кули, Фибоначи и
+                        опасностите от препълване на стека (Stack Overflow).
+                    </p>
+                </a>
+                <a href="pages/day4.html" class="card">
+                    <h3>Ден 4: Прости сортировки O(n²)</h3>
+                    <p>
+                        Разбиране на алгоритмите Селекция, Мехурче и Вмъкване.
+                        Анализ на времева сложност и устойчивост (Stability).
+                    </p>
+                </a>
+            </div>
+
+            <div class="week-title">
+                <span>Седмица 3</span> Бързи алгоритми и Връщане назад
+            </div>
+            <div class="grid">
+                <a href="pages/day5.html" class="card">
+                    <h3>Ден 5: Quick Sort, Merge Sort и Търсене</h3>
+                    <p>
+                        Принципът "разделяй и владей". Алгоритми с O(n log n)
+                        сложност, двоично търсене и сливане чрез помощен масив.
+                    </p>
+                </a>
+                <a href="pages/day6.html" class="card">
+                    <h3>Ден 6: Връщане назад (Backtracking)</h3>
+                    <p>
+                        Усвояване на рекурсията с връщане стъпка назад.
+                        Класически задачи: Път в лабиринт и Разходка на коня
+                        (Дамите).
+                    </p>
+                </a>
+            </div>
+
+            <div class="week-title">
+                <span>Седмица 4</span> Дървета и Основи на графите
+            </div>
+            <div class="grid">
+                <a href="pages/day7.html" class="card">
+                    <h3>Ден 7: Дървета и BST</h3>
+                    <p>
+                        Йерархични структури, двоични дървета за търсене.
+                        Рекурсивни обхождания: preorder, inorder и postorder.
+                    </p>
+                </a>
+                <a href="pages/day8.html" class="card">
+                    <h3>Ден 8: Графи, Матрица на съседство</h3>
+                    <p>
+                        Моделиране на мрежи. Обхождане в ширина (метод на
+                        вълната чрез опашка - BFS) и в дълбочина (чрез
+                        стек/рекурсия - DFS).
+                    </p>
+                </a>
+            </div>
+
+            <div class="week-title">
+                <span>Седмица 5</span> Сложни алгоритми върху графи
+            </div>
+            <div class="grid">
+                <a href="pages/day9.html" class="card">
+                    <h3>Ден 9: Дейкстра, MST и Топология</h3>
+                    <p>
+                        Най-тежките алгоритми: минимален път, минимално
+                        покриващо дърво (Лакоми алгоритми) и топологична
+                        сортировка.
+                    </p>
+                </a>
+            </div>
+
+            <div class="week-title" style="border-color: #f43f5e">
+                <span style="background: rgba(244, 63, 94, 0.1); color: #f43f5e"
+                    >Екстра</span
+                >
+                Допълнителни материали
+            </div>
+            <div class="grid">
+                <a href="pages/day-extra.html" class="card extra">
+                    <h3>Реални Имплементации (Под капака)</h3>
+                    <p>
+                        Сорс код и коментари как се реализират ръчно Custom
+                        ArrayList, LinkedList, Stack, Queue и Graph чрез базови
+                        типове.
+                    </p>
+                </a>
+                <a href="pages/day-dp.html" class="card extra">
+                    <h3>Динамично оптимиране (DP)</h3>
+                    <p>
+                        Застъпващи се подзадачи, Мемоизация (Top-Down) и
+                        Табулация (Bottom-Up). Задача за раницата и ресто с
+                        монети.
+                    </p>
+                </a>
+            </div>
+
+            <footer
+                style="
+                    text-align: center;
+                    margin-top: 4rem;
+                    color: var(--muted);
+                    font-size: 0.9rem;
+                "
+            >
+                &copy; 2026 АСД Подготовка. Успех на изпита!
+            </footer>
+        </div>
+    </body>
+</html>

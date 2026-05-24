@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ден 7 — Дървета и Двоични дървета за търсене (BST)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #090b11;
+    --surface: #10141f;
+    --surface2: #191f30;
+    --border: #262f49;
+    --accent: #6366f1; /* Индиго/Син акцент за Ден 7 */
+    --accent-hover: #818cf8;
+    --text: #e0e7ff;
+    --muted: #64748b;
+    --correct: #10b981;
+    --wrong: #ef4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background: radial-gradient(ellipse 80% 80% at 50% -20%, rgba(99, 102, 241, 0.05), transparent);
+  }
+
+  /* ЛЯВА НАВИГАЦИЯ */
+  .sidebar {
+    width: 280px; background: var(--surface); border-right: 1px solid var(--border);
+    padding: 2rem 1.5rem; display: flex; flex-direction: column; z-index: 10;
+    position: fixed; height: 100vh; overflow-y: auto;
+  }
+  .branding { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; color: var(--accent); margin-bottom: 2.5rem; letter-spacing: 0.5px; }
+  .branding span { color: var(--text); }
+  
+  .nav-btn {
+    background: transparent; border: none; color: var(--muted); padding: 0.875rem 1rem;
+    text-align: left; font-size: 0.95rem; font-family: 'Inter', sans-serif;
+    border-radius: 8px; cursor: pointer; transition: all 0.2s; margin-bottom: 0.5rem;
+    font-weight: 500; display: flex; align-items: center; gap: 10px;
+  }
+  .nav-btn:hover { background: var(--surface2); color: var(--text); }
+  .nav-btn.active { background: rgba(99, 102, 241, 0.1); color: var(--accent); font-weight: 600; box-shadow: inset 3px 0 0 var(--accent); }
+
+  /* ТАЙМЕР ПОМОДОРО */
+  .timer-widget {
+    margin-top: auto; background: var(--surface2); padding: 1.25rem; border-radius: 12px;
+    border: 1px solid var(--border); text-align: center;
+  }
+  .timer-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 0.5rem; font-weight: 600; }
+  .timer-val { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 600; color: var(--text); margin-bottom: 1rem; }
+  .timer-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 1rem; }
+  .timer-fill { height: 100%; width: 100%; background: var(--accent); transition: width 1s linear; }
+  .timer-controls { display: flex; gap: 0.5rem; justify-content: center; }
+  .timer-btn {
+    background: var(--surface); color: var(--text); border: 1px solid var(--border);
+    padding: 0.4rem 0.75rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem;
+    font-weight: 500; transition: all 0.2s;
+  }
+  .timer-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ОСНОВНО СЪДЪРЖАНИЕ */
+  .main-content { margin-left: 280px; flex: 1; padding: 3rem 4rem; z-index: 1; max-width: 1000px; }
+  .section { display: none; animation: fadeIn 0.4s ease forwards; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-tag { display: inline-block; padding: 0.3rem 0.75rem; background: rgba(99, 102, 241, 0.1); color: var(--accent); border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-bottom: 1rem; letter-spacing: 0.5px; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2.8rem; margin-bottom: 1.5rem; line-height: 1.2; font-weight: 900; }
+  h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin: 2rem 0 1rem; color: var(--accent); }
+  p { line-height: 1.7; margin-bottom: 1.2rem; color: #cbd5e1; font-size: 1.05rem; }
+  ul, ol { margin-left: 1.5rem; margin-bottom: 1.5rem; color: #cbd5e1; line-height: 1.7; }
+  li { margin-bottom: 0.5rem; }
+  strong { color: #fff; }
+
+  /* КОДОВИ БЛОКОВЕ */
+  code { font-family: 'JetBrains Mono', monospace; background: var(--surface2); padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; color: #818cf8; }
+  pre { background: #05070c; border: 1px solid var(--border); padding: 1.5rem; border-radius: 10px; overflow-x: auto; margin-bottom: 1.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; line-height: 1.5; color: #e0e7ff; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2); }
+  .c-keyword { color: #818cf8; } .c-type { color: #4ecdc4; } .c-string { color: #34d399; } .c-comment { color: var(--muted); font-style: italic; }
+
+  /* INFO BOXES */
+  .info-box { padding: 1.25rem 1.5rem; border-radius: 10px; margin-bottom: 1.5rem; border-left: 4px solid; background: var(--surface2); line-height: 1.6; }
+  .info-box.indigo { border-color: var(--accent); }
+  .info-box.red { border-color: var(--wrong); background: rgba(239, 68, 68, 0.05); }
+  .info-box.green { border-color: var(--correct); background: rgba(52, 211, 153, 0.05); }
+
+  /* ИНТЕРАКТИВНИ ЗАДАЧИ */
+  .exercise-grid { display: grid; gap: 1.5rem; margin-top: 2rem; }
+  .exercise { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
+  .exercise:hover { border-color: rgba(99, 102, 241, 0.5); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+  .exercise.active { border-color: var(--accent); background: var(--surface2); cursor: default; transform: none; box-shadow: none; }
+  .ex-num { font-size: 0.75rem; font-weight: 700; color: var(--accent); letter-spacing: 1px; margin-bottom: 0.5rem; }
+  .ex-question { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+  .reveal-hint { font-size: 0.9rem; color: var(--muted); font-style: italic; display: flex; align-items: center; gap: 5px; }
+  .ex-answer { display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px dashed var(--border); animation: fadeIn 0.4s ease; color: #cbd5e1; }
+  .exercise.active .ex-answer { display: block; }
+  .exercise.active .reveal-hint { display: none; }
+
+  /* БУТОНИ ЗА НАВИГАЦИЯ */
+  .nav-actions { display: flex; justify-content: space-between; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+  .btn { padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; font-size: 0.95rem; }
+  .btn-primary { background: var(--accent); color: #000; border: none; }
+  .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); }
+  .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--surface2); border-color: var(--muted); }
+
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="branding">АСД <span>Ден 7</span></div>
+  <nav>
+    <button class="nav-btn active" onclick="goTo(0)">01. Въведение</button>
+    <button class="nav-btn" onclick="goTo(1)">02. Структура Дърво</button>
+    <button class="nav-btn" onclick="goTo(2)">03. Обхождания на дърво</button>
+    <button class="nav-btn" onclick="goTo(3)">04. Двоични дървета (BST)</button>
+    <button class="nav-btn" onclick="goTo(4)">05. Тренировка</button>
+  </nav>
+  
+  <div class="timer-widget">
+    <div class="timer-title">Спринт за учене</div>
+    <div class="timer-val" id="timerVal">45:00</div>
+    <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+    <div class="timer-controls">
+      <button class="timer-btn" onclick="toggleTimer()" id="timerBtn">▶ Старт</button>
+      <button class="timer-btn" onclick="resetTimer()">↺ Рестарт</button>
+    </div>
+  </div>
+</aside>
+
+<main class="main-content">
+
+  <div class="section active">
+    <span class="section-tag">Йерархични структури</span>
+    <h1>Ден 7: Дървета и Двоични дървета за търсене (BST)</h1>
+    <p>До момента разглеждахме изцяло линейни структури от данни (масиви, списъци, стекове, опашки). Днес преминаваме към <strong>нелинейни (йерархични) структури</strong>. Дърветата са фундамент в компютърните науки, позволяващ ни да организираме големи обеми информация по начин, оптимизиран за светкавично търсене и достъп.</p>
+    
+    <div class="info-box indigo">
+      <strong>🎯 Фокус за изпита (Теми 10 и 11):</strong> На изпит при проф. Голев и в материалите на Microsoft се набляга сериозно на трите вида <strong>рекурсивни обхождания</strong> (preorder, inorder, postorder) и на свойствата на <strong>Двоичното дърво за търсене (BST)</strong>. Трябва да знаеш как се вмъква нов елемент и защо Inorder обхождането на BST дава перфектно сортиран масив.
+    </div>
+
+    <h2>Какво покриваме днес:</h2>
+    <ul>
+      <li><strong>Тема 10:</strong> Дървета, двоични дървета. Реализация и представяне на възел (Node) в C#.</li>
+      <li><strong>Трите обхождания:</strong> Preorder, Inorder и Postorder – алгоритми и рекурсивен код.</li>
+      <li><strong>Тема 11:</strong> Двоични дървета за търсене (BST) – свойства, операции за включване (Insert), търсене (Search) и Big-O сложност.</li>
+    </ul>
+
+    <div class="nav-actions" style="justify-content: flex-end;">
+      <button class="btn btn-primary" onclick="nextSection()">Към структурата Дърво →</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <span class="section-tag">Тема 10 от Конспекта</span>
+    <h1>Структура Дърво и Двоични дървета</h1>
+    
+    <p><strong>Дървото (Tree)</strong> е йерархична структура от данни, състояща се от върхове (Nodes), свързани помежду си с ребра (Edges). Всеки връх има нула или повече наследници (деца), а самият корен (Root) няма родител. Върховете без наследници се наричат <em>листа (Leaves)</em>.</p>
+    
+    
+    
+    <p><strong>Двоично дърво (Binary Tree)</strong> е дърво, в което всеки връх може да има <strong>най-много две деца</strong> – обикновено наричани <em>ляво дете (Left child)</em> и <em>дясна дете (Right child)</em>.</p>
+
+    <h2>Реализация на възел (Node) в C#</h2>
+    <p>Според логиката в книгата на проф. Голев и материалите на Microsoft Learn, двоичното дърво се изгражда динамично в Heap паметта чрез референции (указатели) към обекти от следния тип:</p>
+<pre>
+<span class="c-keyword">public class</span> <span class="c-type">TreeNode</span> 
+{
+    <span class="c-keyword">public int</span> Value;           <span class="c-comment">// Стойност на върха</span>
+    <span class="c-keyword">public</span> <span class="c-type">TreeNode</span> Left;       <span class="c-comment">// Указател към лявото поддърво</span>
+    <span class="c-keyword">public</span> <span class="c-type">TreeNode</span> Right;      <span class="c-comment">// Указател към дясното поддърво</span>
+
+    <span class="c-keyword">public</span> <span class="c-type">TreeNode</span>(<span class="c-keyword">int</span> value) 
+    {
+        <span class="c-keyword">this</span>.Value = value;
+        <span class="c-keyword">this</span>.Left = <span class="c-keyword">null</span>;
+        <span class="c-keyword">this</span>.Right = <span class="c-keyword">null</span>;
+    }
+}
+</pre>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-primary" onclick="nextSection()">Към Обхожданията →</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <span class="section-tag">Рекурсивни алгоритми</span>
+    <h1>Обхождане на Двоично дърво</h1>
+    <p>Обхождането означава да посветим всеки връх в дървото точно веднъж. Тъй като структурата е рекурсивна, обхожданията се пишат изключително елегантно чрез рекурсия. Различаваме три основни вида в зависимост от това кога обработваме текущия корен (Root):</p>
+    
+    
+    
+    <div class="info-box indigo">
+      <strong>1. Preorder (Корен - Ляво - Дясно):</strong> Първо се обработва корена, след това лявото поддърво и накрая дясното.<br>
+      <strong>2. Inorder (Ляво - Корен - Дясно):</strong> Първо се изчиства изцяло лявото поддърво, после се обработва корена, и тогава дясното.<br>
+      <strong>3. Postorder (Ляво - Дясно - Корен):</strong> Първо се обхождат децата (ляво, после дясно), а самият корен се обработва най-накрая.
+    </div>
+
+    <h2>C# Реализация на трите обхождания</h2>
+<pre>
+<span class="c-comment">// 1. PREORDER</span>
+<span class="c-keyword">public void</span> PreorderTraversal(<span class="c-type">TreeNode</span> root) 
+{
+    <span class="c-keyword">if</span> (root == <span class="c-keyword">null</span>) <span class="c-keyword">return</span>; <span class="c-comment">// Дъно на рекурсията</span>
+    Console.Write(root.Value + <span class="c-string">" "</span>); <span class="c-comment">// ОБРАБОТКА НА КОРЕНА</span>
+    PreorderTraversal(root.Left);     <span class="c-comment">// ЛЯВО</span>
+    PreorderTraversal(root.Right);    <span class="c-comment">// ДЯСНО</span>
+}
+
+<span class="c-comment">// 2. INORDER</span>
+<span class="c-keyword">public void</span> InorderTraversal(<span class="c-type">TreeNode</span> root) 
+{
+    <span class="c-keyword">if</span> (root == <span class="c-keyword">null</span>) <span class="c-keyword">return</span>;
+    InorderTraversal(root.Left);      <span class="c-comment">// ЛЯВО</span>
+    Console.Write(root.Value + <span class="c-string">" "</span>); <span class="c-comment">// ОБРАБОТКА НА КОРЕНА</span>
+    InorderTraversal(root.Right);     <span class="c-comment">// ДЯСНО</span>
+}
+
+<span class="c-comment">// 3. POSTORDER</span>
+<span class="c-keyword">public void</span> PostorderTraversal(<span class="c-type">TreeNode</span> root) 
+{
+    <span class="c-keyword">if</span> (root == <span class="c-keyword">null</span>) <span class="c-keyword">return</span>;
+    PostorderTraversal(root.Left);     <span class="c-comment">// ЛЯВО</span>
+    PostorderTraversal(root.Right);    <span class="c-comment">// ДЯСНО</span>
+    Console.Write(root.Value + <span class="c-string">" "</span>);  <span class="c-comment">// ОБРАБОТКА НА КОРЕНА</span>
+}
+</pre>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-primary" onclick="nextSection()">Към BST дърветата →</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <span class="section-tag">Тема 11 от Конспекта</span>
+    <h1>Двоични дървета за търсене (BST)</h1>
+    <p><strong>Двоично дърво за търсене (Binary Search Tree - BST)</strong> е специализирано двоично дърво, което налага строга наредба на елементите си за постигане на максимално бърза обработка:</p>
+    
+    <div class="info-box green">
+      <strong>Свойство на BST:</strong> За всеки един възел в дървото важи: всички стойности в неговото <strong>ляво поддърво</strong> са строго по-малки от неговата собствена стойност, а всички стойности в неговото <strong>дясно поддърво</strong> са по-големи от него.
+    </div>
+
+    
+
+    <h2>Основни операции</h2>
+    
+    <h3>1. Търсене (Search / Contains)</h3>
+    <p>Започваме от корена. Ако търсената стойност е по-малка от текущата, рекурсивно отиваме само вляво. Ако е по-голяма – отиваме само вдясно. Така на всяка стъпка отсичаме половината от оставащото дърво, постигайки логаритмична сложност.</p>
+
+    <h3>2. Включване (Insert)</h3>
+    <p>Подобно на търсенето, се спускаме по дървото докато достигнем празна референция (<code>null</code>), където заделяме новия възел като нов лист, запазвайки правилата на структурата.</p>
+
+    <h2>C# Реализация на Търсене и Вмъкване</h2>
+<pre>
+<span class="c-comment">// Проверка дали стойност съществува в BST</span>
+<span class="c-keyword">public bool</span> Contains(<span class="c-type">TreeNode</span> root, <span class="c-keyword">int</span> value) 
+{
+    <span class="c-keyword">if</span> (root == <span class="c-keyword">null</span>) <span class="c-keyword">return false</span>;
+    <span class="c-keyword">if</span> (value == root.Value) <span class="c-keyword">return true</span>;
+    
+    <span class="c-keyword">if</span> (value < root.Value)
+        <span class="c-keyword">return</span> Contains(root.Left, value); <span class="c-comment">// Търсим наляво</span>
+    <span class="c-keyword">else</span>
+        <span class="c-keyword">return</span> Contains(root.Right, value); <span class="c-comment">// Търсим надясно</span>
+}
+
+<span class="c-comment">// Рекурсивно вмъкване на елемент</span>
+<span class="c-keyword">public</span> <span class="c-type">TreeNode</span> Insert(<span class="c-type">TreeNode</span> root, <span class="c-keyword">int</span> value) 
+{
+    <span class="c-comment">// Намерено е правилното празно място, заделяме възела в паметта</span>
+    <span class="c-keyword">if</span> (root == <span class="c-keyword">null</span>) 
+        <span class="c-keyword">return new</span> <span class="c-type">TreeNode</span>(value); 
+
+    <span class="c-keyword">if</span> (value < root.Value)
+        root.Left = Insert(root.Left, value);
+    <span class="c-keyword">else if</span> (value > root.Value)
+        root.Right = Insert(root.Right, value);
+
+    <span class="c-keyword">return</span> root; <span class="c-comment">// Връщаме структурата</span>
+}
+</pre>
+
+    <div class="info-box red">
+      <strong>⚠️ Сложност по Big-O (Важно за устния изпит!):</strong><br>
+      - <strong>Среден случай (Балансирано дърво):</strong> Търсене, Вмъкване и Изтриване се изпълняват за <strong>O(log n)</strong> време, тъй като височината съответства на логаритъм от броя елементи.<br>
+      - <strong>Най-лош случай (Дегенерирало дърво):</strong> Ако подадем числата предварително сортирани (напр. 1, 2, 3, 4, 5), дървото се разклонява само надясно и се превръща в линеен списък. Тогава сложността скача до <strong>O(n)</strong>!
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-primary" onclick="nextSection()">Към Задачите →</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <span class="section-tag">Проверка на знанията</span>
+    <h1>Интерактивна тренировка</h1>
+    <p>Отговори на следните въпроси наум, преди да щракнеш върху тях, за да симулираш устния изпит.</p>
+
+    <div class="exercise-grid">
+      <div class="exercise" onclick="toggleEx(this)">
+        <div class="ex-num">ВЪПРОС 1 — СВОЙСТВО НА INORDER</div>
+        <div class="ex-question">Защо ако изпълним INORDER обхождане върху едно Двоично дърво за търсене (BST), резултатът винаги излиза перфектно сортиран във възходящ ред?</div>
+        <div class="reveal-hint">👆 Кликни за отговор</div>
+        <div class="ex-answer">
+          Това е директно следствие от дефиницията на BST и схемата на Inorder.<br><br>
+          Inorder работи по схемата: <strong>Ляво -> Корен -> Дясно</strong>. Тъй като в BST всички по-малки стойности са заложени по дефиниция в лявото поддърво, а по-големите в дясното, алгоритъмът гарантирано извежда първо най-малките елементи отляво, после средния елемент (корена) и накрая големите отдясно. Рекурсията пренася това свойство на всяко ниво.
+        </div>
+      </div>
+
+      <div class="exercise" onclick="toggleEx(this)">
+        <div class="ex-num">ВЪПРОС 2 — ДЕГЕНЕРИРАНЕ</div>
+        <div class="ex-question">Какво представлява "дегенерирало дърво" и как се променя Big-O сложността на операциите при него?</div>
+        <div class="reveal-hint">👆 Кликни за отговор</div>
+        <div class="ex-answer">
+          Дегенерирало дърво (Degenerate tree) възниква, когато всеки родителски възел има само по едно дете. Дървото губи своите разклонения и се превръща в линеен свързан списък. <br><br>
+          Това се случва, когато вмъкваме в празно BST елементи, които са вече сортирани (например: 10, 20, 30, 40). Височината на дървото става равна на <code>n</code>, а сложността за търсене деградира от бързото константно-подобно <strong>O(log n)</strong> до бавното линейно обхождане <strong>O(n)</strong>.
+        </div>
+      </div>
+
+      <div class="exercise" onclick="toggleEx(this)">
+        <div class="ex-num">ВЪПРОС 3 — СИМУЛАЦИЯ НА ОБХОЖДАНЕ</div>
+        <div class="ex-question">Имаме двоично дърво с корен 10, ляво дете 5 и дясно дете 15. Ако на конзолата се отпечата поредицата "10 5 15", кое обхождане е задействано?</div>
+        <div class="reveal-hint">👆 Кликни за отговор</div>
+        <div class="ex-answer">
+          Използвано е <strong>Preorder</strong> обхождане.<br><br>
+          <strong>Обяснение:</strong> Схемата на Preorder е <strong>Корен -> Ляво -> Дясно</strong>. Виждаме, че коренът (10) е обработен и отпечатан веднага в самото начало, последван от лявото дете (5) и дясното дете (15). При Inorder щеше да бъде "5 10 15", а при Postorder — "5 15 10".
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Двоични дървета (BST)</button>
+      <button class="btn btn-primary" onclick="goTo(0)">↩ Обратно в началото</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  let current = 0;
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const sections = document.querySelectorAll('.section');
+
+  function goTo(idx) {
+    sections[current].classList.remove('active');
+    navBtns[current].classList.remove('active');
+    current = idx;
+    sections[current].classList.add('active');
+    navBtns[current].classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function nextSection() { if(current < sections.length - 1) goTo(current + 1); }
+  function prevSection() { if(current > 0) goTo(current - 1); }
+
+  function toggleEx(el) {
+    el.classList.toggle('active');
+  }
+
+  let timerDuration = 45 * 60;
+  let timerRemaining = timerDuration;
+  let timerInterval;
+  let timerRunning = false;
+
+  function toggleTimer() {
+    if (timerRunning) {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      document.getElementById('timerBtn').textContent = '▶ Продължи';
+    } else {
+      timerRunning = true;
+      document.getElementById('timerBtn').textContent = '⏸ Пауза';
+      timerInterval = setInterval(() => {
+        if (timerRemaining > 0) {
+          timerRemaining--;
+          updateTimerDisplay();
+        } else {
+          clearInterval(timerInterval);
+          timerRunning = false;
+          document.getElementById('timerBtn').textContent = '✓ Готово!';
+        }
+      }, 1000);
+    }
+  }
+
+  function resetTimer() {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    timerRemaining = timerDuration;
+    document.getElementById('timerBtn').textContent = '▶ Старт';
+    updateTimerDisplay();
+  }
+
+  function updateTimerDisplay() {
+    const m = Math.floor(timerRemaining / 60);
+    const s = timerRemaining % 60;
+    document.getElementById('timerVal').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    const pct = (timerRemaining / timerDuration) * 100;
+    document.getElementById('timerFill').style.width = pct + '%';
+  }
+  
+  updateTimerDisplay();
+</script>
+</body>
+</html>

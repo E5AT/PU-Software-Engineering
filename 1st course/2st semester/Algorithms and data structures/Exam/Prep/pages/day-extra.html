@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Екстра: Реални Имплементации на Структури от Данни в C#</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #21262d;
+    --border: #30363d;
+    --accent: #58a6ff; /* GitHub Blue accent */
+    --accent-hover: #79c0ff;
+    --text: #c9d1d9;
+    --muted: #8b949e;
+    --correct: #238636;
+    --wrong: #da3633;
+    --keyword: #ff7b72;
+    --string: #a5d6ff;
+    --comment: #8b949e;
+    --type: #d2a8ff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background: radial-gradient(ellipse 80% 80% at 50% -20%, rgba(88, 166, 255, 0.05), transparent);
+  }
+
+  /* ЛЯВА НАВИГАЦИЯ */
+  .sidebar {
+    width: 280px; background: var(--surface); border-right: 1px solid var(--border);
+    padding: 2rem 1.5rem; display: flex; flex-direction: column; z-index: 10;
+    position: fixed; height: 100vh; overflow-y: auto;
+  }
+  .branding { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; color: var(--accent); margin-bottom: 2.5rem; letter-spacing: 0.5px; }
+  .branding span { color: var(--text); }
+  
+  .nav-btn {
+    background: transparent; border: none; color: var(--muted); padding: 0.875rem 1rem;
+    text-align: left; font-size: 0.95rem; font-family: 'Inter', sans-serif;
+    border-radius: 8px; cursor: pointer; transition: all 0.2s; margin-bottom: 0.5rem;
+    font-weight: 500; display: flex; align-items: center; gap: 10px;
+  }
+  .nav-btn:hover { background: var(--surface2); color: var(--text); }
+  .nav-btn.active { background: rgba(88, 166, 255, 0.1); color: var(--accent); font-weight: 600; box-shadow: inset 3px 0 0 var(--accent); }
+
+  /* ОСНОВНО СЪДЪРЖАНИЕ */
+  .main-content { margin-left: 280px; flex: 1; padding: 3rem 4rem; z-index: 1; max-width: 1200px; }
+  .section { display: none; animation: fadeIn 0.4s ease forwards; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-tag { display: inline-block; padding: 0.3rem 0.75rem; background: rgba(88, 166, 255, 0.1); color: var(--accent); border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-bottom: 1rem; letter-spacing: 0.5px; text-transform: uppercase; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2.8rem; margin-bottom: 1.5rem; line-height: 1.2; font-weight: 900; color: #ffffff; }
+  h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin: 2rem 0 1rem; color: var(--accent); }
+  p { line-height: 1.7; margin-bottom: 1.2rem; font-size: 1.05rem; }
+  ul, ol { margin-left: 1.5rem; margin-bottom: 1.5rem; line-height: 1.7; }
+  li { margin-bottom: 0.5rem; }
+  strong { color: #ffffff; }
+
+  /* КОДОВИ БЛОКОВЕ */
+  code { font-family: 'JetBrains Mono', monospace; background: var(--surface2); padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; color: var(--accent); }
+  pre { background: #010409; border: 1px solid var(--border); padding: 1.5rem; border-radius: 10px; overflow-x: auto; margin-bottom: 1.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; line-height: 1.6; color: #e6edf3; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2); }
+  .c-kw { color: var(--keyword); } /* keyword */
+  .c-ty { color: var(--type); }    /* type */
+  .c-st { color: var(--string); }  /* string */
+  .c-co { color: var(--comment); font-style: italic; } /* comment */
+
+  /* INFO BOXES */
+  .info-box { padding: 1.25rem 1.5rem; border-radius: 10px; margin-bottom: 1.5rem; border-left: 4px solid; background: var(--surface2); line-height: 1.6; }
+  .info-box.blue { border-color: var(--accent); }
+  
+  /* БУТОНИ ЗА НАВИГАЦИЯ */
+  .nav-actions { display: flex; justify-content: space-between; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+  .btn { padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; font-size: 0.95rem; }
+  .btn-primary { background: var(--accent); color: #000; border: none; }
+  .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); }
+  .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--surface2); border-color: var(--muted); }
+
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="branding">АСД <span>Екстра</span></div>
+  <nav>
+    <button class="nav-btn active" onclick="goTo(0)">01. Въведение</button>
+    <button class="nav-btn" onclick="goTo(1)">02. Custom ArrayList</button>
+    <button class="nav-btn" onclick="goTo(2)">03. Custom LinkedList</button>
+    <button class="nav-btn" onclick="goTo(3)">04. Стек (Масив и Списък)</button>
+    <button class="nav-btn" onclick="goTo(4)">05. Опашка (Списък)</button>
+    <button class="nav-btn" onclick="goTo(5)">06. Дърво (N-ary)</button>
+    <button class="nav-btn" onclick="goTo(6)">07. Двоично Дърво за Търсене</button>
+    <button class="nav-btn" onclick="goTo(7)">08. Граф (Матрица)</button>
+  </nav>
+</aside>
+
+<main class="main-content">
+
+  <div class="section active">
+    <span class="section-tag">Как работят нещата "Под Капака"</span>
+    <h1>Реални Имплементации на Структури от Данни</h1>
+    <p>Много правилна забележка! Когато говорим за "реализация в .NET" на академично ниво (особено на изпит), често се има предвид не просто да извикаш <code>new List&lt;int&gt;()</code>, а да покажеш, че разбираш <strong>как този <code>List</code> е написан отвътре</strong>, използвайки най-базовите типове (масиви и референции).</p>
+    
+    <div class="info-box blue">
+      <strong>🎯 Защо е важно:</strong> Тук са събрани кодовете от материалите на твоя асистент. Прегледал съм ги, добавил съм подробни обяснителни коментари към логиката им и леко съм форматирал/съкратил излишния код, за да се четат и разбират по-лесно.
+    </div>
+
+    <p>Тези имплементации ти показват "кухнята" на C#:</p>
+    <ul>
+      <li>Как един масив се разширява (Resize), когато се напълни.</li>
+      <li>Как възлите (Nodes) се свързват чрез указатели (референции).</li>
+      <li>Как работи събирането на боклука (Garbage Collector), когато откачим възел (напр. <code>node.next = null</code>).</li>
+    </ul>
+
+    <div class="nav-actions" style="justify-content: flex-end;">
+      <button class="btn btn-primary" onclick="nextSection()">Към Custom ArrayList →</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <span class="section-tag">Динамичен масив</span>
+    <h1>Custom ArrayList (Списък чрез Масив)</h1>
+    
+    <p>Това е начинът, по който работи вграденият <code>List&lt;T&gt;</code> в C#. Той пази данните в обикновен масив с фиксиран размер. Когато масивът се напълни, се създава нов, двойно по-голям масив, и старите елементи се копират в него.</p>
+
+<pre>
+<span class="c-kw">public class</span> <span class="c-ty">CustomArrayList</span>
+{
+    <span class="c-kw">private</span> <span class="c-kw">object</span>[] arr;
+    <span class="c-kw">private static readonly int</span> INITIAL_CAPACITY = 4;
+    <span class="c-kw">private int</span> count; <span class="c-co">// Реалният брой добавени елементи</span>
+
+    <span class="c-kw">public int</span> Count =&gt; count;
+
+    <span class="c-kw">public</span> <span class="c-ty">CustomArrayList</span>()
+    {
+        arr = <span class="c-kw">new object</span>[INITIAL_CAPACITY];
+        count = 0;
+    }
+
+    <span class="c-co">// Добавяне на елемент в края е просто вмъкване на позиция 'count'</span>
+    <span class="c-kw">public void</span> Add(<span class="c-kw">object</span> item)
+    {
+        Insert(count, item);
+    }
+
+    <span class="c-co">// Сърцето на динамичния масив: Вмъкване с евентуално преоразмеряване</span>
+    <span class="c-kw">public void</span> Insert(<span class="c-kw">int</span> index, <span class="c-kw">object</span> item)
+    {
+        <span class="c-kw">if</span> (index &gt; count || index &lt; 0)
+            <span class="c-kw">throw new</span> <span class="c-ty">IndexOutOfRangeException</span>(<span class="c-st">"Invalid index"</span>);
+
+        <span class="c-kw">object</span>[] extendedArray = arr;
+
+        <span class="c-co">// АКО масивът е пълен, създаваме нов с ДВОЕН размер</span>
+        <span class="c-kw">if</span> (arr.Length == count + 1)
+        {
+            extendedArray = <span class="c-kw">new object</span>[arr.Length * 2];
+        }
+
+        <span class="c-co">// 1. Копираме елементите ПРЕДИ индекса</span>
+        Array.Copy(arr, extendedArray, index);
+        count++;
+        
+        <span class="c-co">// 2. Изместваме елементите СЛЕД индекса с 1 позиция надясно</span>
+        Array.Copy(arr, index, extendedArray, index + 1, count - index - 1);
+        
+        <span class="c-co">// 3. Поставяме новия елемент на освободеното място</span>
+        extendedArray[index] = item;
+        
+        <span class="c-co">// 4. Подменяме стария масив с новия (старият ще се изчисти от Garbage Collector-а)</span>
+        arr = extendedArray;
+    }
+
+    <span class="c-co">// Изтриване по индекс</span>
+    <span class="c-kw">public object</span> Remove(<span class="c-kw">int</span> index)
+    {
+        <span class="c-kw">if</span> (index &gt;= count || index &lt; 0)
+            <span class="c-kw">throw new</span> <span class="c-ty">IndexOutOfRangeException</span>(<span class="c-st">"Invalid index"</span>);
+
+        <span class="c-kw">object</span> item = arr[index];
+
+        <span class="c-co">// Изместваме всички елементи след изтрития с 1 позиция наляво, за да запълним дупката</span>
+        Array.Copy(arr, index + 1, arr, index, count - index - 1);
+        
+        <span class="c-co">// Зануляваме последната позиция, за да не "държим" излишен обект в паметта</span>
+        arr[count - 1] = <span class="c-kw">null</span>;
+        count--;
+
+        <span class="c-kw">return</span> item;
+    }
+}
+</pre>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-primary" onclick="nextSection()">Към LinkedList →</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <span class="section-tag">Свързани Възли</span>
+    <h1>Custom LinkedList (Свързан Списък)</h1>
+    
+    <p>За разлика от масива, свързаният списък не пази елементите си един до друг в паметта. Вместо това, всеки елемент е опакован в обект <code>Node</code> (Възел), който пази стойността си и <strong>указател (референция) към следващия възел</strong>.</p>
+
+<pre>
+<span class="c-co">// Помощен клас за възел (Node)</span>
+<span class="c-kw">public class</span> <span class="c-ty">LinkedListNode</span>&lt;T&gt;
+{
+    <span class="c-kw">public</span> T Element { <span class="c-kw">get</span>; <span class="c-kw">set</span>; }
+    <span class="c-kw">public</span> <span class="c-ty">LinkedListNode</span>&lt;T&gt; Next { <span class="c-kw">get</span>; <span class="c-kw">set</span>; } <span class="c-co">// Връзката към следващия!</span>
+
+    <span class="c-kw">public</span> <span class="c-ty">LinkedListNode</span>(T element)
+    {
+        <span class="c-kw">this</span>.Element = element;
+        <span class="c-kw">this</span>.Next = <span class="c-kw">null</span>;
+    }
+
+    <span class="c-co">// Конструктор, който автоматично се "закача" след даден предишен възел</span>
+    <span class="c-kw">public</span> <span class="c-ty">LinkedListNode</span>(T element, <span class="c-ty">LinkedListNode</span>&lt;T&gt; prevNode)
+    {
+        <span class="c-kw">this</span>.Element = element;
+        <span class="c-kw">this</span>.Next = prevNode.Next;
+        prevNode.Next = <span class="c-kw">this</span>;
+    }
+}
+
+<span class="c-kw">public class</span> <span class="c-ty">LinkedList</span>&lt;T&gt;
+{
+    <span class="c-kw">private</span> <span class="c-ty">LinkedListNode</span>&lt;T&gt; head; <span class="c-co">// Начало на списъка</span>
+    <span class="c-kw">private</span> <span class="c-ty">LinkedListNode</span>&lt;T&gt; tail; <span class="c-co">// Край на списъка (оптимизация за бързо добавяне)</span>
+    <span class="c-kw">public int</span> Count { <span class="c-kw">get</span>; <span class="c-kw">private set</span>; }
+
+    <span class="c-kw">public void</span> Add(T item)
+    {
+        <span class="c-kw">if</span> (head == <span class="c-kw">null</span>)
+        {
+            <span class="c-co">// Ако е празно, новият възел е едновременно и глава, и опашка</span>
+            <span class="c-ty">LinkedListNode</span>&lt;T&gt; newNode = <span class="c-kw">new</span> <span class="c-ty">LinkedListNode</span>&lt;T&gt;(item);
+            head = tail = newNode;
+        }
+        <span class="c-kw">else</span>
+        {
+            <span class="c-co">// Закачаме го след текущата опашка и го обявяваме за нова опашка</span>
+            <span class="c-ty">LinkedListNode</span>&lt;T&gt; newNode = <span class="c-kw">new</span> <span class="c-ty">LinkedListNode</span>&lt;T&gt;(item, tail);
+            tail = newNode;
+        }
+        Count++;
+    }
+
+    <span class="c-co">// Изтриване по индекс е бавно O(n), защото трябва да го намерим, прескачайки възлите</span>
+    <span class="c-kw">public</span> T RemoveAt(<span class="c-kw">int</span> index)
+    {
+        <span class="c-ty">LinkedListNode</span>&lt;T&gt; current = head;
+        <span class="c-ty">LinkedListNode</span>&lt;T&gt; previous = <span class="c-kw">null</span>;
+        <span class="c-kw">int</span> i = 0;
+
+        <span class="c-kw">while</span>(current != <span class="c-kw">null</span>)
+        {
+            <span class="c-kw">if</span> (index == i)
+            {
+                <span class="c-co">// Откачаме възела, като караме предишния да сочи към следващия (прескачаме current)</span>
+                <span class="c-kw">if</span> (previous != <span class="c-kw">null</span>)
+                    previous.Next = current.Next;
+                <span class="c-kw">else</span>
+                    head = current.Next; <span class="c-co">// Ако трием главата</span>
+                    
+                Count--;
+                <span class="c-kw">return</span> current.Element;
+            }
+
+            i++;
+            previous = current;
+            current = current.Next; <span class="c-co">// Преминаваме на следващия</span>
+        }
+        <span class="c-kw">return default</span>(T);
+    }
+}
+</pre>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-primary" onclick="nextSection()">Към Стек →</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <span class="section-tag">LIFO: Last In, First Out</span>
+    <h1>Стек (Реализации с Масив и Списък)</h1>
+    
+    <p>Стекът може да се реализира по два начина: чрез скрит масив (бързо, но изисква преоразмеряване) или чрез свързан списък (гъвкаво, но с повече памет за възли). И двата подхода целят едно - операциите <code>Push</code> и <code>Pop</code> да са <code>O(1)</code>.</p>
+
+    <h2>1. Стек чрез Масив (ArrayStack)</h2>
+<pre>
+<span class="c-kw">public class</span> <span class="c-ty">ArrayStack</span>&lt;T&gt;
+{
+    <span class="c-kw">private</span> T[] elements;
+    <span class="c-kw">public int</span> Count { <span class="c-kw">get</span>; <span class="c-kw">private set</span>; }
+    <span class="c-kw">public</span> T Peek =&gt; Count &gt; 0 ? elements[Count - 1] : <span class="c-kw">default</span>;
+
+    <span class="c-kw">public</span> <span class="c-ty">ArrayStack</span>(<span class="c-kw">int</span> capacity = 4)
+    {
+        elements = <span class="c-kw">new</span> T[capacity];
+    }
+
+    <span class="c-kw">public void</span> Push(T element)
+    {
+        <span class="c-co">// Ако се препълни, удвояваме масива (вграден метод)</span>
+        <span class="c-kw">if</span> (Count == elements.Length)
+            Array.Resize(<span class="c-kw">ref</span> elements, Count * 2);
+
+        elements[Count] = element;
+        Count++;
+    }
+
+    <span class="c-kw">public</span> T Pop()
+    {
+        <span class="c-kw">if</span> (Count == 0) <span class="c-kw">throw new</span> <span class="c-ty">InvalidOperationException</span>();
+        
+        Count--;
+        <span class="c-kw">return</span> elements[Count]; <span class="c-co">// Не го трием физически, просто намаляваме Count</span>
+    }
+}
+</pre>
+
+    <h2>2. Стек чрез Свързан Списък (LinkedStack)</h2>
+    <p>Тук винаги добавяме и премахваме от <strong>Началото (Главата)</strong> на списъка. Така операцията е светкавична O(1).</p>
+<pre>
+<span class="c-kw">public class</span> <span class="c-ty">StackNode</span>&lt;T&gt;
+{
+    <span class="c-kw">public</span> T Value { <span class="c-kw">get</span>; <span class="c-kw">set</span>; }
+    <span class="c-kw">public</span> <span class="c-ty">StackNode</span>&lt;T&gt; NextNode { <span class="c-kw">get</span>; <span class="c-kw">set</span>; }
+
+    <span class="c-kw">public</span> <span class="c-ty">StackNode</span>(T value, <span class="c-ty">StackNode</span>&lt;T&gt; nextNode = <span class="c-kw">null</span>)
+    {
+        <span class="c-kw">this</span>.Value = value;
+        <span class="c-kw">this</span>.NextNode = nextNode;
+    }
+}
+
+<span class="c-kw">public class</span> <span class="c-ty">LinkedStack</span>&lt;T&gt;
+{
+    <span class="c-kw">public int</span> Count { <span class="c-kw">get</span>; <span class="c-kw">private set</span>; }
+    <span class="c-kw">public</span> <span class="c-ty">StackNode</span>&lt;T&gt; PeekNode { <span class="c-kw">get</span>; <span class="c-kw">private set</span>; } <span class="c-co">// Това е "Главата"</span>
+
+    <span class="c-kw">public void</span> Push(T element)
+    {
+        <span class="c-co">// Създаваме нов възел, който сочи към досегашния връх. Новият става връх.</span>
+        PeekNode = <span class="c-kw">new</span> <span class="c-ty">StackNode</span>&lt;T&gt;(element, PeekNode);
+        Count++;
+    }
+
+    <span class="c-kw">public</span> T Pop()
+    {
+        <span class="c-kw">if</span> (Count == 0) <span class="c-kw">throw new</span> <span class="c-ty">InvalidOperationException</span>();
+        
+        <span class="c-kw">var</span> removedValue = PeekNode.Value;
+        <span class="c-co">// "Обезглавяваме" стека - вторият елемент става нов връх</span>
+        PeekNode = PeekNode.NextNode; 
+        Count--;
+
+        <span class="c-kw">return</span> removedValue;
+    }
+}
+</pre>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-primary" onclick="nextSection()">Към Опашка →</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <span class="section-tag">FIFO: First In, First Out</span>
+    <h1>Опашка чрез Свързан Списък (LinkedQueue)</h1>
+    
+    <p>При опашката добавяме в <strong>Края (Tail)</strong> и вадим от <strong>Началото (Head)</strong>. За да е бързо (O(1)), пазим референции и към двете.</p>
+
+<pre>
+<span class="c-co">// Възел за опашка (тук е направен двойно свързан, макар че за опашка стига и единичен)</span>
+<span class="c-kw">public class</span> <span class="c-ty">QueueNode</span>&lt;T&gt;
+{
+    <span class="c-kw">public</span> T Value { <span class="c-kw">get</span>; <span class="c-kw">private set</span>; }
+    <span class="c-kw">public</span> <span class="c-ty">QueueNode</span>&lt;T&gt; NextNode { <span class="c-kw">get</span>; <span class="c-kw">set</span>; }
+
+    <span class="c-kw">public</span> <span class="c-ty">QueueNode</span>(T value)
+    {
+        <span class="c-kw">this</span>.Value = value;
+    }
+}
+
+<span class="c-kw">public class</span> <span class="c-ty">LinkedQueue</span>&lt;T&gt;
+{
+    <span class="c-kw">public int</span> Count { <span class="c-kw">get</span>; <span class="c-kw">private set</span>; }
+    <span class="c-kw">public</span> <span class="c-ty">QueueNode</span>&lt;T&gt; Head { <span class="c-kw">get</span>; <span class="c-kw">private set</span>;}
+    <span class="c-kw">private</span> <span class="c-ty">QueueNode</span>&lt;T&gt; Tail;
+
+    <span class="c-co">// Добавяме на опашката (Tail)</span>
+    <span class="c-kw">public void</span> Enqueue(T element)
+    {
+        <span class="c-kw">var</span> node = <span class="c-kw">new</span> <span class="c-ty">QueueNode</span>&lt;T&gt;(element);
+        
+        <span class="c-kw">if</span> (Count == 0)
+        {
+            Head = Tail = node;
+        }
+        <span class="c-kw">else</span>
+        {
+            <span class="c-co">// Закачаме новия възел след текущия Tail и местим Tail върху него</span>
+            Tail.NextNode = node;
+            Tail = node;
+        }
+        Count++;
+    }
+
+    <span class="c-co">// Вадим от главата (Head)</span>
+    <span class="c-kw">public</span> T Dequeue()
+    {
+        <span class="c-kw">if</span> (Count == 0) <span class="c-kw">throw new</span> <span class="c-ty">InvalidOperationException</span>();
+        
+        <span class="c-kw">var</span> removedElement = Head.Value;
+        <span class="c-co">// Преместваме главата към следващия елемент. Старата глава ще се събере от GC.</span>
+        Head = Head.NextNode; 
+        Count--;
+        
+        <span class="c-kw">if</span> (Count == 0) Tail = <span class="c-kw">null</span>; <span class="c-co">// Почистване, ако опашката остане празна</span>
+        
+        <span class="c-kw">return</span> removedElement;
+    }
+}
+</pre>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-primary" onclick="nextSection()">Към Дърво (N-ary) →</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <span class="section-tag">N-ary Tree</span>
+    <h1>Общо Дърво (Произволен брой деца)</h1>
+    
+    <p>Това е дърво, в което всеки възел може да има произволен брой наследници (а не само 2). Затова децата се пазят в списък (<code>List</code>).</p>
+
+<pre>
+<span class="c-kw">public class</span> <span class="c-ty">TreeNode</span>&lt;T&gt;
+{
+    <span class="c-kw">public</span> T Value { <span class="c-kw">get</span>; <span class="c-kw">set</span>; }
+    <span class="c-kw">private</span> <span class="c-ty">List</span>&lt;<span class="c-ty">TreeNode</span>&lt;T&gt;&gt; children; <span class="c-co">// Списък с децата</span>
+
+    <span class="c-kw">public</span> <span class="c-ty">TreeNode</span>(T value)
+    {
+        <span class="c-kw">this</span>.Value = value;
+        <span class="c-kw">this</span>.children = <span class="c-kw">new</span> <span class="c-ty">List</span>&lt;<span class="c-ty">TreeNode</span>&lt;T&gt;&gt;();
+    }
+
+    <span class="c-kw">public int</span> ChildrenCount =&gt; children.Count;
+
+    <span class="c-kw">public void</span> AddChild(<span class="c-ty">TreeNode</span>&lt;T&gt; child)
+    {
+        <span class="c-kw">this</span>.children.Add(child);
+    }
+
+    <span class="c-kw">public</span> <span class="c-ty">TreeNode</span>&lt;T&gt; GetChild(<span class="c-kw">int</span> index) =&gt; children[index];
+}
+
+<span class="c-kw">public class</span> <span class="c-ty">Tree</span>&lt;T&gt;
+{
+    <span class="c-kw">public</span> <span class="c-ty">TreeNode</span>&lt;T&gt; Root { <span class="c-kw">get</span>; <span class="c-kw">private set</span>; }
+
+    <span class="c-kw">public</span> <span class="c-ty">Tree</span>(T value, <span class="c-kw">params</span> <span class="c-ty">Tree</span>&lt;T&gt;[] subTrees)
+    {
+        <span class="c-kw">this</span>.Root = <span class="c-kw">new</span> <span class="c-ty">TreeNode</span>&lt;T&gt;(value);
+        <span class="c-kw">foreach</span> (<span class="c-kw">var</span> child <span class="c-kw">in</span> subTrees)
+        {
+            <span class="c-kw">this</span>.Root.AddChild(child.Root);
+        }
+    }
+
+    <span class="c-co">// DFS обхождане (Итеративно) чрез изричен СТЕК</span>
+    <span class="c-kw">public void</span> DFS()
+    {
+        <span class="c-ty">Stack</span>&lt;<span class="c-ty">TreeNode</span>&lt;T&gt;&gt; stack = <span class="c-kw">new</span> <span class="c-ty">Stack</span>&lt;<span class="c-ty">TreeNode</span>&lt;T&gt;&gt;();
+        stack.Push(<span class="c-kw">this</span>.Root);
+
+        <span class="c-kw">while</span>(stack.Count &gt; 0)
+        {
+            <span class="c-ty">TreeNode</span>&lt;T&gt; currentNode = stack.Pop();
+            Console.Write(currentNode.Value + <span class="c-st">" "</span>);
+
+            <span class="c-co">// Добавяме децата в стека (отзад напред, за да се извадят в правилен ред)</span>
+            <span class="c-kw">for</span> (<span class="c-kw">int</span> i = currentNode.ChildrenCount - 1; i &gt;= 0; i--)
+            {
+                stack.Push(currentNode.GetChild(i));
+            }
+        }
+    }
+}
+</pre>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-primary" onclick="nextSection()">Към BST →</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <span class="section-tag">Binary Search Tree</span>
+    <h1>Двоично Дърво за Търсене</h1>
+    
+    <p>Тук типовете данни трябва да са сравними помежду си (<code>where T : IComparable&lt;T&gt;</code>), за да знаем кое е "по-малко" (отива вляво) и кое "по-голямо" (отива вдясно). Това е по-сложната имплементация, която включва родителски указатели.</p>
+
+<pre>
+<span class="c-kw">public class</span> <span class="c-ty">BinaryTreeNode</span>&lt;T&gt; <span class="c-kw">where</span> T : <span class="c-ty">IComparable</span>&lt;T&gt;
+{
+    <span class="c-kw">public</span> T Value;
+    <span class="c-kw">public</span> <span class="c-ty">BinaryTreeNode</span>&lt;T&gt; Parent;
+    <span class="c-kw">public</span> <span class="c-ty">BinaryTreeNode</span>&lt;T&gt; LeftChild;
+    <span class="c-kw">public</span> <span class="c-ty">BinaryTreeNode</span>&lt;T&gt; RightChild;
+
+    <span class="c-kw">public</span> <span class="c-ty">BinaryTreeNode</span>(T value)
+    {
+        <span class="c-kw">this</span>.Value = value;
+    }
+}
+
+<span class="c-kw">public class</span> <span class="c-ty">BinarySearchTree</span>&lt;T&gt; <span class="c-kw">where</span> T : <span class="c-ty">IComparable</span>&lt;T&gt;
+{
+    <span class="c-kw">private</span> <span class="c-ty">BinaryTreeNode</span>&lt;T&gt; root;
+
+    <span class="c-co">// Итеративно ТЪРСЕНЕ (много бързо, без рекурсия)</span>
+    <span class="c-kw">public</span> <span class="c-ty">BinaryTreeNode</span>&lt;T&gt; Find(T value)
+    {
+        <span class="c-ty">BinaryTreeNode</span>&lt;T&gt; node = <span class="c-kw">this</span>.root;
+
+        <span class="c-kw">while</span> (node != <span class="c-kw">null</span>)
+        {
+            <span class="c-kw">int</span> cmp = value.CompareTo(node.Value);
+            
+            <span class="c-kw">if</span> (cmp &lt; 0) node = node.LeftChild;        <span class="c-co">// Търсеното е по-малко -> Ляво</span>
+            <span class="c-kw">else if</span> (cmp &gt; 0) node = node.RightChild; <span class="c-co">// Търсеното е по-голямо -> Дясно</span>
+            <span class="c-kw">else break</span>;                               <span class="c-co">// Намерено! (cmp == 0)</span>
+        }
+        <span class="c-kw">return</span> node;
+    }
+
+    <span class="c-kw">public void</span> Insert(T value)
+    {
+        <span class="c-kw">this</span>.root = Insert(value, <span class="c-kw">null</span>, root);
+    }
+
+    <span class="c-co">// Рекурсивно ВМЪКВАНЕ</span>
+    <span class="c-kw">private</span> <span class="c-ty">BinaryTreeNode</span>&lt;T&gt; Insert(T value, <span class="c-ty">BinaryTreeNode</span>&lt;T&gt; parent, <span class="c-ty">BinaryTreeNode</span>&lt;T&gt; node)
+    {
+        <span class="c-kw">if</span> (node == <span class="c-kw">null</span>)
+        {
+            <span class="c-co">// Намерихме празното място! Създаваме възела и му закачаме родителя.</span>
+            node = <span class="c-kw">new</span> <span class="c-ty">BinaryTreeNode</span>&lt;T&gt;(value);
+            node.Parent = parent;
+        }
+        <span class="c-kw">else</span>
+        {
+            <span class="c-kw">int</span> cmp = value.CompareTo(node.Value);
+            <span class="c-kw">if</span> (cmp &lt; 0)
+                node.LeftChild = Insert(value, node, node.LeftChild);
+            <span class="c-kw">else if</span> (cmp &gt; 0)
+                node.RightChild = Insert(value, node, node.RightChild);
+        }
+        <span class="c-kw">return</span> node;
+    }
+}
+</pre>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-primary" onclick="nextSection()">Към Графи →</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <span class="section-tag">Матрица на Съседство</span>
+    <h1>Граф и BFS обхождане</h1>
+    
+    <p>Реализация на граф чрез най-бързия начин - двумерен масив <code>[,]</code>. Стойността в матрицата показва теглото на реброто (или 0, ако няма ребро).</p>
+
+<pre>
+<span class="c-kw">public class</span> <span class="c-ty">Graph</span>
+{
+    <span class="c-kw">private int</span>[,] vertices; <span class="c-co">// Матрицата</span>
+
+    <span class="c-kw">public</span> <span class="c-ty">Graph</span>(<span class="c-kw">int</span>[,] vertices)
+    {
+        <span class="c-kw">this</span>.vertices = vertices;
+    }
+
+    <span class="c-co">// Връща всички върхове, към които има ребро от връх i</span>
+    <span class="c-kw">public</span> <span class="c-ty">List</span>&lt;<span class="c-kw">int</span>&gt; GetSuccessors(<span class="c-kw">int</span> i)
+    {
+        <span class="c-ty">List</span>&lt;<span class="c-kw">int</span>&gt; successors = <span class="c-kw">new</span> <span class="c-ty">List</span>&lt;<span class="c-kw">int</span>&gt;();
+        <span class="c-kw">for</span> (<span class="c-kw">int</span> j = 0; j &lt; vertices.GetLength(0); j++)
+        {
+            <span class="c-kw">if</span> (vertices[i, j] != 0) <span class="c-co">// Ако има ребро</span>
+            {
+                successors.Add(j);
+            }
+        }
+        <span class="c-kw">return</span> successors;
+    }
+
+    <span class="c-co">// Обхождане в Ширина (на вълни)</span>
+    <span class="c-kw">public void</span> TraverseBFS(<span class="c-kw">int</span> startNode)
+    {
+        <span class="c-kw">bool</span>[] visited = <span class="c-kw">new bool</span>[vertices.GetLength(0)];
+        <span class="c-ty">Queue</span>&lt;<span class="c-kw">int</span>&gt; queue = <span class="c-kw">new</span> <span class="c-ty">Queue</span>&lt;<span class="c-kw">int</span>&gt;(); <span class="c-co">// Използваме вградената Опашка</span>
+        
+        queue.Enqueue(startNode);
+        visited[startNode] = <span class="c-kw">true</span>; <span class="c-co">// Маркираме ВЕДНАГА като го добавим в опашката</span>
+
+        <span class="c-kw">while</span>(queue.Count &gt; 0)
+        {
+            <span class="c-kw">int</span> currentNode = queue.Dequeue();
+            Console.Write(currentNode + <span class="c-st">" "</span>);
+
+            <span class="c-co">// Взимаме всички съседи на текущия възел</span>
+            <span class="c-ty">List</span>&lt;<span class="c-kw">int</span>&gt; successors = GetSuccessors(currentNode);
+
+            <span class="c-kw">foreach</span> (<span class="c-kw">int</span> childNode <span class="c-kw">in</span> successors)
+            {
+                <span class="c-kw">if</span> (!visited[childNode])
+                {
+                    queue.Enqueue(childNode);
+                    visited[childNode] = <span class="c-kw">true</span>; <span class="c-co">// Маркираме!</span>
+                }
+            }
+        }
+    }
+}
+</pre>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-primary" onclick="goTo(0)">↩ Обратно в началото</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  let current = 0;
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const sections = document.querySelectorAll('.section');
+
+  function goTo(idx) {
+    sections[current].classList.remove('active');
+    navBtns[current].classList.remove('active');
+    current = idx;
+    sections[current].classList.add('active');
+    navBtns[current].classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function nextSection() { if(current < sections.length - 1) goTo(current + 1); }
+  function prevSection() { if(current > 0) goTo(current - 1); }
+</script>
+</body>
+</html>

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ден 6 — Обхождане с връщане назад</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #11090e;
+    --surface: #1a0f15;
+    --surface2: #271620;
+    --border: #402334;
+    --accent: #f43f5e; /* Rose/Червен акцент за Ден 6 */
+    --accent-hover: #fb7185;
+    --text: #fff1f2;
+    --muted: #a18090;
+    --correct: #10b981;
+    --wrong: #ef4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background: radial-gradient(ellipse 80% 80% at 50% -20%, rgba(244, 63, 94, 0.05), transparent);
+  }
+
+  /* ЛЯВА НАВИГАЦИЯ */
+  .sidebar {
+    width: 280px; background: var(--surface); border-right: 1px solid var(--border);
+    padding: 2rem 1.5rem; display: flex; flex-direction: column; z-index: 10;
+    position: fixed; height: 100vh; overflow-y: auto;
+  }
+  .branding { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; color: var(--accent); margin-bottom: 2.5rem; letter-spacing: 0.5px; }
+  .branding span { color: var(--text); }
+  
+  .nav-btn {
+    background: transparent; border: none; color: var(--muted); padding: 0.875rem 1rem;
+    text-align: left; font-size: 0.95rem; font-family: 'Inter', sans-serif;
+    border-radius: 8px; cursor: pointer; transition: all 0.2s; margin-bottom: 0.5rem;
+    font-weight: 500; display: flex; align-items: center; gap: 10px;
+  }
+  .nav-btn:hover { background: var(--surface2); color: var(--text); }
+  .nav-btn.active { background: rgba(244, 63, 94, 0.1); color: var(--accent); font-weight: 600; box-shadow: inset 3px 0 0 var(--accent); }
+
+  /* ТАЙМЕР ПОМОДОРО */
+  .timer-widget {
+    margin-top: auto; background: var(--surface2); padding: 1.25rem; border-radius: 12px;
+    border: 1px solid var(--border); text-align: center;
+  }
+  .timer-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 0.5rem; font-weight: 600; }
+  .timer-val { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 600; color: var(--text); margin-bottom: 1rem; }
+  .timer-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 1rem; }
+  .timer-fill { height: 100%; width: 100%; background: var(--accent); transition: width 1s linear; }
+  .timer-controls { display: flex; gap: 0.5rem; justify-content: center; }
+  .timer-btn {
+    background: var(--surface); color: var(--text); border: 1px solid var(--border);
+    padding: 0.4rem 0.75rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem;
+    font-weight: 500; transition: all 0.2s;
+  }
+  .timer-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ОСНОВНО СЪДЪРЖАНИЕ */
+  .main-content { margin-left: 280px; flex: 1; padding: 3rem 4rem; z-index: 1; max-width: 1000px; }
+  .section { display: none; animation: fadeIn 0.4s ease forwards; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-tag { display: inline-block; padding: 0.3rem 0.75rem; background: rgba(244, 63, 94, 0.1); color: var(--accent); border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-bottom: 1rem; letter-spacing: 0.5px; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2.8rem; margin-bottom: 1.5rem; line-height: 1.2; font-weight: 900; }
+  h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin: 2rem 0 1rem; color: var(--accent); }
+  p { line-height: 1.7; margin-bottom: 1.2rem; color: #fecdd3; font-size: 1.05rem; }
+  ul, ol { margin-left: 1.5rem; margin-bottom: 1.5rem; color: #fecdd3; line-height: 1.7; }
+  li { margin-bottom: 0.5rem; }
+  strong { color: #fff; }
+
+  /* КОДОВИ БЛОКОВЕ */
+  code { font-family: 'JetBrains Mono', monospace; background: var(--surface2); padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; color: #fda4af; }
+  pre { background: #0b0507; border: 1px solid var(--border); padding: 1.5rem; border-radius: 10px; overflow-x: auto; margin-bottom: 1.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; line-height: 1.5; color: #ffe4e6; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2); }
+  .c-keyword { color: #fb7185; } .c-type { color: #60a5fa; } .c-string { color: #34d399; } .c-comment { color: var(--muted); font-style: italic; }
+
+  /* INFO BOXES */
+  .info-box { padding: 1.25rem 1.5rem; border-radius: 10px; margin-bottom: 1.5rem; border-left: 4px solid; background: var(--surface2); line-height: 1.6; }
+  .info-box.rose { border-color: var(--accent); }
+  .info-box.red { border-color: var(--wrong); background: rgba(239, 68, 68, 0.05); }
+
+  /* ИНТЕРАКТИВНИ ЗАДАЧИ */
+  .exercise-grid { display: grid; gap: 1.5rem; margin-top: 2rem; }
+  .exercise { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
+  .exercise:hover { border-color: rgba(244, 63, 94, 0.5); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+  .exercise.active { border-color: var(--accent); background: var(--surface2); cursor: default; transform: none; box-shadow: none; }
+  .ex-num { font-size: 0.75rem; font-weight: 700; color: var(--accent); letter-spacing: 1px; margin-bottom: 0.5rem; }
+  .ex-question { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+  .reveal-hint { font-size: 0.9rem; color: var(--muted); font-style: italic; display: flex; align-items: center; gap: 5px; }
+  .ex-answer { display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px dashed var(--border); animation: fadeIn 0.4s ease; color: #fecdd3; }
+  .exercise.active .ex-answer { display: block; }
+  .exercise.active .reveal-hint { display: none; }
+
+  /* БУТОНИ ЗА НАВИГАЦИЯ */
+  .nav-actions { display: flex; justify-content: space-between; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+  .btn { padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; font-size: 0.95rem; }
+  .btn-primary { background: var(--accent); color: #000; border: none; }
+  .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); }
+  .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--surface2); border-color: var(--muted); }
+
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="branding">АСД <span>Ден 6</span></div>
+  <nav>
+    <button class="nav-btn active" onclick="goTo(0)">01. Въведение</button>
+    <button class="nav-btn" onclick="goTo(1)">02. Теория на метода</button>
+    <button class="nav-btn" onclick="goTo(2)">03. Път в лабиринт</button>
+    <button class="nav-btn" onclick="goTo(3)">04. Задача за коня / Дамите</button>
+    <button class="nav-btn" onclick="goTo(4)">05. Тренировка</button>
+  </nav>
+  
+  <div class="timer-widget">
+    <div class="timer-title">Спринт за учене</div>
+    <div class="timer-val" id="timerVal">45:00</div>
+    <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+    <div class="timer-controls">
+      <button class="timer-btn" onclick="toggleTimer()" id="timerBtn">▶ Старт</button>
+      <button class="timer-btn" onclick="resetTimer()">↺ Рестарт</button>
+    </div>
+  </div>
+</aside>
+
+<main class="main-content">
+
+  <!-- СЕКЦИЯ 0: Въведение -->
+  <div class="section active">
+    <span class="section-tag">Интелигентно изчерпване</span>
+    <h1>Ден 6: Обхождане с връщане назад</h1>
+    <p>Днес навлизаме в <strong>Backtracking (Връщане назад)</strong> – една от най-елегантните рекурсивни техники. Тя се използва, когато искаме да намерим едно или всички решения на задача, но пространството от възможни варианти е твърде голямо за груба сила (Brute Force).</p>
+    
+    <div class="info-box rose">
+      <strong>🎯 Фокус за изпита:</strong> Проф. Голев иска да види дали разбираш точно кога алгоритъмът "отстъпва". Ключовият момент в кода не е рекурсивното извикване, а <strong>възстановяването на състоянието</strong> след него!
+    </div>
+
+    <h2>Какво покриваме днес:</h2>
+    <ul>
+      <li><strong>Тема 6:</strong> Теоретична същност на метода Backtracking (Глава 4 от помагалото).</li>
+      <li><strong>Пример 1:</strong> Път в лабиринт (класическа задача с маркиране и отмаркиране).</li>
+      <li><strong>Пример 2:</strong> Задачата за дамите / Разходка на коня. Комбинаторен взрив.</li>
+    </ul>
+
+    <div class="nav-actions" style="justify-content: flex-end;">
+      <button class="btn btn-primary" onclick="nextSection()">Към Теорията →</button>
+    </div>
+  </div>
+
+  <!-- СЕКЦИЯ 1: Теория -->
+  <div class="section">
+    <span class="section-tag">Тема 6 от Конспекта</span>
+    <h1>Същност на метода Backtracking</h1>
+    
+    <p>Според проф. Голев, обхождането с връщане назад се дефинира като метод, при който решението се <strong>конструира последователно</strong>. Методът разчита на системния стек (чрез рекурсия), за да пази състоянието на частичното решение.</p>
+
+    <h2>Основни принципи:</h2>
+    <ol>
+      <li><strong>Последователно изграждане:</strong> На всяка стъпка правим опит да добавим нов елемент към текущото частично решение така, че то да отговаря на правилата.</li>
+      <li><strong>Продължаване при успех:</strong> Ако добавянето е валидно (напр. стъпваме на свободна клетка), извикваме рекурсията за следващата стъпка.</li>
+      <li><strong>Връщане назад (Backtrack):</strong> Когато стигнем до "задънена улица" (нито един ход не е валиден), се <em>връщаме на предходната стъпка</em>. За да пробваме друга алтернатива, <strong>задължително трябва да отменим (размаркираме) последното си действие!</strong></li>
+    </ol>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-primary" onclick="nextSection()">Към Лабиринта →</button>
+    </div>
+  </div>
+
+  <!-- СЕКЦИЯ 2: Път в лабиринт -->
+  <div class="section">
+    <span class="section-tag">Пример 1</span>
+    <h1>Намиране на път в лабиринт</h1>
+    
+    <p>Търсим път от стартова позиция до изхода (<code>'е'</code>). Движим се в 4 посоки. Клетките могат да бъдат свободни (<code>' '</code>), стени (<code>'*'</code>) или вече посетени (<code>'s'</code>).</p>
+
+    <h2>C# Реализация</h2>
+    <p>Обърни специално внимание на последните редове във втория <code>if</code>. Това е сърцето на алгоритъма!</p>
+<pre>
+<span class="c-keyword">static void</span> FindPath(<span class="c-keyword">int</span> row, <span class="c-keyword">int</span> col, <span class="c-type">char</span> direction) 
+{
+    <span class="c-comment">// 1. Дъно: Проверка за излизане извън границите на матрицата</span>
+    <span class="c-keyword">if</span> (col < 0 || row < 0 || col >= lab.GetLength(1) || row >= lab.GetLength(0)) 
+        <span class="c-keyword">return</span>; 
+
+    path[position++] = direction; <span class="c-comment">// Записваме посоката</span>
+
+    <span class="c-comment">// 2. Дъно: Проверка за изход</span>
+    <span class="c-keyword">if</span> (lab[row, col] == <span class="c-string">'е'</span>) 
+    {
+        PrintPath(path, 1, position - 1);
+    }
+    
+    <span class="c-comment">// 3. Опит за продължаване, само ако клетката е свободна</span>
+    <span class="c-keyword">if</span> (lab[row, col] == <span class="c-string">' '</span>) 
+    {
+        lab[row, col] = <span class="c-string">'s'</span>; <span class="c-comment">// МАРКИРАМЕ като посетена</span>
+
+        FindPath(row, col - 1, <span class="c-string">'L'</span>); <span class="c-comment">// ляво</span>
+        FindPath(row - 1, col, <span class="c-string">'U'</span>); <span class="c-comment">// нагоре</span>
+        FindPath(row, col + 1, <span class="c-string">'R'</span>); <span class="c-comment">// надясно</span>
+        FindPath(row + 1, col, <span class="c-string">'D'</span>); <span class="c-comment">// надолу</span>
+
+        <span class="c-comment">// ВРЪЩАНЕ НАЗАД (BACKTRACK)</span>
+        <span class="c-comment">// Ако нито един път не е успял, възстановяваме клетката,</span>
+        <span class="c-comment">// за да може да се мине през нея по друг маршрут!</span>
+        lab[row, col] = <span class="c-string">' '</span>; 
+    }
+    position--; <span class="c-comment">// Трием текущата стъпка от пътя</span>
+}
+</pre>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-primary" onclick="nextSection()">Към Разходка на коня →</button>
+    </div>
+  </div>
+
+  <!-- СЕКЦИЯ 3: Задача за коня / Дамите -->
+  <div class="section">
+    <span class="section-tag">Пример 2</span>
+    <h1>Разходка на коня / Задача за дамите</h1>
+    
+    <p>Проф. Голев използва "Разходка на коня" като еквивалент на "Задачата за 8-те дами". Логиката е абсолютно същата: опитваме всички възможни ходове, и ако задълпомним – отстъпваме.</p>
+
+    <h2>Концептуален C# код (по проф. Голев)</h2>
+<pre>
+<span class="c-keyword">public bool</span> Solve(<span class="c-keyword">int</span> x, <span class="c-keyword">int</span> y, <span class="c-keyword">int</span> currentStep) 
+{
+    visited[x, y] = currentStep; <span class="c-comment">// 1. Маркираме текущата позиция</span>
+
+    <span class="c-keyword">if</span> (AllNodesVisited()) 
+        <span class="c-keyword">return true</span>; <span class="c-comment">// Успех! Всички фигури са поставени</span>
+
+    <span class="c-comment">// Опитваме всички възможни ходове от масиви с отмествания (offsets)</span>
+    <span class="c-keyword">for</span> (<span class="c-keyword">int</span> i = 0; i < offsetX.Length; i++) 
+    {
+        <span class="c-keyword">int</span> newX = x + offsetX[i];
+        <span class="c-keyword">int</span> newY = y + offsetY[i];
+
+        <span class="c-keyword">if</span> (IsSafe(newX, newY)) <span class="c-comment">// Ако позицията е валидна</span>
+        {
+            <span class="c-comment">// Рекурсивно влизаме напред</span>
+            <span class="c-keyword">if</span> (Solve(newX, newY, currentStep + 1)) 
+                <span class="c-keyword">return true</span>; 
+        }
+    }
+
+    <span class="c-comment">// 2. ВРЪЩАНЕ НАЗАД (BACKTRACK)</span>
+    <span class="c-comment">// Щом цикълът е приключил и не сме върнали true, значи сме блокирани.</span>
+    visited[x, y] = 0; 
+    
+    <span class="c-keyword">return false</span>; <span class="c-comment">// Връщаме неуспех към предишното извикване</span>
+}
+</pre>
+
+    <div class="info-box rose">
+      <strong>Ефективност:</strong> За 8-те дами възможните комбинации са <code>8⁸</code> (огромен брой). Brute force би генерирал всичките. Backtracking генерира само <em>валидните частични решения</em> и отрязва цели "клони" от дървото на решенията веднага щом 2 дами се засекат. Въпреки това сложността остава експоненциална.
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-primary" onclick="nextSection()">Към Задачите →</button>
+    </div>
+  </div>
+
+  <!-- СЕКЦИЯ 4: Тренировка -->
+  <div class="section">
+    <span class="section-tag">Проверка на знанията</span>
+    <h1>Интерактивна тренировка</h1>
+
+    <div class="exercise-grid">
+      <!-- Задача 1 -->
+      <div class="exercise" onclick="toggleEx(this)">
+        <div class="ex-num">ВЪПРОС 1 — РАЗПОЗНАВАНЕ НА МЕТОДА</div>
+        <div class="ex-question">Кой е единственият ред код в алгоритъма за лабиринта, който го превръща от обикновено търсене в дълбочина (DFS) в истински "Backtracking"?</div>
+        <div class="reveal-hint">👆 Кликни за отговор</div>
+        <div class="ex-answer">
+          Редът: <code>lab[row, col] = ' ';</code><br><br>
+          Ако просто маркираме клетките със 's' (посетени), ние ще намерим <em>един</em> път (DFS). Но възстановявайки клетката обратно на свободна (интервал), ние позволяваме на алгоритъма да открие <strong>всички възможни пътища</strong>, преизползвайки същата клетка за други маршрути.
+        </div>
+      </div>
+
+      <!-- Задача 2 -->
+      <div class="exercise" onclick="toggleEx(this)">
+        <div class="ex-num">ВЪПРОС 2 — ПАМЕТ И ПРЕПЪЛВАНЕ</div>
+        <div class="ex-question">Сложността по време на Backtracking за Задачата за дамите е огромна (експоненциална). Означава ли това, че алгоритъмът е опасен за паметта (StackOverflow) при нормална шахматна дъска (8x8)?</div>
+        <div class="reveal-hint">👆 Кликни за отговор</div>
+        <div class="ex-answer">
+          <strong>Не.</strong> Паметта (дълбочината на рекурсията) зависи само от броя на стъпките, не от броя на генерираните клони. За 8x8 дъска, рекурсията ще достигне максимална дълбочина от 8 извиквания (по едно за всяка дама). Системният стек се справя с това без никакъв проблем.<br><br>
+          Проблемът е <em>времето за процесора</em>, не паметта.
+        </div>
+      </div>
+
+      <!-- Задача 3 -->
+      <div class="exercise" onclick="toggleEx(this)">
+        <div class="ex-num">ВЪПРОС 3 — УСЛОВИЕ ЗА "ДЪНО"</div>
+        <div class="ex-question">В кода на проф. Голев за Разходка на коня се извиква метода <code>IsSafe(newX, newY)</code>. Какво типично трябва да проверява този метод?</div>
+        <div class="reveal-hint">👆 Кликни за отговор</div>
+        <div class="ex-answer">
+          Той трябва да провери две основни неща:<br>
+          1. Дали новите координати (newX, newY) не излизат извън границите на дъската (напр. масив 8x8).<br>
+          2. Дали клетката вече не е била посетена в текущия път (напр. <code>visited[newX, newY] == 0</code>).
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="prevSection()">← Разходка на коня</button>
+      <button class="btn btn-primary" onclick="goTo(0)">↩ Обратно в началото</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  let current = 0;
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const sections = document.querySelectorAll('.section');
+
+  function goTo(idx) {
+    sections[current].classList.remove('active');
+    navBtns[current].classList.remove('active');
+    current = idx;
+    sections[current].classList.add('active');
+    navBtns[current].classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function nextSection() { if(current < sections.length - 1) goTo(current + 1); }
+  function prevSection() { if(current > 0) goTo(current - 1); }
+
+  function toggleEx(el) {
+    el.classList.toggle('active');
+  }
+
+  let timerDuration = 45 * 60;
+  let timerRemaining = timerDuration;
+  let timerInterval;
+  let timerRunning = false;
+
+  function toggleTimer() {
+    if (timerRunning) {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      document.getElementById('timerBtn').textContent = '▶ Продължи';
+    } else {
+      timerRunning = true;
+      document.getElementById('timerBtn').textContent = '⏸ Пауза';
+      timerInterval = setInterval(() => {
+        if (timerRemaining > 0) {
+          timerRemaining--;
+          updateTimerDisplay();
+        } else {
+          clearInterval(timerInterval);
+          timerRunning = false;
+          document.getElementById('timerBtn').textContent = '✓ Готово!';
+        }
+      }, 1000);
+    }
+  }
+
+  function resetTimer() {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    timerRemaining = timerDuration;
+    document.getElementById('timerBtn').textContent = '▶ Старт';
+    updateTimerDisplay();
+  }
+
+  function updateTimerDisplay() {
+    const m = Math.floor(timerRemaining / 60);
+    const s = timerRemaining % 60;
+    document.getElementById('timerVal').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    const pct = (timerRemaining / timerDuration) * 100;
+    document.getElementById('timerFill').style.width = pct + '%';
+  }
+  
+  updateTimerDisplay();
+</script>
+</body>
+</html>

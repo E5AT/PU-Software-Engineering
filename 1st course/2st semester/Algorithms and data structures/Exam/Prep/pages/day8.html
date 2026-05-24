@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="bg">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Ден 8 — Графи: Матрица на съседство, DFS и BFS</title>
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600&display=swap");
+
+            :root {
+                --bg: #040f0f;
+                --surface: #0b1c1c;
+                --surface2: #132a2a;
+                --border: #1e3f3f;
+                --accent: #14b8a6; /* Тюркоазен акцент за Ден 8 */
+                --accent-hover: #2dd4bf;
+                --text: #ccfbf1;
+                --muted: #5eead4;
+                --correct: #10b981;
+                --wrong: #ef4444;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                background: var(--bg);
+                color: var(--text);
+                font-family: "Inter", sans-serif;
+                min-height: 100vh;
+                display: flex;
+                overflow-x: hidden;
+            }
+
+            body::before {
+                content: "";
+                position: fixed;
+                inset: 0;
+                pointer-events: none;
+                z-index: 0;
+                background: radial-gradient(
+                    ellipse 80% 80% at 50% -20%,
+                    rgba(20, 184, 166, 0.05),
+                    transparent
+                );
+            }
+
+            /* ЛЯВА НАВИГАЦИЯ */
+            .sidebar {
+                width: 280px;
+                background: var(--surface);
+                border-right: 1px solid var(--border);
+                padding: 2rem 1.5rem;
+                display: flex;
+                flex-direction: column;
+                z-index: 10;
+                position: fixed;
+                height: 100vh;
+                overflow-y: auto;
+            }
+            .branding {
+                font-family: "Playfair Display", serif;
+                font-size: 1.5rem;
+                font-weight: 900;
+                color: var(--accent);
+                margin-bottom: 2.5rem;
+                letter-spacing: 0.5px;
+            }
+            .branding span {
+                color: var(--text);
+            }
+
+            .nav-btn {
+                background: transparent;
+                border: none;
+                color: #8bbaba;
+                padding: 0.875rem 1rem;
+                text-align: left;
+                font-size: 0.95rem;
+                font-family: "Inter", sans-serif;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: all 0.2s;
+                margin-bottom: 0.5rem;
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .nav-btn:hover {
+                background: var(--surface2);
+                color: var(--text);
+            }
+            .nav-btn.active {
+                background: rgba(20, 184, 166, 0.1);
+                color: var(--accent);
+                font-weight: 600;
+                box-shadow: inset 3px 0 0 var(--accent);
+            }
+
+            /* ТАЙМЕР ПОМОДОРО */
+            .timer-widget {
+                margin-top: auto;
+                background: var(--surface2);
+                padding: 1.25rem;
+                border-radius: 12px;
+                border: 1px solid var(--border);
+                text-align: center;
+            }
+            .timer-title {
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                color: #8bbaba;
+                margin-bottom: 0.5rem;
+                font-weight: 600;
+            }
+            .timer-val {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 2rem;
+                font-weight: 600;
+                color: var(--text);
+                margin-bottom: 1rem;
+            }
+            .timer-bar {
+                height: 6px;
+                background: var(--border);
+                border-radius: 3px;
+                overflow: hidden;
+                margin-bottom: 1rem;
+            }
+            .timer-fill {
+                height: 100%;
+                width: 100%;
+                background: var(--accent);
+                transition: width 1s linear;
+            }
+            .timer-controls {
+                display: flex;
+                gap: 0.5rem;
+                justify-content: center;
+            }
+            .timer-btn {
+                background: var(--surface);
+                color: var(--text);
+                border: 1px solid var(--border);
+                padding: 0.4rem 0.75rem;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 0.8rem;
+                font-weight: 500;
+                transition: all 0.2s;
+            }
+            .timer-btn:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
+            /* ОСНОВНО СЪДЪРЖАНИЕ */
+            .main-content {
+                margin-left: 280px;
+                flex: 1;
+                padding: 3rem 4rem;
+                z-index: 1;
+                max-width: 1000px;
+            }
+            .section {
+                display: none;
+                animation: fadeIn 0.4s ease forwards;
+            }
+            .section.active {
+                display: block;
+            }
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .section-tag {
+                display: inline-block;
+                padding: 0.3rem 0.75rem;
+                background: rgba(20, 184, 166, 0.1);
+                color: var(--accent);
+                border-radius: 20px;
+                font-size: 0.8rem;
+                font-weight: 600;
+                margin-bottom: 1rem;
+                letter-spacing: 0.5px;
+            }
+            h1 {
+                font-family: "Playfair Display", serif;
+                font-size: 2.8rem;
+                margin-bottom: 1.5rem;
+                line-height: 1.2;
+                font-weight: 900;
+            }
+            h2 {
+                font-family: "Playfair Display", serif;
+                font-size: 1.8rem;
+                margin: 2rem 0 1rem;
+                color: var(--accent);
+            }
+            p {
+                line-height: 1.7;
+                margin-bottom: 1.2rem;
+                color: #a5f3fc;
+                font-size: 1.05rem;
+            }
+            ul,
+            ol {
+                margin-left: 1.5rem;
+                margin-bottom: 1.5rem;
+                color: #a5f3fc;
+                line-height: 1.7;
+            }
+            li {
+                margin-bottom: 0.5rem;
+            }
+            strong {
+                color: #fff;
+            }
+
+            /* КОДОВИ БЛОКОВЕ */
+            code {
+                font-family: "JetBrains Mono", monospace;
+                background: var(--surface2);
+                padding: 0.2em 0.4em;
+                border-radius: 4px;
+                font-size: 0.9em;
+                color: #2dd4bf;
+            }
+            pre {
+                background: #020808;
+                border: 1px solid var(--border);
+                padding: 1.5rem;
+                border-radius: 10px;
+                overflow-x: auto;
+                margin-bottom: 1.5rem;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 0.95rem;
+                line-height: 1.5;
+                color: #ccfbf1;
+                box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
+            }
+            .c-keyword {
+                color: #2dd4bf;
+            }
+            .c-type {
+                color: #38bdf8;
+            }
+            .c-string {
+                color: #fcd34d;
+            }
+            .c-comment {
+                color: #64748b;
+                font-style: italic;
+            }
+
+            /* INFO BOXES */
+            .info-box {
+                padding: 1.25rem 1.5rem;
+                border-radius: 10px;
+                margin-bottom: 1.5rem;
+                border-left: 4px solid;
+                background: var(--surface2);
+                line-height: 1.6;
+            }
+            .info-box.teal {
+                border-color: var(--accent);
+            }
+            .info-box.red {
+                border-color: var(--wrong);
+                background: rgba(239, 68, 68, 0.05);
+            }
+
+            /* ИНТЕРАКТИВНИ ЗАДАЧИ */
+            .exercise-grid {
+                display: grid;
+                gap: 1.5rem;
+                margin-top: 2rem;
+            }
+            .exercise {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                padding: 1.5rem;
+                cursor: pointer;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                position: relative;
+                overflow: hidden;
+            }
+            .exercise:hover {
+                border-color: rgba(20, 184, 166, 0.5);
+                transform: translateY(-3px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            }
+            .exercise.active {
+                border-color: var(--accent);
+                background: var(--surface2);
+                cursor: default;
+                transform: none;
+                box-shadow: none;
+            }
+            .ex-num {
+                font-size: 0.75rem;
+                font-weight: 700;
+                color: var(--accent);
+                letter-spacing: 1px;
+                margin-bottom: 0.5rem;
+            }
+            .ex-question {
+                font-size: 1.1rem;
+                font-weight: 500;
+                margin-bottom: 1rem;
+            }
+            .reveal-hint {
+                font-size: 0.9rem;
+                color: #8bbaba;
+                font-style: italic;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+            .ex-answer {
+                display: none;
+                margin-top: 1.5rem;
+                padding-top: 1.5rem;
+                border-top: 1px dashed var(--border);
+                animation: fadeIn 0.4s ease;
+                color: #a5f3fc;
+            }
+            .exercise.active .ex-answer {
+                display: block;
+            }
+            .exercise.active .reveal-hint {
+                display: none;
+            }
+
+            /* БУТОНИ ЗА НАВИГАЦИЯ */
+            .nav-actions {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 4rem;
+                padding-top: 2rem;
+                border-top: 1px solid var(--border);
+            }
+            .btn {
+                padding: 0.75rem 1.5rem;
+                border-radius: 8px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+                font-family: "Inter", sans-serif;
+                font-size: 0.95rem;
+            }
+            .btn-primary {
+                background: var(--accent);
+                color: #000;
+                border: none;
+            }
+            .btn-primary:hover {
+                background: var(--accent-hover);
+                transform: translateY(-2px);
+            }
+            .btn-secondary {
+                background: transparent;
+                color: var(--text);
+                border: 1px solid var(--border);
+            }
+            .btn-secondary:hover {
+                background: var(--surface2);
+                border-color: #8bbaba;
+            }
+        </style>
+    </head>
+    <body>
+        <aside class="sidebar">
+            <div class="branding">АСД <span>Ден 8</span></div>
+            <nav>
+                <button class="nav-btn active" onclick="goTo(0)">
+                    01. Въведение
+                </button>
+                <button class="nav-btn" onclick="goTo(1)">
+                    02. Матрица на съседство
+                </button>
+                <button class="nav-btn" onclick="goTo(2)">
+                    03. Обхождане в дълбочина (DFS)
+                </button>
+                <button class="nav-btn" onclick="goTo(3)">
+                    04. Обхождане в ширина (BFS)
+                </button>
+                <button class="nav-btn" onclick="goTo(4)">
+                    05. Тренировка
+                </button>
+            </nav>
+
+            <div class="timer-widget">
+                <div class="timer-title">Спринт за учене</div>
+                <div class="timer-val" id="timerVal">45:00</div>
+                <div class="timer-bar">
+                    <div class="timer-fill" id="timerFill"></div>
+                </div>
+                <div class="timer-controls">
+                    <button
+                        class="timer-btn"
+                        onclick="toggleTimer()"
+                        id="timerBtn"
+                    >
+                        ▶ Старт
+                    </button>
+                    <button class="timer-btn" onclick="resetTimer()">
+                        ↺ Рестарт
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="section active">
+                <span class="section-tag">Мрежови структури</span>
+                <h1>Ден 8: Графи, DFS и BFS</h1>
+                <p>
+                    Докато дърветата имат строга йерархия "родител-дете",
+                    <strong>графите</strong> позволяват връзка от всеки към
+                    всеки. Те са идеални за моделиране на социални мрежи, пътни
+                    карти, компютърни мрежи и зависимости.
+                </p>
+
+                <div class="info-box teal">
+                    <strong>🎯 Фокус за изпита (Теми 12 и 13):</strong>
+                    Професорите винаги питат за свойствата на
+                    <em>Матрицата на съседство</em> (напр. кога е симетрична).
+                    Също така трябва да можеш без грешка да разпишеш кодовете за
+                    <strong>DFS (чрез рекурсия/стек)</strong> и
+                    <strong>BFS (чрез опашка)</strong>.
+                </div>
+
+                <h2>Какво покриваме днес:</h2>
+                <ul>
+                    <li>
+                        <strong>Тема 12:</strong> Графи. Матрица на съседство и
+                        нейните математически свойства.
+                    </li>
+                    <li>
+                        <strong>Тема 13:</strong> Обхождане в дълбочина
+                        (Depth-First Search - DFS).
+                    </li>
+                    <li>
+                        <strong>Тема 13:</strong> Обхождане в ширина
+                        (Breadth-First Search - BFS) чрез Опашка.
+                    </li>
+                </ul>
+
+                <div class="nav-actions" style="justify-content: flex-end">
+                    <button class="btn btn-primary" onclick="nextSection()">
+                        Към Матрицата на съседство →
+                    </button>
+                </div>
+            </div>
+
+            <div class="section">
+                <span class="section-tag">Тема 12 от Конспекта</span>
+                <h1>Матрица на съседство</h1>
+
+                <p>
+                    Графът се състои от върхове (Vertices - <code>V</code>) и
+                    ребра (Edges - <code>E</code>). Един от най-лесните начини
+                    да представим граф в програмирането е чрез
+                    <strong>двумерен масив (Матрица на съседство)</strong> с
+                    размери <code>N x N</code> (където N е броят на върховете).
+                </p>
+
+                <div class="info-box teal">
+                    <strong>Правило за запис:</strong><br />
+                    Ако има ребро от връх <code>i</code> до връх <code>j</code>,
+                    тогава <code>matrix[i, j] = 1</code> (или теглото на
+                    реброто).<br />
+                    Ако няма връзка, <code>matrix[i, j] = 0</code>.
+                </div>
+
+                <h2>Ключови свойства за изпита:</h2>
+                <ul>
+                    <li>
+                        <strong>Неориентиран граф:</strong> Матрицата е
+                        <em>перфектно симетрична</em> спрямо главния диагонал
+                        (т.е. <code>matrix[i, j] == matrix[j, i]</code>). Ако
+                        град А е свързан с град Б, то и Б е свързан с А.
+                    </li>
+                    <li>
+                        <strong>Ориентиран граф:</strong> Матрицата
+                        <em>не е задължително симетрична</em> (еднопосочни
+                        улици).
+                    </li>
+                    <li>
+                        <strong>Главен диагонал:</strong> Ако няма примки (ребро
+                        от връх към самия него), всички елементи по главния
+                        диагонал <code>matrix[i, i]</code> са <code>0</code>.
+                    </li>
+                </ul>
+
+                <h2>Инициализация в C#</h2>
+                <pre>
+<span class="c-keyword">int</span> n = 5; <span class="c-comment">// Брой върхове</span>
+<span class="c-keyword">int</span>[,] matrix = <span class="c-keyword">new int</span>[n, n];
+
+<span class="c-comment">// Добавяне на неориентирано ребро между връх 0 и връх 2</span>
+matrix[0, 2] = 1;
+matrix[2, 0] = 1;
+</pre>
+
+                <div class="nav-actions">
+                    <button class="btn btn-secondary" onclick="prevSection()">
+                        ← Назад
+                    </button>
+                    <button class="btn btn-primary" onclick="nextSection()">
+                        Към DFS →
+                    </button>
+                </div>
+            </div>
+
+            <div class="section">
+                <span class="section-tag">Тема 13 от Конспекта</span>
+                <h1>Обхождане в дълбочина (DFS)</h1>
+                <p>
+                    <strong>Depth-First Search (DFS)</strong>: Избираме начален
+                    връх, маркираме го като посетен и веднага се спускаме
+                    колкото се може по-надълбоко по първото му възможно
+                    непосетено ребро. Когато стигнем задънена улица, се връщаме
+                    стъпка назад (разчитайки на рекурсията).
+                </p>
+
+                <h2>C# Реализация (Рекурсивен подход)</h2>
+                <p>
+                    Нуждаем се от глобален масив <code>visited</code>, за да не
+                    зациклим безкрайно в графа!
+                </p>
+                <pre>
+<span class="c-keyword">static int</span>[,] matrix;        <span class="c-comment">// Матрицата на съседство</span>
+<span class="c-keyword">static bool</span>[] visited;       <span class="c-comment">// Масив за маркиране на посетените върхове</span>
+<span class="c-keyword">static int</span> n;                <span class="c-comment">// Брой върхове</span>
+
+<span class="c-keyword">static void</span> DFS(<span class="c-keyword">int</span> v)
+{
+    <span class="c-comment">// 1. Маркираме текущия връх като посетен и го отпечатваме</span>
+    visited[v] = <span class="c-keyword">true</span>;
+    Console.Write(v + <span class="c-string">" "</span>);
+
+    <span class="c-comment">// 2. Проверяваме всички възможни съседи чрез матрицата</span>
+    <span class="c-keyword">for</span> (<span class="c-keyword">int</span> i = 0; i < n; i++)
+    {
+        <span class="c-comment">// Ако има ребро от v до i (== 1) И върхът i НЕ е посетен</span>
+        <span class="c-keyword">if</span> (matrix[v, i] == 1 && !visited[i])
+        {
+            DFS(i); <span class="c-comment">// Гмуркаме се дълбоко в него</span>
+        }
+    }
+}
+</pre>
+
+                <div class="info-box red">
+                    <strong>Сложност:</strong> При използване на матрица на
+                    съседство, сложността е <strong>O(V²)</strong>, където
+                    <code>V</code> са върховете. Това е така, защото за всеки от
+                    V-те върха, ние извъртаме цикъл от 0 до N, за да проверим
+                    целия му ред в матрицата.
+                </div>
+
+                <div class="nav-actions">
+                    <button class="btn btn-secondary" onclick="prevSection()">
+                        ← Назад
+                    </button>
+                    <button class="btn btn-primary" onclick="nextSection()">
+                        Към BFS →
+                    </button>
+                </div>
+            </div>
+
+            <div class="section">
+                <span class="section-tag">Тема 13 от Конспекта</span>
+                <h1>Обхождане в ширина (BFS)</h1>
+                <p>
+                    <strong>Breadth-First Search (BFS)</strong>: Обхожда графа
+                    на нива (вълни). Първо посещава всички преки съседи на
+                    началния връх. Едва след това преминава към съседите на
+                    съседите.
+                    <strong>Задължително използва ОПАШКА (Queue)</strong> за
+                    пазене на поредността.
+                </p>
+
+                <h2>C# Реализация</h2>
+                <pre>
+<span class="c-keyword">static void</span> BFS(<span class="c-keyword">int</span> startNode)
+{
+    Queue&lt;<span class="c-keyword">int</span>&gt; q = <span class="c-keyword">new</span> Queue&lt;<span class="c-keyword">int</span>&gt;();
+
+    <span class="c-comment">// 1. Добавяме стартовия връх и го маркираме</span>
+    q.Enqueue(startNode);
+    visited[startNode] = <span class="c-keyword">true</span>;
+
+    <span class="c-comment">// 2. Въртим цикъла докато опашката не се изпразни</span>
+    <span class="c-keyword">while</span> (q.Count > 0)
+    {
+        <span class="c-keyword">int</span> curr = q.Dequeue(); <span class="c-comment">// Взимаме първия влязъл</span>
+        Console.Write(curr + <span class="c-string">" "</span>);
+
+        <span class="c-comment">// 3. Добавяме всичките му непосетени съседи в опашката</span>
+        <span class="c-keyword">for</span> (<span class="c-keyword">int</span> i = 0; i < n; i++)
+        {
+            <span class="c-keyword">if</span> (matrix[curr, i] == 1 && !visited[i])
+            {
+                visited[i] = <span class="c-keyword">true</span>; <span class="c-comment">// Маркираме ВЕДНАГА при влизане в опашката</span>
+                q.Enqueue(i);
+            }
+        }
+    }
+}
+</pre>
+
+                <div class="info-box teal">
+                    <strong>Използване:</strong> BFS е най-добрият алгоритъм за
+                    намиране на <strong>най-кратък път</strong> (минимален брой
+                    ребра) в нетегловен граф. За разлика от него, DFS е по-добър
+                    за изследване на всички възможни пътища (Backtracking) или
+                    търсене на цикли.
+                </div>
+
+                <div class="nav-actions">
+                    <button class="btn btn-secondary" onclick="prevSection()">
+                        ← Назад
+                    </button>
+                    <button class="btn btn-primary" onclick="nextSection()">
+                        Към Задачите →
+                    </button>
+                </div>
+            </div>
+
+            <div class="section">
+                <span class="section-tag">Проверка на знанията</span>
+                <h1>Интерактивна тренировка</h1>
+
+                <div class="exercise-grid">
+                    <div class="exercise" onclick="toggleEx(this)">
+                        <div class="ex-num">ВЪПРОС 1 — ИЗБОР НА АЛГОРИТЪМ</div>
+                        <div class="ex-question">
+                            Искате да напишете функция, която намира колко
+                            приятели трябва да "прескочите", за да стигнете от
+                            Иван до Мария в социална мрежа (напр. Иван познава
+                            Пешо, а Пешо познава Мария = 2 стъпки). Кой
+                            алгоритъм ще изберете?
+                        </div>
+                        <div class="reveal-hint">👆 Кликни за отговор</div>
+                        <div class="ex-answer">
+                            Задължително
+                            <strong>BFS (Обхождане в ширина)</strong
+                            >.<br /><br />
+                            BFS обхожда графа на вълни – първо проверява всички
+                            на 1 стъпка разстояние, после всички на 2 стъпки и
+                            т.н. Това гарантира, че първият път, когато срещнем
+                            Мария, сме я намерили по най-краткия възможен
+                            маршрут. DFS може да тръгне по напълно грешен клон
+                            на мрежата и да направи стотици стъпки.
+                        </div>
+                    </div>
+
+                    <div class="exercise" onclick="toggleEx(this)">
+                        <div class="ex-num">
+                            ВЪПРОС 2 — СИМЕТРИЯ В МАТРИЦАТА
+                        </div>
+                        <div class="ex-question">
+                            Нека матрицата на съседство <code>M</code> представя
+                            граф с 5 върха. Забелязвате, че
+                            <code>M[2, 4] = 1</code>, но
+                            <code>M[4, 2] = 0</code>. Какво означава това за
+                            самия граф?
+                        </div>
+                        <div class="reveal-hint">👆 Кликни за отговор</div>
+                        <div class="ex-answer">
+                            Означава, че графът е
+                            <strong>ориентиран (Directed Graph)</strong
+                            >.<br /><br />
+                            Има еднопосочно ребро (стрелка) от връх 2 към връх
+                            4, но няма връзка наобратно от 4 към 2. Ако графът
+                            беше неориентиран, матрицата трябваше да е
+                            симетрична спрямо главния диагонал и
+                            <code>M[4, 2]</code> също трябваше да е 1.
+                        </div>
+                    </div>
+
+                    <div class="exercise" onclick="toggleEx(this)">
+                        <div class="ex-num">
+                            ВЪПРОС 3 — СТРУКТУРИ ОТ ДАННИ ЗА ОБХОЖДАНЕ
+                        </div>
+                        <div class="ex-question">
+                            Въпрос за бърз блиц-тест: Какви вътрешни структури
+                            от данни (от разгледаните в Ден 2) използват
+                            съответно DFS и BFS под капака си, за да пазят реда
+                            на обхождане?
+                        </div>
+                        <div class="reveal-hint">👆 Кликни за отговор</div>
+                        <div class="ex-answer">
+                            - <strong>DFS:</strong> Използва
+                            <strong>Стек (LIFO)</strong>. Най-често не се пише
+                            ръчно стек, а се разчита на системния стек чрез
+                            рекурсия (както е в кода по-горе).<br />
+                            - <strong>BFS:</strong> Използва
+                            <strong>Опашка (FIFO)</strong>. Редът на изчакване
+                            се управлява чрез експлицитен обект
+                            <code>Queue&lt;int&gt;</code>.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nav-actions">
+                    <button class="btn btn-secondary" onclick="prevSection()">
+                        ← BFS
+                    </button>
+                    <button class="btn btn-primary" onclick="goTo(0)">
+                        ↩ Обратно в началото
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <script>
+            let current = 0;
+            const navBtns = document.querySelectorAll(".nav-btn");
+            const sections = document.querySelectorAll(".section");
+
+            function goTo(idx) {
+                sections[current].classList.remove("active");
+                navBtns[current].classList.remove("active");
+                current = idx;
+                sections[current].classList.add("active");
+                navBtns[current].classList.add("active");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+
+            function nextSection() {
+                if (current < sections.length - 1) goTo(current + 1);
+            }
+            function prevSection() {
+                if (current > 0) goTo(current - 1);
+            }
+
+            function toggleEx(el) {
+                el.classList.toggle("active");
+            }
+
+            let timerDuration = 45 * 60;
+            let timerRemaining = timerDuration;
+            let timerInterval;
+            let timerRunning = false;
+
+            function toggleTimer() {
+                if (timerRunning) {
+                    clearInterval(timerInterval);
+                    timerRunning = false;
+                    document.getElementById("timerBtn").textContent =
+                        "▶ Продължи";
+                } else {
+                    timerRunning = true;
+                    document.getElementById("timerBtn").textContent = "⏸ Пауза";
+                    timerInterval = setInterval(() => {
+                        if (timerRemaining > 0) {
+                            timerRemaining--;
+                            updateTimerDisplay();
+                        } else {
+                            clearInterval(timerInterval);
+                            timerRunning = false;
+                            document.getElementById("timerBtn").textContent =
+                                "✓ Готово!";
+                        }
+                    }, 1000);
+                }
+            }
+
+            function resetTimer() {
+                clearInterval(timerInterval);
+                timerRunning = false;
+                timerRemaining = timerDuration;
+                document.getElementById("timerBtn").textContent = "▶ Старт";
+                updateTimerDisplay();
+            }
+
+            function updateTimerDisplay() {
+                const m = Math.floor(timerRemaining / 60);
+                const s = timerRemaining % 60;
+                document.getElementById("timerVal").textContent =
+                    `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+                const pct = (timerRemaining / timerDuration) * 100;
+                document.getElementById("timerFill").style.width = pct + "%";
+            }
+
+            updateTimerDisplay();
+        </script>
+    </body>
+</html>

@@ -1,0 +1,825 @@
+<!doctype html>
+<html lang="bg">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Ден 9 — Сложни алгоритми върху графи (Финал)</title>
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600&display=swap");
+
+            :root {
+                --bg: #120e06;
+                --surface: #1e170a;
+                --surface2: #2b210f;
+                --border: #423214;
+                --accent: #f59e0b; /* Златен/Кехлибарен акцент за Финала */
+                --accent-hover: #fbbf24;
+                --text: #fef3c7;
+                --muted: #b49358;
+                --correct: #10b981;
+                --wrong: #ef4444;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                background: var(--bg);
+                color: var(--text);
+                font-family: "Inter", sans-serif;
+                min-height: 100vh;
+                display: flex;
+                overflow-x: hidden;
+            }
+
+            body::before {
+                content: "";
+                position: fixed;
+                inset: 0;
+                pointer-events: none;
+                z-index: 0;
+                background: radial-gradient(
+                    ellipse 80% 80% at 50% -20%,
+                    rgba(245, 158, 11, 0.05),
+                    transparent
+                );
+            }
+
+            /* ЛЯВА НАВИГАЦИЯ */
+            .sidebar {
+                width: 280px;
+                background: var(--surface);
+                border-right: 1px solid var(--border);
+                padding: 2rem 1.5rem;
+                display: flex;
+                flex-direction: column;
+                z-index: 10;
+                position: fixed;
+                height: 100vh;
+                overflow-y: auto;
+            }
+            .branding {
+                font-family: "Playfair Display", serif;
+                font-size: 1.5rem;
+                font-weight: 900;
+                color: var(--accent);
+                margin-bottom: 2.5rem;
+                letter-spacing: 0.5px;
+            }
+            .branding span {
+                color: var(--text);
+            }
+
+            .nav-btn {
+                background: transparent;
+                border: none;
+                color: var(--muted);
+                padding: 0.875rem 1rem;
+                text-align: left;
+                font-size: 0.95rem;
+                font-family: "Inter", sans-serif;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: all 0.2s;
+                margin-bottom: 0.5rem;
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .nav-btn:hover {
+                background: var(--surface2);
+                color: var(--text);
+            }
+            .nav-btn.active {
+                background: rgba(245, 158, 11, 0.1);
+                color: var(--accent);
+                font-weight: 600;
+                box-shadow: inset 3px 0 0 var(--accent);
+            }
+
+            /* ТАЙМЕР ПОМОДОРО */
+            .timer-widget {
+                margin-top: auto;
+                background: var(--surface2);
+                padding: 1.25rem;
+                border-radius: 12px;
+                border: 1px solid var(--border);
+                text-align: center;
+            }
+            .timer-title {
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                color: var(--muted);
+                margin-bottom: 0.5rem;
+                font-weight: 600;
+            }
+            .timer-val {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 2rem;
+                font-weight: 600;
+                color: var(--text);
+                margin-bottom: 1rem;
+            }
+            .timer-bar {
+                height: 6px;
+                background: var(--border);
+                border-radius: 3px;
+                overflow: hidden;
+                margin-bottom: 1rem;
+            }
+            .timer-fill {
+                height: 100%;
+                width: 100%;
+                background: var(--accent);
+                transition: width 1s linear;
+            }
+            .timer-controls {
+                display: flex;
+                gap: 0.5rem;
+                justify-content: center;
+            }
+            .timer-btn {
+                background: var(--surface);
+                color: var(--text);
+                border: 1px solid var(--border);
+                padding: 0.4rem 0.75rem;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 0.8rem;
+                font-weight: 500;
+                transition: all 0.2s;
+            }
+            .timer-btn:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
+            /* ОСНОВНО СЪДЪРЖАНИЕ */
+            .main-content {
+                margin-left: 280px;
+                flex: 1;
+                padding: 3rem 4rem;
+                z-index: 1;
+                max-width: 1000px;
+            }
+            .section {
+                display: none;
+                animation: fadeIn 0.4s ease forwards;
+            }
+            .section.active {
+                display: block;
+            }
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .section-tag {
+                display: inline-block;
+                padding: 0.3rem 0.75rem;
+                background: rgba(245, 158, 11, 0.1);
+                color: var(--accent);
+                border-radius: 20px;
+                font-size: 0.8rem;
+                font-weight: 600;
+                margin-bottom: 1rem;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+            }
+            h1 {
+                font-family: "Playfair Display", serif;
+                font-size: 2.8rem;
+                margin-bottom: 1.5rem;
+                line-height: 1.2;
+                font-weight: 900;
+            }
+            h2 {
+                font-family: "Playfair Display", serif;
+                font-size: 1.8rem;
+                margin: 2rem 0 1rem;
+                color: var(--accent);
+            }
+            p {
+                line-height: 1.7;
+                margin-bottom: 1.2rem;
+                color: #fde68a;
+                font-size: 1.05rem;
+            }
+            ul,
+            ol {
+                margin-left: 1.5rem;
+                margin-bottom: 1.5rem;
+                color: #fde68a;
+                line-height: 1.7;
+            }
+            li {
+                margin-bottom: 0.5rem;
+            }
+            strong {
+                color: #fff;
+            }
+
+            /* КОДОВИ БЛОКОВЕ */
+            code {
+                font-family: "JetBrains Mono", monospace;
+                background: var(--surface2);
+                padding: 0.2em 0.4em;
+                border-radius: 4px;
+                font-size: 0.9em;
+                color: #fbbf24;
+            }
+            pre {
+                background: #080603;
+                border: 1px solid var(--border);
+                padding: 1.5rem;
+                border-radius: 10px;
+                overflow-x: auto;
+                margin-bottom: 1.5rem;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 0.95rem;
+                line-height: 1.5;
+                color: #fef3c7;
+                box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
+            }
+            .c-keyword {
+                color: #f59e0b;
+            }
+            .c-type {
+                color: #60a5fa;
+            }
+            .c-string {
+                color: #34d399;
+            }
+            .c-comment {
+                color: #78716c;
+                font-style: italic;
+            }
+
+            /* INFO BOXES */
+            .info-box {
+                padding: 1.25rem 1.5rem;
+                border-radius: 10px;
+                margin-bottom: 1.5rem;
+                border-left: 4px solid;
+                background: var(--surface2);
+                line-height: 1.6;
+            }
+            .info-box.amber {
+                border-color: var(--accent);
+            }
+            .info-box.red {
+                border-color: var(--wrong);
+                background: rgba(239, 68, 68, 0.05);
+            }
+
+            /* ИНТЕРАКТИВНИ ЗАДАЧИ */
+            .exercise-grid {
+                display: grid;
+                gap: 1.5rem;
+                margin-top: 2rem;
+            }
+            .exercise {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                padding: 1.5rem;
+                cursor: pointer;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                position: relative;
+                overflow: hidden;
+            }
+            .exercise:hover {
+                border-color: rgba(245, 158, 11, 0.5);
+                transform: translateY(-3px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            }
+            .exercise.active {
+                border-color: var(--accent);
+                background: var(--surface2);
+                cursor: default;
+                transform: none;
+                box-shadow: none;
+            }
+            .ex-num {
+                font-size: 0.75rem;
+                font-weight: 700;
+                color: var(--accent);
+                letter-spacing: 1px;
+                margin-bottom: 0.5rem;
+            }
+            .ex-question {
+                font-size: 1.1rem;
+                font-weight: 500;
+                margin-bottom: 1rem;
+            }
+            .reveal-hint {
+                font-size: 0.9rem;
+                color: var(--muted);
+                font-style: italic;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+            .ex-answer {
+                display: none;
+                margin-top: 1.5rem;
+                padding-top: 1.5rem;
+                border-top: 1px dashed var(--border);
+                animation: fadeIn 0.4s ease;
+                color: #fde68a;
+            }
+            .exercise.active .ex-answer {
+                display: block;
+            }
+            .exercise.active .reveal-hint {
+                display: none;
+            }
+
+            /* БУТОНИ ЗА НАВИГАЦИЯ */
+            .nav-actions {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 4rem;
+                padding-top: 2rem;
+                border-top: 1px solid var(--border);
+            }
+            .btn {
+                padding: 0.75rem 1.5rem;
+                border-radius: 8px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+                font-family: "Inter", sans-serif;
+                font-size: 0.95rem;
+            }
+            .btn-primary {
+                background: var(--accent);
+                color: #000;
+                border: none;
+            }
+            .btn-primary:hover {
+                background: var(--accent-hover);
+                transform: translateY(-2px);
+            }
+            .btn-secondary {
+                background: transparent;
+                color: var(--text);
+                border: 1px solid var(--border);
+            }
+            .btn-secondary:hover {
+                background: var(--surface2);
+                border-color: var(--muted);
+            }
+        </style>
+    </head>
+    <body>
+        <aside class="sidebar">
+            <div class="branding">АСД <span>Ден 9</span></div>
+            <nav>
+                <button class="nav-btn active" onclick="goTo(0)">
+                    01. Въведение
+                </button>
+                <button class="nav-btn" onclick="goTo(1)">
+                    02. Алгоритъм на Дейкстра
+                </button>
+                <button class="nav-btn" onclick="goTo(2)">
+                    03. Лакоми Алгоритми (MST)
+                </button>
+                <button class="nav-btn" onclick="goTo(3)">
+                    04. Топологична сортировка
+                </button>
+                <button class="nav-btn" onclick="goTo(4)">
+                    05. Генерална репетиция
+                </button>
+            </nav>
+
+            <div class="timer-widget">
+                <div class="timer-title">Спринт за учене</div>
+                <div class="timer-val" id="timerVal">45:00</div>
+                <div class="timer-bar">
+                    <div class="timer-fill" id="timerFill"></div>
+                </div>
+                <div class="timer-controls">
+                    <button
+                        class="timer-btn"
+                        onclick="toggleTimer()"
+                        id="timerBtn"
+                    >
+                        ▶ Старт
+                    </button>
+                    <button class="timer-btn" onclick="resetTimer()">
+                        ↺ Рестарт
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="section active">
+                <span class="section-tag">Големият финал</span>
+                <h1>Ден 9: Сложни алгоритми върху графи</h1>
+                <p>
+                    Поздравления! Достигна до последния и най-комплексен модул
+                    от твоята подготовка. Днес ще разгледаме трите "тежки"
+                    алгоритъма за работа с графи, които изискват обединяване на
+                    знанията ти за масиви, матрици, рекурсия и структури от
+                    данни.
+                </p>
+
+                <div class="info-box amber">
+                    <strong>🎯 Фокус за изпита (Теми 14, 15 и 16):</strong> Тези
+                    теми са "черешката на тортата". Професорите очакват да
+                    разбираш идеята за "релаксация" (Дейкстра), същността на
+                    "лакомите алгоритми" (MST) и защо Топологичната сортировка
+                    работи само при графове без цикли (DAG).
+                </div>
+
+                <h2>Какво покриваме днес:</h2>
+                <ul>
+                    <li>
+                        <strong>Тема 14:</strong> Минимален път в граф с тегла
+                        (Дейкстра).
+                    </li>
+                    <li>
+                        <strong>Тема 15:</strong> Минимално покриващо дърво
+                        (MST) чрез Лакоми алгоритми (Greedy).
+                    </li>
+                    <li>
+                        <strong>Тема 16:</strong> Топологична сортировка чрез
+                        използване на DFS и стек.
+                    </li>
+                </ul>
+
+                <div class="nav-actions" style="justify-content: flex-end">
+                    <button class="btn btn-primary" onclick="nextSection()">
+                        Към Дейкстра →
+                    </button>
+                </div>
+            </div>
+
+            <div class="section">
+                <span class="section-tag">Тема 14 от Конспекта</span>
+                <h1>Алгоритъм на Дейкстра</h1>
+
+                <p>
+                    Това е най-известният алгоритъм за намиране на
+                    <strong
+                        >най-кратък път от един начален връх до всички останали
+                        върхове</strong
+                    >
+                    в ориентиран или неориентиран граф с
+                    <em>неотрицателни тегла</em> на ребрата (напр. разстояние в
+                    километри).
+                </p>
+
+                <h2>Основна логика:</h2>
+                <ol>
+                    <li>
+                        Създаваме масив <code>distance[]</code>, в който
+                        записваме разстоянието до всеки връх. Първоначално
+                        всички са Безкрайност (Infinity), а началният е 0.
+                    </li>
+                    <li>
+                        На всяка стъпка избираме
+                        <strong>непосетения връх с най-малко разстояние</strong
+                        >.
+                    </li>
+                    <li>
+                        <strong>Релаксация:</strong> Проверяваме съседите му.
+                        Ако пътят до съсед <em>през текущия връх</em> е по-къс
+                        от досега известния, го обновяваме.
+                    </li>
+                    <li>Маркираме върха като посетен.</li>
+                </ol>
+
+                <h2>C# Имплементация (с Матрица)</h2>
+                <pre>
+<span class="c-keyword">void</span> Dijkstra(<span class="c-keyword">int</span>[,] graph, <span class="c-keyword">int</span> startNode, <span class="c-keyword">int</span> verticesCount)
+{
+    <span class="c-keyword">int</span>[] dist = <span class="c-keyword">new int</span>[verticesCount];
+    <span class="c-keyword">bool</span>[] visited = <span class="c-keyword">new bool</span>[verticesCount];
+
+    <span class="c-comment">// Инициализация с "безкрайност"</span>
+    <span class="c-keyword">for</span> (<span class="c-keyword">int</span> i = 0; i < verticesCount; i++)
+    {
+        dist[i] = <span class="c-keyword">int</span>.MaxValue;
+        visited[i] = <span class="c-keyword">false</span>;
+    }
+    dist[startNode] = 0; <span class="c-comment">// Разстоянието до себе си е 0</span>
+
+    <span class="c-keyword">for</span> (<span class="c-keyword">int</span> count = 0; count < verticesCount - 1; count++)
+    {
+        <span class="c-comment">// Намираме непосетения връх с минимално разстояние</span>
+        <span class="c-keyword">int</span> u = GetMinDistance(dist, visited, verticesCount);
+        visited[u] = <span class="c-keyword">true</span>;
+
+        <span class="c-comment">// Релаксация на съседите</span>
+        <span class="c-keyword">for</span> (<span class="c-keyword">int</span> v = 0; v < verticesCount; v++)
+        {
+            <span class="c-keyword">if</span> (!visited[v] && graph[u, v] != 0 &&
+                dist[u] != <span class="c-keyword">int</span>.MaxValue &&
+                dist[u] + graph[u, v] < dist[v])
+            {
+                dist[v] = dist[u] + graph[u, v];
+            }
+        }
+    }
+}
+</pre>
+
+                <div class="nav-actions">
+                    <button class="btn btn-secondary" onclick="prevSection()">
+                        ← Назад
+                    </button>
+                    <button class="btn btn-primary" onclick="nextSection()">
+                        Към MST →
+                    </button>
+                </div>
+            </div>
+
+            <div class="section">
+                <span class="section-tag">Тема 15 от Конспекта</span>
+                <h1>Минимално покриващо дърво (MST)</h1>
+                <p>
+                    Представи си, че трябва да прекараш оптичен интернет до
+                    няколко града. Искаш
+                    <strong>всички градове да са свързани</strong> помежду си,
+                    но търсиш <strong>минималната обща дължина</strong> на
+                    кабелите. Това се нарича Минимално покриващо дърво (Minimum
+                    Spanning Tree).
+                </p>
+
+                <div class="info-box amber">
+                    <strong>Лакоми алгоритми (Greedy Algorithms):</strong> Тези
+                    алгоритми правят локално най-добрия избор (вземат
+                    най-евтиното ребро) на всяка стъпка, надявайки се, че това
+                    ще доведе до глобален оптимум. При MST това работи
+                    перфектно!
+                </div>
+
+                <h2>Алгоритъм на Прим (Prim's Algorithm)</h2>
+                <p>
+                    Много прилича на Дейкстра, но вместо да трупа общото
+                    разстояние от началото, той записва само
+                    <em>цената на най-евтиното ребро</em>, което свързва даден
+                    връх с вече изграденото дърво.
+                </p>
+                <ol>
+                    <li>Започваме от произволен връх.</li>
+                    <li>
+                        Намираме най-евтиното ребро, което свързва върха с
+                        непосетен съсед.
+                    </li>
+                    <li>
+                        Добавяме съседа към дървото и повтаряме, докато всички
+                        върхове не бъдат обхванати (без да създаваме цикли).
+                    </li>
+                </ol>
+
+                <div class="nav-actions">
+                    <button class="btn btn-secondary" onclick="prevSection()">
+                        ← Назад
+                    </button>
+                    <button class="btn btn-primary" onclick="nextSection()">
+                        Към Топологична сортировка →
+                    </button>
+                </div>
+            </div>
+
+            <div class="section">
+                <span class="section-tag">Тема 16 от Конспекта</span>
+                <h1>Топологична сортировка</h1>
+
+                <p>
+                    Използва се, когато имаме задачи със зависимости. Например:
+                    "Не можеш да си обуеш обувките, преди да си обул чорапите."
+                    За да работи, графът <strong>ЗАДЪЛЖИТЕЛНО</strong> трябва да
+                    бъде
+                    <em
+                        >Ориентиран и Ацикличен (DAG - Directed Acyclic
+                        Graph)</em
+                    >.
+                </p>
+
+                <h2>Метод чрез DFS (по Светлин Наков)</h2>
+                <p>
+                    Идеята е брилянтна: пускаме стандартно търсене в дълбочина
+                    (DFS). Когато даден връх <strong>приключи</strong> с
+                    обработката на всички свои наследници (т.е. напускаме
+                    рекурсията за него), го добавяме в <strong>Стек</strong>.
+                    Накрая вадим всичко от стека и получаваме правилния ред!
+                </p>
+
+                <h2>C# Реализация</h2>
+                <pre>
+<span class="c-keyword">void</span> TopologicalSort(<span class="c-keyword">int</span> v, <span class="c-keyword">bool</span>[] visited, Stack&lt;<span class="c-keyword">int</span>&gt; result, List&lt;<span class="c-keyword">int</span>&gt;[] adj)
+{
+    visited[v] = <span class="c-keyword">true</span>; <span class="c-comment">// Маркираме текущия връх за посетен</span>
+
+    <span class="c-comment">// Обхождаме всичките му наследници</span>
+    <span class="c-keyword">foreach</span> (<span class="c-keyword">int</span> neighbor <span class="c-keyword">in</span> adj[v])
+    {
+        <span class="c-keyword">if</span> (!visited[neighbor])
+        {
+            TopologicalSort(neighbor, visited, result, adj);
+        }
+    }
+
+    <span class="c-comment">// Напускаме рекурсията -> Задължително влиза в Стека!</span>
+    result.Push(v);
+}
+</pre>
+                <p>
+                    <em
+                        >Забележка: Времевата сложност е линейна
+                        <strong>O(V + E)</strong>, защото всеки връх и всяко
+                        ребро се обхождат точно веднъж.</em
+                    >
+                </p>
+
+                <div class="nav-actions">
+                    <button class="btn btn-secondary" onclick="prevSection()">
+                        ← Назад
+                    </button>
+                    <button class="btn btn-primary" onclick="nextSection()">
+                        Към Задачите →
+                    </button>
+                </div>
+            </div>
+
+            <div class="section">
+                <span class="section-tag">Проверка на знанията</span>
+                <h1>Генерална репетиция</h1>
+                <p>
+                    Това са най-завъртените въпроси за устния изпит. Помисли
+                    добре!
+                </p>
+
+                <div class="exercise-grid">
+                    <div class="exercise" onclick="toggleEx(this)">
+                        <div class="ex-num">ВЪПРОС 1 — СЛАБОСТ НА ДЕЙКСТРА</div>
+                        <div class="ex-question">
+                            Защо алгоритъмът на Дейкстра не работи правилно, ако
+                            в графа има ребра с отрицателни тегла (напр. -5)?
+                        </div>
+                        <div class="reveal-hint">👆 Кликни за отговор</div>
+                        <div class="ex-answer">
+                            Дейкстра разчита на принципа на "лакомите
+                            алгоритми". Щом избере върха с най-малко моментно
+                            разстояние и го маркира като "посетен", алгоритъмът
+                            приема, че
+                            <strong
+                                >по-къс път до него никога няма да бъде
+                                намерен</strong
+                            >. Ако обаче по-нататък в графа има отрицателно
+                            ребро, то би могло да намали разстоянието до вече
+                            "финализиран" връх, но алгоритъмът никога няма да се
+                            върне да го поправи. За такива случаи се ползва
+                            алгоритъмът на Белман-Форд.
+                        </div>
+                    </div>
+
+                    <div class="exercise" onclick="toggleEx(this)">
+                        <div class="ex-num">
+                            ВЪПРОС 2 — MST СРЕЩУ SHORTEST PATH
+                        </div>
+                        <div class="ex-question">
+                            Каква е разликата между Минимално покриващо дърво
+                            (MST) и Дърво на най-кратките пътища (както го
+                            генерира Дейкстра)?
+                        </div>
+                        <div class="reveal-hint">👆 Кликни за отговор</div>
+                        <div class="ex-answer">
+                            - <strong>MST (Прим/Крускал):</strong> Гарантира
+                            минималното общо тегло на всички ребра, нужни за
+                            свързването на ВСИЧКИ върхове (минимизира цената на
+                            цялата мрежа).<br /><br />
+                            - <strong>Дейкстра:</strong> Гарантира, че
+                            разстоянието от
+                            <em>един конкретен начален връх</em> до който и да е
+                            друг е абсолютно минимално. Общата дължина на
+                            ребрата обаче може да не е най-евтината за цялата
+                            мрежа.
+                        </div>
+                    </div>
+
+                    <div class="exercise" onclick="toggleEx(this)">
+                        <div class="ex-num">ВЪПРОС 3 — СРИВ В ТОПОЛОГИЯТА</div>
+                        <div class="ex-question">
+                            Ако вмъкнем "цикъл" в графа (напр. Задача А изисква
+                            Б, Б изисква В, а В изисква А), какво ще се случи с
+                            топологичната сортировка?
+                        </div>
+                        <div class="reveal-hint">👆 Кликни за отговор</div>
+                        <div class="ex-answer">
+                            Алгоритъмът ще се провали, защото зависимостите
+                            стават нерешими (Парадоксът на кокошката и яйцето).
+                            Топологична сортировка може да бъде генерирана
+                            <strong
+                                >единствено за DAG (Directed Acyclic
+                                Graph)</strong
+                            >
+                            - ориентиран граф БЕЗ цикли. Ако използваме метода
+                            със стека, резултатът просто ще бъде
+                            грешен/нелогичен, затова често в кода се добавя
+                            проверка за цикли преди изпълнението.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nav-actions">
+                    <button class="btn btn-secondary" onclick="prevSection()">
+                        ← Топологична сортировка
+                    </button>
+                    <button class="btn btn-primary" onclick="goTo(0)">
+                        ↩ Обратно в началото
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <script>
+            let current = 0;
+            const navBtns = document.querySelectorAll(".nav-btn");
+            const sections = document.querySelectorAll(".section");
+
+            function goTo(idx) {
+                sections[current].classList.remove("active");
+                navBtns[current].classList.remove("active");
+                current = idx;
+                sections[current].classList.add("active");
+                navBtns[current].classList.add("active");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+
+            function nextSection() {
+                if (current < sections.length - 1) goTo(current + 1);
+            }
+            function prevSection() {
+                if (current > 0) goTo(current - 1);
+            }
+
+            function toggleEx(el) {
+                el.classList.toggle("active");
+            }
+
+            let timerDuration = 45 * 60;
+            let timerRemaining = timerDuration;
+            let timerInterval;
+            let timerRunning = false;
+
+            function toggleTimer() {
+                if (timerRunning) {
+                    clearInterval(timerInterval);
+                    timerRunning = false;
+                    document.getElementById("timerBtn").textContent =
+                        "▶ Продължи";
+                } else {
+                    timerRunning = true;
+                    document.getElementById("timerBtn").textContent = "⏸ Пауза";
+                    timerInterval = setInterval(() => {
+                        if (timerRemaining > 0) {
+                            timerRemaining--;
+                            updateTimerDisplay();
+                        } else {
+                            clearInterval(timerInterval);
+                            timerRunning = false;
+                            document.getElementById("timerBtn").textContent =
+                                "✓ Готово!";
+                        }
+                    }, 1000);
+                }
+            }
+
+            function resetTimer() {
+                clearInterval(timerInterval);
+                timerRunning = false;
+                timerRemaining = timerDuration;
+                document.getElementById("timerBtn").textContent = "▶ Старт";
+                updateTimerDisplay();
+            }
+
+            function updateTimerDisplay() {
+                const m = Math.floor(timerRemaining / 60);
+                const s = timerRemaining % 60;
+                document.getElementById("timerVal").textContent =
+                    `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+                const pct = (timerRemaining / timerDuration) * 100;
+                document.getElementById("timerFill").style.width = pct + "%";
+            }
+
+            updateTimerDisplay();
+        </script>
+    </body>
+</html>
