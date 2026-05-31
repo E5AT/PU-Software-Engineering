@@ -1,0 +1,33 @@
+TASK 1 – University System
+Person
+• Name 
+• Age 
+• Email 
+• Id 
+virtual string GetInfo()
+Student : Person
+• FacultyNumber 
+• AverageGrade 
+• Credits 
+Professor : Person
+• Salary 
+• Department 
+• YearsExperience 
+Assistant : Person
+• HoursPerWeek 
+• IsPhDStudent 
+• Salary 
+AdminStaff : Person
+• Position 
+• Salary 
+• WorkingHours 
+University
+List<Person>
+Methods:
+• AddPerson 
+• RemovePerson 
+• GetHighestSalaryPerson 
+• GetStudentWithHighestCredits 
+• GetTop3OldestPersons 
+• GetTotalSalaryCost 
+• PrintAll 
