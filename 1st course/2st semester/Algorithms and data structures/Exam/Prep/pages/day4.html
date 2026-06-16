@@ -1,169 +1,492 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="bg">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ден 4 — Прости Сортировки</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ден 4 — Прости Сортировки</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600&display=swap");
 
-  :root {
-    --bg: #0b1120;
-    --surface: #111827;
-    --surface2: #1f2937;
-    --border: #374151;
-    --accent: #06b6d4; /* Cyan/Син акцент за Ден 4 */
-    --accent-hover: #22d3ee;
-    --text: #f3f4f6;
-    --muted: #9ca3af;
-    --correct: #10b981;
-    --wrong: #ef4444;
-  }
+      :root {
+        --bg: #0b1120;
+        --surface: #111827;
+        --surface2: #1f2937;
+        --border: #374151;
+        --accent: #06b6d4; /* Cyan/Син акцент за Ден 4 */
+        --accent-hover: #22d3ee;
+        --text: #f3f4f6;
+        --muted: #9ca3af;
+        --correct: #10b981;
+        --wrong: #ef4444;
+      }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    overflow-x: hidden;
-  }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        min-height: 100vh;
+        display: flex;
+        overflow-x: hidden;
+      }
 
-  body::before {
-    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-    background: radial-gradient(ellipse 80% 80% at 50% -20%, rgba(6, 182, 212, 0.05), transparent);
-  }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        background: radial-gradient(
+          ellipse 80% 80% at 50% -20%,
+          rgba(6, 182, 212, 0.05),
+          transparent
+        );
+      }
 
-  /* ЛЯВА НАВИГАЦИЯ */
-  .sidebar {
-    width: 280px; background: var(--surface); border-right: 1px solid var(--border);
-    padding: 2rem 1.5rem; display: flex; flex-direction: column; z-index: 10;
-    position: fixed; height: 100vh; overflow-y: auto;
-  }
-  .branding { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; color: var(--accent); margin-bottom: 2.5rem; letter-spacing: 0.5px; }
-  .branding span { color: var(--text); }
-  
-  .nav-btn {
-    background: transparent; border: none; color: var(--muted); padding: 0.875rem 1rem;
-    text-align: left; font-size: 0.95rem; font-family: 'Inter', sans-serif;
-    border-radius: 8px; cursor: pointer; transition: all 0.2s; margin-bottom: 0.5rem;
-    font-weight: 500; display: flex; align-items: center; gap: 10px;
-  }
-  .nav-btn:hover { background: var(--surface2); color: var(--text); }
-  .nav-btn.active { background: rgba(6, 182, 212, 0.1); color: var(--accent); font-weight: 600; box-shadow: inset 3px 0 0 var(--accent); }
+      /* ЛЯВА НАВИГАЦИЯ */
+      .sidebar {
+        width: 280px;
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        padding: 2rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        z-index: 10;
+        position: fixed;
+        height: 100vh;
+        overflow-y: auto;
+      }
+      .branding {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: var(--accent);
+        margin-bottom: 2.5rem;
+        letter-spacing: 0.5px;
+      }
+      .branding span {
+        color: var(--text);
+      }
 
-  /* ТАЙМЕР ПОМОДОРО */
-  .timer-widget {
-    margin-top: auto; background: var(--surface2); padding: 1.25rem; border-radius: 12px;
-    border: 1px solid var(--border); text-align: center;
-  }
-  .timer-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 0.5rem; font-weight: 600; }
-  .timer-val { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 600; color: var(--text); margin-bottom: 1rem; }
-  .timer-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 1rem; }
-  .timer-fill { height: 100%; width: 100%; background: var(--accent); transition: width 1s linear; }
-  .timer-controls { display: flex; gap: 0.5rem; justify-content: center; }
-  .timer-btn {
-    background: var(--surface); color: var(--text); border: 1px solid var(--border);
-    padding: 0.4rem 0.75rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem;
-    font-weight: 500; transition: all 0.2s;
-  }
-  .timer-btn:hover { border-color: var(--accent); color: var(--accent); }
+      .nav-btn {
+        background: transparent;
+        border: none;
+        color: var(--muted);
+        padding: 0.875rem 1rem;
+        text-align: left;
+        font-size: 0.95rem;
+        font-family: "Inter", sans-serif;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .nav-btn:hover {
+        background: var(--surface2);
+        color: var(--text);
+      }
+      .nav-btn.active {
+        background: rgba(6, 182, 212, 0.1);
+        color: var(--accent);
+        font-weight: 600;
+        box-shadow: inset 3px 0 0 var(--accent);
+      }
 
-  /* ОСНОВНО СЪДЪРЖАНИЕ */
-  .main-content { margin-left: 280px; flex: 1; padding: 3rem 4rem; z-index: 1; max-width: 1000px; }
-  .section { display: none; animation: fadeIn 0.4s ease forwards; }
-  .section.active { display: block; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      /* ТАЙМЕР ПОМОДОРО */
+      .timer-widget {
+        margin-top: auto;
+        background: var(--surface2);
+        padding: 1.25rem;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        text-align: center;
+      }
+      .timer-title {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--muted);
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+      .timer-val {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 1rem;
+      }
+      .timer-bar {
+        height: 6px;
+        background: var(--border);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+      }
+      .timer-fill {
+        height: 100%;
+        width: 100%;
+        background: var(--accent);
+        transition: width 1s linear;
+      }
+      .timer-controls {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+      }
+      .timer-btn {
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--border);
+        padding: 0.4rem 0.75rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+      .timer-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
 
-  .section-tag { display: inline-block; padding: 0.3rem 0.75rem; background: rgba(6, 182, 212, 0.1); color: var(--accent); border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-bottom: 1rem; letter-spacing: 0.5px; }
-  h1 { font-family: 'Playfair Display', serif; font-size: 2.8rem; margin-bottom: 1.5rem; line-height: 1.2; font-weight: 900; }
-  h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin: 2rem 0 1rem; color: var(--accent); }
-  p { line-height: 1.7; margin-bottom: 1.2rem; color: #d1d5db; font-size: 1.05rem; }
-  ul, ol { margin-left: 1.5rem; margin-bottom: 1.5rem; color: #d1d5db; line-height: 1.7; }
-  li { margin-bottom: 0.5rem; }
-  strong { color: #fff; }
+      /* ОСНОВНО СЪДЪРЖАНИЕ */
+      .main-content {
+        margin-left: 280px;
+        flex: 1;
+        padding: 3rem 4rem;
+        z-index: 1;
+        max-width: 1000px;
+      }
+      .section {
+        display: none;
+        animation: fadeIn 0.4s ease forwards;
+      }
+      .section.active {
+        display: block;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
-  /* КОДОВИ БЛОКОВЕ */
-  code { font-family: 'JetBrains Mono', monospace; background: var(--surface2); padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; color: #22d3ee; }
-  pre { background: #080c14; border: 1px solid var(--border); padding: 1.5rem; border-radius: 10px; overflow-x: auto; margin-bottom: 1.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; line-height: 1.5; color: #e5e7eb; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2); }
-  .c-keyword { color: #22d3ee; } .c-type { color: #c084fc; } .c-string { color: #34d399; } .c-comment { color: var(--muted); font-style: italic; }
+      .section-tag {
+        display: inline-block;
+        padding: 0.3rem 0.75rem;
+        background: rgba(6, 182, 212, 0.1);
+        color: var(--accent);
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        letter-spacing: 0.5px;
+      }
+      h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 2.8rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+        font-weight: 900;
+      }
+      h2 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.8rem;
+        margin: 2rem 0 1rem;
+        color: var(--accent);
+      }
+      p {
+        line-height: 1.7;
+        margin-bottom: 1.2rem;
+        color: #d1d5db;
+        font-size: 1.05rem;
+      }
+      ul,
+      ol {
+        margin-left: 1.5rem;
+        margin-bottom: 1.5rem;
+        color: #d1d5db;
+        line-height: 1.7;
+      }
+      li {
+        margin-bottom: 0.5rem;
+      }
+      strong {
+        color: #fff;
+      }
 
-  /* INFO BOXES */
-  .info-box { padding: 1.25rem 1.5rem; border-radius: 10px; margin-bottom: 1.5rem; border-left: 4px solid; background: var(--surface2); line-height: 1.6; }
-  .info-box.cyan { border-color: var(--accent); }
-  .info-box.red { border-color: var(--wrong); background: rgba(239, 68, 68, 0.05); }
+      /* КОДОВИ БЛОКОВЕ */
+      code {
+        font-family: "JetBrains Mono", monospace;
+        background: var(--surface2);
+        padding: 0.2em 0.4em;
+        border-radius: 4px;
+        font-size: 0.9em;
+        color: #22d3ee;
+      }
+      pre {
+        background: #080c14;
+        border: 1px solid var(--border);
+        padding: 1.5rem;
+        border-radius: 10px;
+        overflow-x: auto;
+        margin-bottom: 1.5rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: #e5e7eb;
+        box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
+      }
+      .c-keyword {
+        color: #22d3ee;
+      }
+      .c-type {
+        color: #c084fc;
+      }
+      .c-string {
+        color: #34d399;
+      }
+      .c-comment {
+        color: var(--muted);
+        font-style: italic;
+      }
 
-  /* ИНТЕРАКТИВНИ ЗАДАЧИ */
-  .exercise-grid { display: grid; gap: 1.5rem; margin-top: 2rem; }
-  .exercise { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
-  .exercise:hover { border-color: rgba(6, 182, 212, 0.5); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-  .exercise.active { border-color: var(--accent); background: var(--surface2); cursor: default; transform: none; box-shadow: none; }
-  .ex-num { font-size: 0.75rem; font-weight: 700; color: var(--accent); letter-spacing: 1px; margin-bottom: 0.5rem; }
-  .ex-question { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
-  .reveal-hint { font-size: 0.9rem; color: var(--muted); font-style: italic; display: flex; align-items: center; gap: 5px; }
-  .ex-answer { display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px dashed var(--border); animation: fadeIn 0.4s ease; color: #d1d5db; }
-  .exercise.active .ex-answer { display: block; }
-  .exercise.active .reveal-hint { display: none; }
+      .visualization {
+        margin: 1.5rem 0;
+        padding: 1rem;
+        background: rgba(15, 23, 42, 0.95);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+      }
+      .visualization img {
+        width: 100%;
+        max-width: 700px;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .visualization p {
+        margin-top: 0.85rem;
+        color: #cbd5e1;
+        font-size: 0.98rem;
+        text-align: center;
+      }
 
-  /* ТАБЛИЦИ */
-  table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; background: var(--surface); border-radius: 8px; overflow: hidden; }
-  th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border); }
-  th { background: var(--surface2); color: var(--accent); font-weight: 600; font-family: 'Playfair Display', serif; }
-  tr:last-child td { border-bottom: none; }
+      /* INFO BOXES */
+      .info-box {
+        padding: 1.25rem 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid;
+        background: var(--surface2);
+        line-height: 1.6;
+      }
+      .info-box.cyan {
+        border-color: var(--accent);
+      }
+      .info-box.red {
+        border-color: var(--wrong);
+        background: rgba(239, 68, 68, 0.05);
+      }
 
-  /* БУТОНИ ЗА НАВИГАЦИЯ */
-  .nav-actions { display: flex; justify-content: space-between; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); }
-  .btn { padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; font-size: 0.95rem; }
-  .btn-primary { background: var(--accent); color: #000; border: none; }
-  .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); }
-  .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
-  .btn-secondary:hover { background: var(--surface2); border-color: var(--muted); }
+      /* ИНТЕРАКТИВНИ ЗАДАЧИ */
+      .exercise-grid {
+        display: grid;
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+      .exercise {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+      }
+      .exercise:hover {
+        border-color: rgba(6, 182, 212, 0.5);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      }
+      .exercise.active {
+        border-color: var(--accent);
+        background: var(--surface2);
+        cursor: default;
+        transform: none;
+        box-shadow: none;
+      }
+      .ex-num {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--accent);
+        letter-spacing: 1px;
+        margin-bottom: 0.5rem;
+      }
+      .ex-question {
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin-bottom: 1rem;
+      }
+      .reveal-hint {
+        font-size: 0.9rem;
+        color: var(--muted);
+        font-style: italic;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .ex-answer {
+        display: none;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px dashed var(--border);
+        animation: fadeIn 0.4s ease;
+        color: #d1d5db;
+      }
+      .exercise.active .ex-answer {
+        display: block;
+      }
+      .exercise.active .reveal-hint {
+        display: none;
+      }
 
-</style>
-</head>
-<body>
+      /* ТАБЛИЦИ */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1.5rem;
+        background: var(--surface);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      th,
+      td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+      }
+      th {
+        background: var(--surface2);
+        color: var(--accent);
+        font-weight: 600;
+        font-family: "Playfair Display", serif;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
 
-<aside class="sidebar">
-  <div class="branding">АСД <span>Ден 4</span></div>
-  <nav>
-    <button class="nav-btn active" onclick="goTo(0)">01. Въведение</button>
-    <button class="nav-btn" onclick="goTo(1)">02. Пряка селекция</button>
-    <button class="nav-btn" onclick="goTo(2)">03. Мехурче</button>
-    <button class="nav-btn" onclick="goTo(3)">04. Вмъкване</button>
-    <button class="nav-btn" onclick="goTo(4)">05. Тренировка</button>
-  </nav>
-  
-  <div class="timer-widget">
-    <div class="timer-title">Спринт за учене</div>
-    <div class="timer-val" id="timerVal">45:00</div>
-    <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
-    <div class="timer-controls">
-      <button class="timer-btn" onclick="toggleTimer()" id="timerBtn">▶ Старт</button>
-      <button class="timer-btn" onclick="resetTimer()">↺ Рестарт</button>
-    </div>
-  </div>
-</aside>
+      /* БУТОНИ ЗА НАВИГАЦИЯ */
+      .nav-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 4rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border);
+      }
+      .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: "Inter", sans-serif;
+        font-size: 0.95rem;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #000;
+        border: none;
+      }
+      .btn-primary:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+      }
+      .btn-secondary {
+        background: transparent;
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+      .btn-secondary:hover {
+        background: var(--surface2);
+        border-color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="branding">АСД <span>Ден 4</span></div>
+      <nav>
+        <button class="nav-btn active" onclick="goTo(0)">01. Въведение</button>
+        <button class="nav-btn" onclick="goTo(1)">02. Пряка селекция</button>
+        <button class="nav-btn" onclick="goTo(2)">03. Мехурче</button>
+        <button class="nav-btn" onclick="goTo(3)">04. Вмъкване</button>
+        <button class="nav-btn" onclick="goTo(4)">05. Тренировка</button>
+      </nav>
 
-<main class="main-content">
+      <div class="timer-widget">
+        <div class="timer-title">Спринт за учене</div>
+        <div class="timer-val" id="timerVal">45:00</div>
+        <div class="timer-bar">
+          <div class="timer-fill" id="timerFill"></div>
+        </div>
+        <div class="timer-controls">
+          <button class="timer-btn" onclick="toggleTimer()" id="timerBtn">
+            ▶ Старт
+          </button>
+          <button class="timer-btn" onclick="resetTimer()">↺ Рестарт</button>
+        </div>
+      </div>
+    </aside>
 
-  <!-- СЕКЦИЯ 0: Въведение -->
-  <div class="section active">
-    <span class="section-tag">Алгоритми O(n²)</span>
-    <h1>Ден 4: Прости сортировки</h1>
-    <p>Сортирането е една от най-фундаменталните операции в програмирането. Днес ще разгледаме трите основни алгоритъма с квадратна сложност <strong>O(n²)</strong>. Те са лесни за имплементиране, но се използват предимно за масиви с малък брой елементи.</p>
-    
-    <div class="info-box cyan">
-      <strong>🎯 Фокус за изпита (Тема 3):</strong> На изпит при проф. Голев се очаква да напишеш точния код на поне една от тези сортировки по памет. Също така се изисква да знаеш каква е тяхната сложност и концепцията за <strong>Устойчивост (Stability)</strong> на сортировката.
-    </div>
+    <main class="main-content">
+      <!-- СЕКЦИЯ 0: Въведение -->
+      <div class="section active">
+        <span class="section-tag">Алгоритми O(n²)</span>
+        <h1>Ден 4: Прости сортировки</h1>
+        <p>
+          Сортирането е една от най-фундаменталните операции в програмирането.
+          Днес ще разгледаме трите основни алгоритъма с квадратна сложност
+          <strong>O(n²)</strong>. Те са лесни за имплементиране, но се използват
+          предимно за масиви с малък брой елементи.
+        </p>
 
-    <p>Преди да започнем, е важно да споменем, че в реализацията на проф. Голев често се използва <strong>разширяващ метод (extension method)</strong> за размяна на елементи:</p>
-<pre>
+        <div class="info-box cyan">
+          <strong>🎯 Фокус за изпита (Тема 3):</strong> На изпит при проф. Голев
+          се очаква да напишеш точния код на поне една от тези сортировки по
+          памет. Също така се изисква да знаеш каква е тяхната сложност и
+          концепцията за <strong>Устойчивост (Stability)</strong> на
+          сортировката.
+        </div>
+
+        <p>
+          Преди да започнем, е важно да споменем, че в реализацията на проф.
+          Голев често се използва
+          <strong>разширяващ метод (extension method)</strong> за размяна на
+          елементи:
+        </p>
+        <pre>
 <span class="c-comment">// Помощен метод, който ще виждаш в кодовете</span>
-<span class="c-keyword">static class</span> <span class="c-type">IntArraySwap</span> 
+<span class="c-keyword">static class</span> <span class="c-type">IntArraySwap</span>
 {
-    <span class="c-keyword">static public void</span> SwapElements(<span class="c-keyword">this int</span>[] array, <span class="c-keyword">int</span> indexOne, <span class="c-keyword">int</span> indexTwo) 
+    <span class="c-keyword">static public void</span> SwapElements(<span class="c-keyword">this int</span>[] array, <span class="c-keyword">int</span> indexOne, <span class="c-keyword">int</span> indexTwo)
     {
         <span class="c-keyword">int</span> tmp = array[indexOne];
         array[indexOne] = array[indexTwo];
@@ -172,260 +495,360 @@
 }
 </pre>
 
-    <div class="nav-actions" style="justify-content: flex-end;">
-      <button class="btn btn-primary" onclick="nextSection()">Към Пряка селекция →</button>
-    </div>
-  </div>
+        <div class="nav-actions" style="justify-content: flex-end">
+          <button class="btn btn-primary" onclick="nextSection()">
+            Към Пряка селекция →
+          </button>
+        </div>
+      </div>
 
-  <!-- СЕКЦИЯ 1: Селекция -->
-  <div class="section">
-    <span class="section-tag">Selection Sort</span>
-    <h1>Сортировка чрез Пряка селекция</h1>
-    
-    <p><strong>Идея:</strong> Разделяме масива на сортирана (лява) и несортирана (дясна) част. На всяка стъпка намираме <em>минималния елемент</em> в оставащата несортирана част и го разменяме с първия елемент от тази част.</p>
+      <!-- СЕКЦИЯ 1: Селекция -->
+      <div class="section">
+        <span class="section-tag">Selection Sort</span>
+        <h1>Сортировка чрез Пряка селекция</h1>
 
-    <h2>C# Реализация (по проф. Голев)</h2>
-<pre>
-<span class="c-keyword">static void</span> SelectionSort(<span class="c-keyword">int</span>[] arr) 
+        <p>
+          <strong>Идея:</strong> Разделяме масива на сортирана (лява) и
+          несортирана (дясна) част. На всяка стъпка намираме
+          <em>минималния елемент</em> в оставащата несортирана част и го
+          разменяме с първия елемент от тази част.
+        </p>
+
+        <div class="visualization">
+          <img src="../gifs/selection.gif" alt="Selection sort visualization" />
+          <p>
+            Визуализация на Selection Sort: намиране на минимален елемент и
+            размяна.
+          </p>
+        </div>
+
+        <h2>C# Реализация (по проф. Голев)</h2>
+        <pre>
+<span class="c-keyword">static void</span> SelectionSort(<span class="c-keyword">int</span>[] arr)
 {
-    <span class="c-keyword">int</span> i, j, pos;
-    <span class="c-keyword">int</span> n = arr.Length;
-    <span class="c-keyword">int</span> min_el;
-
-    <span class="c-keyword">for</span> (i = 0; i < n - 1; i++) 
+    <span class="c-keyword">for</span> (<span class="c-keyword">int</span> i = 0; i < arr.Length - 1; i++)
     {
-        min_el = arr[i];
-        pos = i;
-        
+        <span class="c-keyword">int</span> min_el = arr[i];
+        <span class="c-keyword">int</span> pos = i;
+
         <span class="c-comment">// Търсим най-малкия в дясната част</span>
-        <span class="c-keyword">for</span> (j = i + 1; j < n; j++) 
+        <span class="c-keyword">for</span> (<span class="c-keyword">int</span> j = i + 1; j < arr.Length; j++)
         {
-            <span class="c-keyword">if</span> (arr[j] < min_el) 
+            <span class="c-keyword">if</span> (arr[j] < min_el)
             {
                 min_el = arr[j];
                 pos = j;
             }
         }
         <span class="c-comment">// Разменяме с текущата първа позиция</span>
-        arr.SwapElements(i, pos);
+        (arr[i], arr[pos]) = (arr[pos], arr[i])
     }
 }
 </pre>
 
-    <div class="info-box red">
-      <strong>Сложност:</strong> <code>O(n²)</code> във всички случаи (Най-добър, Среден и Най-лош). Дори масивът да е вече сортиран, алгоритъмът отново ще направи всички <code>n(n-1)/2</code> сравнения.<br><br>
-      <strong>Устойчивост:</strong> <strong style="color:var(--wrong);">НЕУСТОЙЧИВА</strong>. Размяната на елементи на далечни разстояния може да наруши реда на първоначално равни елементи.
-    </div>
+        <div class="info-box red">
+          <strong>Сложност:</strong> <code>O(n²)</code> във всички случаи
+          (Най-добър, Среден и Най-лош). Дори масивът да е вече сортиран,
+          алгоритъмът отново ще направи всички
+          <code>n(n-1)/2</code> сравнения.<br /><br />
+          <strong>Устойчивост:</strong>
+          <strong style="color: var(--wrong)">НЕУСТОЙЧИВА</strong>. Размяната на
+          елементи на далечни разстояния може да наруши реда на първоначално
+          равни елементи.
+        </div>
 
-    <div class="nav-actions">
-      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
-      <button class="btn btn-primary" onclick="nextSection()">Към Мехурче →</button>
-    </div>
-  </div>
+        <div class="nav-actions">
+          <button class="btn btn-secondary" onclick="prevSection()">
+            ← Назад
+          </button>
+          <button class="btn btn-primary" onclick="nextSection()">
+            Към Мехурче →
+          </button>
+        </div>
+      </div>
 
-  <!-- СЕКЦИЯ 2: Мехурче -->
-  <div class="section">
-    <span class="section-tag">Bubble Sort</span>
-    <h1>Метод на мехурчето</h1>
-    
-    <p><strong>Идея:</strong> Последователно се сравняват всеки два съседни елемента. Ако първият е по-голям от втория, те си разменят местата. След всяко пълно преминаване, най-големият елемент "изплува" като мехурче най-вдясно.</p>
+      <!-- СЕКЦИЯ 2: Мехурче -->
+      <div class="section">
+        <span class="section-tag">Bubble Sort</span>
+        <h1>Метод на мехурчето</h1>
 
-    <h2>C# Реализация с Оптимизация (по проф. Голев)</h2>
-    <p>Обърни внимание на флага <code>exchange</code>. Той спира изпълнението, ако при дадено обхождане не е направена нито една размяна.</p>
-<pre>
-<span class="c-keyword">static void</span> BubbleSort(<span class="c-keyword">int</span>[] arr) 
+        <p>
+          <strong>Идея:</strong> Последователно се сравняват всеки два съседни
+          елемента. Ако първият е по-голям от втория, те си разменят местата.
+          След всяко пълно преминаване, най-големият елемент "изплува" като
+          мехурче най-вдясно.
+        </p>
+
+        <div class="visualization">
+          <img src="../gifs/bubble.gif" alt="Bubble sort visualization" />
+          <p>
+            Визуализация на Bubble Sort: най-големият елемент „изплува“ към
+            края.
+          </p>
+        </div>
+
+        <h2>C# Реализация с Оптимизация (по проф. Голев)</h2>
+        <p>
+          Обърни внимание на флага <code>exchange</code>. Той спира
+          изпълнението, ако при дадено обхождане не е направена нито една
+          размяна.
+        </p>
+        <pre>
+<span class="c-keyword">static void</span> BubbleSort(<span class="c-keyword">int</span>[] arr)
 {
-    <span class="c-keyword">bool</span> exchange;
-    <span class="c-keyword">int</span> i, k;
-    <span class="c-keyword">int</span> n = arr.Length;
-
-    <span class="c-keyword">for</span> (k = n - 1; k > 0; k--) 
+    <span class="c-keyword">for</span> (<span class="c-keyword">int</span> k = arr.Length - 1; k > 0; k--)
     {
-        exchange = <span class="c-keyword">false</span>;
-        
-        <span class="c-keyword">for</span> (i = 0; i < k; i++) 
+        <span class="c-keyword">bool</span> exchange = <span class="c-keyword">false</span>;
+
+        <span class="c-keyword">for</span> (<span class="c-keyword">int</span> i = 0; i < k; i++)
         {
-            <span class="c-keyword">if</span> (arr[i] > arr[i + 1]) 
+            <span class="c-keyword">if</span> (arr[i] > arr[i + 1])
             {
-                arr.SwapElements(i, i + 1);
+                (arr[i], arr[i + 1]) = (arr[i + 1], arr[i])
                 exchange = <span class="c-keyword">true</span>;
             }
         }
-        
+
         <span class="c-comment">// Ако не сме разменили нищо, масивът е сортиран!</span>
-        <span class="c-keyword">if</span> (!exchange) <span class="c-keyword">break</span>; 
+        <span class="c-keyword">if</span> (!exchange) <span class="c-keyword">break</span>;
     }
 }
 </pre>
 
-    <div class="info-box cyan">
-      <strong>Сложност:</strong> <code>O(n²)</code> (Най-лош / Среден), но <code>O(n)</code> (Най-добър случай!). Благодарение на проверката <code>exchange</code>, ако подадем сортиран масив, цикълът спира след първото минаване.<br><br>
-      <strong>Устойчивост:</strong> <strong style="color:var(--correct);">УСТОЙЧИВА</strong>. Съседни равни елементи не се разменят.
-    </div>
+        <div class="info-box cyan">
+          <strong>Сложност:</strong> <code>O(n²)</code> (Най-лош / Среден), но
+          <code>O(n)</code> (Най-добър случай!). Благодарение на проверката
+          <code>exchange</code>, ако подадем сортиран масив, цикълът спира след
+          първото минаване.<br /><br />
+          <strong>Устойчивост:</strong>
+          <strong style="color: var(--correct)">УСТОЙЧИВА</strong>. Съседни
+          равни елементи не се разменят.
+        </div>
 
-    <div class="nav-actions">
-      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
-      <button class="btn btn-primary" onclick="nextSection()">Към Вмъкване →</button>
-    </div>
-  </div>
+        <div class="nav-actions">
+          <button class="btn btn-secondary" onclick="prevSection()">
+            ← Назад
+          </button>
+          <button class="btn btn-primary" onclick="nextSection()">
+            Към Вмъкване →
+          </button>
+        </div>
+      </div>
 
-  <!-- СЕКЦИЯ 3: Вмъкване -->
-  <div class="section">
-    <span class="section-tag">Insertion Sort</span>
-    <h1>Сортировка чрез Вмъкване</h1>
-    
-    <p><strong>Идея:</strong> Алгоритъмът работи подобно на подреждането на карти в ръката. Приема се, че лявата част на масива е сортирана. Взимаме следващия елемент <code>x</code> и го "вмъкваме" на правилното му място вляво, като изместваме по-големите от него елементи с една позиция надясно.</p>
+      <!-- СЕКЦИЯ 3: Вмъкване -->
+      <div class="section">
+        <span class="section-tag">Insertion Sort</span>
+        <h1>Сортировка чрез Вмъкване</h1>
 
-    <h2>C# Реализация (по проф. Голев)</h2>
-<pre>
-<span class="c-keyword">static void</span> InsertionSort(<span class="c-keyword">int</span>[] arr) 
+        <p>
+          <strong>Идея:</strong> Алгоритъмът работи подобно на подреждането на
+          карти в ръката. Приема се, че лявата част на масива е сортирана.
+          Взимаме следващия елемент <code>x</code> и го "вмъкваме" на правилното
+          му място вляво, като изместваме по-големите от него елементи с една
+          позиция надясно.
+        </p>
+
+        <div class="visualization">
+          <img src="../gifs/insertion.gif" alt="Insertion sort visualization" />
+          <p>
+            Визуализация на Insertion Sort: вмъкване на елемент на правилната
+            позиция.
+          </p>
+        </div>
+
+        <h2>C# Реализация (по проф. Голев)</h2>
+        <pre>
+<span class="c-keyword">static void</span> InsertionSort(<span class="c-keyword">int</span>[] arr)
 {
-    <span class="c-keyword">int</span> i, k;
-    <span class="c-keyword">int</span> x;
-    <span class="c-keyword">int</span> n = arr.Length;
-
-    <span class="c-keyword">for</span> (k = 1; k < n; k++) 
+    <span class="c-keyword">for</span> (<span class="c-keyword">int</span> k = 1; k < arr.Length; k++)
     {
-        x = arr[k];     <span class="c-comment">// Елементът за вмъкване</span>
-        i = k - 1;
-        
+        <span class="c-keyword">int</span> x = arr[k];     <span class="c-comment">// Елементът за вмъкване</span>
+        <span class="c-keyword">int</span> i = k - 1;
+
         <span class="c-comment">// Изместваме елементите надясно, докато намерим място за x</span>
-        <span class="c-keyword">while</span> (i >= 0 && x < arr[i]) 
+        <span class="c-keyword">while</span> (i >= 0 && x < arr[i])
         {
             arr[i + 1] = arr[i--];
         }
-        
+
         <span class="c-comment">// Вмъкваме го на освободената позиция</span>
-        arr[i + 1] = x; 
+        arr[i + 1] = x;
     }
 }
 </pre>
 
-    <div class="info-box cyan">
-      <strong>Сложност:</strong> <code>O(n²)</code> (Най-лош / Среден), <code>O(n)</code> (Най-добър случай). Ако масивът е сортиран, вътрешният <code>while</code> цикъл не се изпълнява нито веднъж.<br><br>
-      <strong>Устойчивост:</strong> <strong style="color:var(--correct);">УСТОЙЧИВА</strong>. Вмъква се след равните елементи, без да нарушава първоначалния им ред.
-    </div>
+        <div class="info-box cyan">
+          <strong>Сложност:</strong> <code>O(n²)</code> (Най-лош / Среден),
+          <code>O(n)</code> (Най-добър случай). Ако масивът е сортиран,
+          вътрешният <code>while</code> цикъл не се изпълнява нито веднъж.<br /><br />
+          <strong>Устойчивост:</strong>
+          <strong style="color: var(--correct)">УСТОЙЧИВА</strong>. Вмъква се
+          след равните елементи, без да нарушава първоначалния им ред.
+        </div>
 
-    <div class="nav-actions">
-      <button class="btn btn-secondary" onclick="prevSection()">← Назад</button>
-      <button class="btn btn-primary" onclick="nextSection()">Към Задачите →</button>
-    </div>
-  </div>
-
-  <!-- СЕКЦИЯ 4: Тренировка -->
-  <div class="section">
-    <span class="section-tag">Проверка на знанията</span>
-    <h1>Интерактивна тренировка</h1>
-    <p>Използвай тези въпроси, за да симулираш изпитната обстановка. Не бързай да гледаш отговора.</p>
-
-    <div class="exercise-grid">
-      <!-- Задача 1 -->
-      <div class="exercise" onclick="toggleEx(this)">
-        <div class="ex-num">ВЪПРОС 1 — УСТОЙЧИВОСТ</div>
-        <div class="ex-question">Коя от трите сортировки (Селекция, Мехурче, Вмъкване) е НЕУСТОЙЧИВА и какво точно означава това?</div>
-        <div class="reveal-hint">👆 Кликни за отговор</div>
-        <div class="ex-answer">
-          <strong>Сортировката чрез пряка селекция (Selection Sort)</strong> е неустойчива.<br><br>
-          <em>Устойчивост (Stability)</em> означава, че ако имаме два елемента с еднакви стойности (например две 5-ци), те запазват първоначалния си относителен ред след сортирането. Селекцията може да наруши този ред, защото разменя елементи на големи разстояния. Мехурчето и Вмъкването са устойчиви алгоритми.
+        <div class="nav-actions">
+          <button class="btn btn-secondary" onclick="prevSection()">
+            ← Назад
+          </button>
+          <button class="btn btn-primary" onclick="nextSection()">
+            Към Задачите →
+          </button>
         </div>
       </div>
 
-      <!-- Задача 2 -->
-      <div class="exercise" onclick="toggleEx(this)">
-        <div class="ex-num">ВЪПРОС 2 — СЛОЖНОСТ ПРИ СОРТИРАН МАСИВ</div>
-        <div class="ex-question">Ако подадем вече напълно сортиран масив (например [1, 2, 3, 4, 5]), каква ще е сложността на трите алгоритъма?</div>
-        <div class="reveal-hint">👆 Кликни за отговор</div>
-        <div class="ex-answer">
-          - <strong>Селекция:</strong> O(n²) — винаги извършва всички сравнения, няма ранно прекъсване.<br>
-          - <strong>Мехурче:</strong> O(n) — благодарение на флага <code>exchange</code>, спира след първото минаване без размени.<br>
-          - <strong>Вмъкване:</strong> O(n) — вътрешният <code>while</code> цикъл не се изпълнява нито веднъж, защото условието <code>x < arr[i]</code> не е изпълнено.
+      <!-- СЕКЦИЯ 4: Тренировка -->
+      <div class="section">
+        <span class="section-tag">Проверка на знанията</span>
+        <h1>Интерактивна тренировка</h1>
+        <p>
+          Използвай тези въпроси, за да симулираш изпитната обстановка. Не
+          бързай да гледаш отговора.
+        </p>
+
+        <div class="exercise-grid">
+          <!-- Задача 1 -->
+          <div class="exercise" onclick="toggleEx(this)">
+            <div class="ex-num">ВЪПРОС 1 — УСТОЙЧИВОСТ</div>
+            <div class="ex-question">
+              Коя от трите сортировки (Селекция, Мехурче, Вмъкване) е
+              НЕУСТОЙЧИВА и какво точно означава това?
+            </div>
+            <div class="reveal-hint">👆 Кликни за отговор</div>
+            <div class="ex-answer">
+              <strong>Сортировката чрез пряка селекция (Selection Sort)</strong>
+              е неустойчива.<br /><br />
+              <em>Устойчивост (Stability)</em> означава, че ако имаме два
+              елемента с еднакви стойности (например две 5-ци), те запазват
+              първоначалния си относителен ред след сортирането. Селекцията може
+              да наруши този ред, защото разменя елементи на големи разстояния.
+              Мехурчето и Вмъкването са устойчиви алгоритми.
+            </div>
+          </div>
+
+          <!-- Задача 2 -->
+          <div class="exercise" onclick="toggleEx(this)">
+            <div class="ex-num">ВЪПРОС 2 — СЛОЖНОСТ ПРИ СОРТИРАН МАСИВ</div>
+            <div class="ex-question">
+              Ако подадем вече напълно сортиран масив (например [1, 2, 3, 4,
+              5]), каква ще е сложността на трите алгоритъма?
+            </div>
+            <div class="reveal-hint">👆 Кликни за отговор</div>
+            <div class="ex-answer">
+              - <strong>Селекция:</strong> O(n²) — винаги извършва всички
+              сравнения, няма ранно прекъсване.<br />
+              - <strong>Мехурче:</strong> O(n) — благодарение на флага
+              <code>exchange</code>, спира след първото минаване без размени.<br />
+              - <strong>Вмъкване:</strong> O(n) — вътрешният
+              <code>while</code> цикъл не се изпълнява нито веднъж, защото
+              условието <code>x < arr[i]</code> не е изпълнено.
+            </div>
+          </div>
+
+          <!-- Задача 3 -->
+          <div class="exercise" onclick="toggleEx(this)">
+            <div class="ex-num">ВЪПРОС 3 — РАЗШИРЯВАЩ МЕТОД</div>
+            <div class="ex-question">
+              В кодовете на проф. Голев се вижда извикването
+              <code>arr.SwapElements(i, pos);</code>. Ключовата дума
+              <code>this</code> е използвана в параметрите му:
+              <code>(this int[] array, int i, int j)</code>. Какво постига това?
+            </div>
+            <div class="reveal-hint">👆 Кликни за отговор</div>
+            <div class="ex-answer">
+              Това е
+              <strong>Разширяващ метод (Extension method)</strong>
+              в C#.<br /><br />
+              Той позволява да добавим нова функционалност към вече съществуващ
+              тип (в случая масива от цели числа
+              <code>int[]</code>), без да променяме самия му клас. Благодарение
+              на думата <code>this</code> пред първия параметър, можем да го
+              извикваме интуитивно чрез точка:
+              <code>arr.SwapElements(...)</code>, вместо
+              <code>IntArraySwap.SwapElements(arr, ...)</code>.
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-actions">
+          <button class="btn btn-secondary" onclick="prevSection()">
+            ← Вмъкване
+          </button>
+          <button class="btn btn-primary" onclick="goTo(0)">
+            ↩ Обратно в началото
+          </button>
         </div>
       </div>
+    </main>
 
-      <!-- Задача 3 -->
-      <div class="exercise" onclick="toggleEx(this)">
-        <div class="ex-num">ВЪПРОС 3 — РАЗШИРЯВАЩ МЕТОД</div>
-        <div class="ex-question">В кодовете на проф. Голев се вижда извикването <code>arr.SwapElements(i, pos);</code>. Ключовата дума <code>this</code> е използвана в параметрите му: <code>(this int[] array, int i, int j)</code>. Какво постига това?</div>
-        <div class="reveal-hint">👆 Кликни за отговор</div>
-        <div class="ex-answer">
-          Това е <strong>Разширяващ метод (Extension method)</strong> в C#.<br><br>
-          Той позволява да добавим нова функционалност към вече съществуващ тип (в случая масива от цели числа <code>int[]</code>), без да променяме самия му клас. Благодарение на думата <code>this</code> пред първия параметър, можем да го извикваме интуитивно чрез точка: <code>arr.SwapElements(...)</code>, вместо <code>IntArraySwap.SwapElements(arr, ...)</code>.
-        </div>
-      </div>
-    </div>
+    <script>
+      let current = 0;
+      const navBtns = document.querySelectorAll(".nav-btn");
+      const sections = document.querySelectorAll(".section");
 
-    <div class="nav-actions">
-      <button class="btn btn-secondary" onclick="prevSection()">← Вмъкване</button>
-      <button class="btn btn-primary" onclick="goTo(0)">↩ Обратно в началото</button>
-    </div>
-  </div>
+      function goTo(idx) {
+        sections[current].classList.remove("active");
+        navBtns[current].classList.remove("active");
+        current = idx;
+        sections[current].classList.add("active");
+        navBtns[current].classList.add("active");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
 
-</main>
+      function nextSection() {
+        if (current < sections.length - 1) goTo(current + 1);
+      }
+      function prevSection() {
+        if (current > 0) goTo(current - 1);
+      }
 
-<script>
-  let current = 0;
-  const navBtns = document.querySelectorAll('.nav-btn');
-  const sections = document.querySelectorAll('.section');
+      function toggleEx(el) {
+        el.classList.toggle("active");
+      }
 
-  function goTo(idx) {
-    sections[current].classList.remove('active');
-    navBtns[current].classList.remove('active');
-    current = idx;
-    sections[current].classList.add('active');
-    navBtns[current].classList.add('active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+      let timerDuration = 45 * 60;
+      let timerRemaining = timerDuration;
+      let timerInterval;
+      let timerRunning = false;
 
-  function nextSection() { if(current < sections.length - 1) goTo(current + 1); }
-  function prevSection() { if(current > 0) goTo(current - 1); }
-
-  function toggleEx(el) {
-    el.classList.toggle('active');
-  }
-
-  let timerDuration = 45 * 60;
-  let timerRemaining = timerDuration;
-  let timerInterval;
-  let timerRunning = false;
-
-  function toggleTimer() {
-    if (timerRunning) {
-      clearInterval(timerInterval);
-      timerRunning = false;
-      document.getElementById('timerBtn').textContent = '▶ Продължи';
-    } else {
-      timerRunning = true;
-      document.getElementById('timerBtn').textContent = '⏸ Пауза';
-      timerInterval = setInterval(() => {
-        if (timerRemaining > 0) {
-          timerRemaining--;
-          updateTimerDisplay();
-        } else {
+      function toggleTimer() {
+        if (timerRunning) {
           clearInterval(timerInterval);
           timerRunning = false;
-          document.getElementById('timerBtn').textContent = '✓ Готово!';
+          document.getElementById("timerBtn").textContent = "▶ Продължи";
+        } else {
+          timerRunning = true;
+          document.getElementById("timerBtn").textContent = "⏸ Пауза";
+          timerInterval = setInterval(() => {
+            if (timerRemaining > 0) {
+              timerRemaining--;
+              updateTimerDisplay();
+            } else {
+              clearInterval(timerInterval);
+              timerRunning = false;
+              document.getElementById("timerBtn").textContent = "✓ Готово!";
+            }
+          }, 1000);
         }
-      }, 1000);
-    }
-  }
+      }
 
-  function resetTimer() {
-    clearInterval(timerInterval);
-    timerRunning = false;
-    timerRemaining = timerDuration;
-    document.getElementById('timerBtn').textContent = '▶ Старт';
-    updateTimerDisplay();
-  }
+      function resetTimer() {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        timerRemaining = timerDuration;
+        document.getElementById("timerBtn").textContent = "▶ Старт";
+        updateTimerDisplay();
+      }
 
-  function updateTimerDisplay() {
-    const m = Math.floor(timerRemaining / 60);
-    const s = timerRemaining % 60;
-    document.getElementById('timerVal').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    const pct = (timerRemaining / timerDuration) * 100;
-    document.getElementById('timerFill').style.width = pct + '%';
-  }
-  
-  updateTimerDisplay();
-</script>
-</body>
+      function updateTimerDisplay() {
+        const m = Math.floor(timerRemaining / 60);
+        const s = timerRemaining % 60;
+        document.getElementById("timerVal").textContent =
+          `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+        const pct = (timerRemaining / timerDuration) * 100;
+        document.getElementById("timerFill").style.width = pct + "%";
+      }
+
+      updateTimerDisplay();
+    </script>
+  </body>
 </html>
