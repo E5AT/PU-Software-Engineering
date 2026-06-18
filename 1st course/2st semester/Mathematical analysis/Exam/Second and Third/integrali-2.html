@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Интеграли — Файл 2</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+  :root {
+    --bg:#0e1117; --surface:#151b27; --surface2:#1c2535;
+    --border:#2a3548; --ink:#e8edf8; --muted:#6070a0;
+    --accent:#38bdf8; --accent2:#4ade80; --accent3:#fb923c; --accent4:#e879f9;
+    --correct:#4ade80; --wrong:#f87171;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 70% 40% at 30% 0%,rgba(56,189,248,0.07) 0%,transparent 60%),
+               radial-gradient(ellipse 50% 40% at 80% 100%,rgba(251,146,60,0.05) 0%,transparent 60%);}
+  .container{max-width:860px;margin:0 auto;padding:52px 28px;position:relative;z-index:1;}
+  .header{margin-bottom:52px;animation:fadeIn 0.9s ease;}
+  .badge{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;}
+  .header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid var(--border);}
+  h1{font-family:'Fraunces',serif;font-size:clamp(36px,6vw,62px);font-weight:900;line-height:1.05;letter-spacing:-2px;}
+  h1 em{font-style:italic;color:var(--accent3);}
+  .header-meta{text-align:right;padding:16px 20px;border:1px solid var(--border);background:var(--surface);border-radius:4px;min-width:160px;}
+  .file-num{font-family:'Fraunces',serif;font-size:48px;font-weight:900;color:var(--border);line-height:1;}
+  .file-label{font-size:11px;color:var(--muted);letter-spacing:2px;font-family:'DM Mono',monospace;}
+  .header-desc{margin-top:14px;color:var(--muted);font-size:15px;font-weight:300;}
+  .nav{display:flex;gap:0;margin-bottom:36px;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--surface);animation:fadeIn 0.6s ease 0.2s both;}
+  .nav-btn{flex:1;padding:12px 8px;background:transparent;border:none;border-right:1px solid var(--border);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;text-align:center;line-height:1.4;}
+  .nav-btn:last-child{border-right:none;}
+  .nav-btn:hover{background:var(--surface2);color:var(--ink);}
+  .nav-btn.active{background:var(--accent);color:#000;font-weight:700;}
+  .nav-btn.done{background:var(--surface2);color:var(--correct);}
+  .section{display:none;animation:fadeIn 0.4s ease;}
+  .section.active{display:block;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:26px;margin-bottom:16px;position:relative;overflow:hidden;}
+  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+  .card.blue::before{background:linear-gradient(90deg,var(--accent),transparent);}
+  .card.green::before{background:linear-gradient(90deg,var(--accent2),transparent);}
+  .card.orange::before{background:linear-gradient(90deg,var(--accent3),transparent);}
+  .card.purple::before{background:linear-gradient(90deg,var(--accent4),transparent);}
+  .card-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+  .card-sub{color:var(--muted);font-size:13px;margin-bottom:18px;}
+  .formula{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:14px 18px;font-family:'DM Mono',monospace;font-size:14px;margin:10px 0;line-height:1.8;}
+  .formula.blue{color:var(--accent);border-left:3px solid var(--accent);}
+  .formula.green{color:var(--accent2);border-left:3px solid var(--accent2);}
+  .formula.orange{color:var(--accent3);border-left:3px solid var(--accent3);}
+  .formula.purple{color:var(--accent4);border-left:3px solid var(--accent4);}
+  .steps{display:flex;flex-direction:column;gap:14px;margin:14px 0;}
+  .step{display:flex;gap:16px;align-items:flex-start;}
+  .snum{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:15px;font-weight:700;flex-shrink:0;margin-top:1px;}
+  .snum.blue{background:rgba(56,189,248,0.15);color:var(--accent);border:1px solid rgba(56,189,248,0.3);}
+  .snum.green{background:rgba(74,222,128,0.15);color:var(--accent2);border:1px solid rgba(74,222,128,0.3);}
+  .snum.orange{background:rgba(251,146,60,0.15);color:var(--accent3);border:1px solid rgba(251,146,60,0.3);}
+  .snum.purple{background:rgba(232,121,249,0.15);color:var(--accent4);border:1px solid rgba(232,121,249,0.3);}
+  .stxt{flex:1;}
+  .stitle{font-weight:600;font-size:15px;margin-bottom:5px;}
+  .sbody{font-size:14px;color:var(--muted);line-height:1.7;}
+  .sbody code{font-family:'DM Mono',monospace;background:var(--surface2);padding:2px 6px;border-radius:3px;color:var(--accent);font-size:13px;}
+  .sbody code.green{color:var(--accent2);}
+  .sbody code.orange{color:var(--accent3);}
+  .sbody strong{color:var(--ink);}
+  .info{border-radius:6px;padding:12px 16px;font-size:14px;line-height:1.6;margin:10px 0;}
+  .info.blue{background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.15);}
+  .info.green{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.15);}
+  .info.orange{background:rgba(251,146,60,0.06);border:1px solid rgba(251,146,60,0.15);}
+  .info.red{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.15);}
+  .ex-list{display:flex;flex-direction:column;gap:10px;margin:14px 0;}
+  .ex{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:16px;cursor:pointer;transition:all 0.2s;}
+  .ex:hover{border-color:var(--accent);}
+  .ex.open{border-color:var(--correct);}
+  .ex-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:5px;}
+  .ex-q{font-family:'DM Mono',monospace;font-size:16px;color:var(--ink);margin-bottom:6px;}
+  .ex-hint{font-size:12px;color:var(--accent3);margin-bottom:4px;}
+  .ex-tap{font-size:11px;color:var(--muted);font-style:italic;}
+  .ex.open .ex-tap{display:none;}
+  .ex-ans{display:none;margin-top:12px;padding:13px;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.15);border-radius:4px;font-size:14px;line-height:1.9;color:var(--muted);}
+  .ex.open .ex-ans{display:block;}
+  .ex-ans code{font-family:'DM Mono',monospace;color:var(--accent);background:var(--surface);padding:2px 6px;border-radius:3px;font-size:13px;}
+  .ex-ans strong{color:var(--correct);}
+  .algo-box{background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:8px;padding:24px 28px;margin:16px 0;position:relative;overflow:hidden;}
+  .algo-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent3),var(--accent4));}
+  .algo-box h3{font-family:'Fraunces',serif;font-size:20px;font-weight:700;margin-bottom:16px;color:var(--ink);}
+  .algo-step{display:flex;gap:14px;align-items:flex-start;margin-bottom:12px;}
+  .algo-dot{width:26px;height:26px;border:2px solid var(--accent3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:13px;font-weight:700;color:var(--accent3);flex-shrink:0;}
+  .algo-text{font-size:14px;line-height:1.6;color:var(--muted);padding-top:2px;}
+  .algo-text strong{color:var(--ink);}
+  .algo-text code{font-family:'DM Mono',monospace;color:var(--accent);font-size:13px;}
+  .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
+  .compare-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:16px;}
+  .compare-card h4{font-size:13px;font-weight:600;letter-spacing:1px;margin-bottom:10px;font-family:'DM Mono',monospace;}
+  .compare-card h4.blue{color:var(--accent);}
+  .compare-card h4.orange{color:var(--accent3);}
+  .compare-card p{font-size:13px;color:var(--muted);line-height:1.6;}
+  .compare-card code{font-family:'DM Mono',monospace;color:var(--accent2);font-size:12px;}
+  .nav-actions{display:flex;gap:12px;justify-content:space-between;margin-top:32px;padding-top:24px;border-top:1px solid var(--border);}
+  .btn{padding:12px 28px;border-radius:6px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+  .btn-p{background:var(--accent);color:#000;}
+  .btn-p:hover{filter:brightness(0.9);transform:translateY(-1px);}
+  .btn-s{background:var(--surface);border:1px solid var(--border);color:var(--ink);}
+  .btn-s:hover{border-color:var(--accent);color:var(--accent);}
+  .sec-header{margin-bottom:24px;}
+  .sec-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
+  .sec-title{font-family:'Fraunces',serif;font-size:30px;font-weight:700;}
+  .sec-sub{font-size:14px;color:var(--muted);margin-top:4px;}
+  .time-chip{display:inline-block;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);border:1px solid var(--border);padding:3px 10px;border-radius:20px;margin-top:6px;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="badge">Математически анализ · Файл 02</div>
+        <h1>Смяна на<br><em>променлива</em></h1>
+        <p class="header-desc">Константа под диференциала · Функция под диференциала · Алгоритъм</p>
+      </div>
+      <div class="header-meta">
+        <div class="file-num">02</div>
+        <div class="file-label">ФАЙЛ</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn active" onclick="goTo(0)">💡 Идеята<br><small>защо смяна</small></button>
+    <button class="nav-btn" onclick="goTo(1)">🔢 Константа<br><small>под d</small></button>
+    <button class="nav-btn" onclick="goTo(2)">📐 Функция<br><small>под d</small></button>
+    <button class="nav-btn" onclick="goTo(3)">⚡ Алгоритъм</button>
+    <button class="nav-btn" onclick="goTo(4)">✏️ Задачи</button>
+  </div>
+
+  <!-- БЛОК 1: ИДЕЯТА -->
+  <div class="section active" id="sec0">
+    <div class="sec-header">
+      <div class="sec-label">Блок 01</div>
+      <div class="sec-title">Защо ни трябва смяна на променлива?</div>
+      <div class="time-chip">⏱ ~15 мин</div>
+    </div>
+
+    <div class="card blue">
+      <div class="card-title">💡 Проблемът</div>
+      <div class="card-sub">Не всичко може да се интегрира директно по таблицата</div>
+      <div class="steps">
+        <div class="step">
+          <div class="snum blue">?</div>
+          <div class="stxt">
+            <div class="stitle">Пример — Как изглежда проблемът</div>
+            <div class="sbody">
+              Знаеш от таблицата: <code>∫ eˣ dx = eˣ + C</code><br><br>
+              Но какво правиш с: <code>∫ e^(3x) dx = ?</code><br><br>
+              Не е директно от таблицата! Вътрешната функция е <strong>3x</strong>, не просто x.<br><br>
+              Решението: <strong>внасяш 3x под знака на диференциала</strong> — т.е. правиш смяна на променлива.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card orange">
+      <div class="card-title">🔑 Ключовата идея — Диференциалът</div>
+      <div class="card-sub">Трябва да знаеш това преди всичко останало</div>
+      <div class="formula orange">Ако t = g(x), тогава dt = g'(x) dx</div>
+      <div class="steps">
+        <div class="step">
+          <div class="snum orange">Ex</div>
+          <div class="stxt">
+            <div class="sbody">
+              Ако <code>t = 3x</code>, тогава <code>dt = 3 dx</code>, откъдето <code>dx = dt/3</code><br><br>
+              Ако <code>t = x²</code>, тогава <code>dt = 2x dx</code>, откъдето <code>x dx = dt/2</code><br><br>
+              Ако <code>t = sin x</code>, тогава <code>dt = cos x dx</code>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h4 class="blue">КОНСТАНТА ПОД d</h4>
+          <p>Вътрешната функция е <code>ax + b</code> (линейна). Внасяш константата директно.</p>
+        </div>
+        <div class="compare-card">
+          <h4 class="orange">ФУНКЦИЯ ПОД d</h4>
+          <p>Вътрешната функция е по-сложна. Трябва да намериш производната й в израза.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <div></div>
+      <button class="btn btn-p" onclick="nextSection()">Константа под d →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 2: КОНСТАНТА ПОД d -->
+  <div class="section" id="sec1">
+    <div class="sec-header">
+      <div class="sec-label">Блок 02</div>
+      <div class="sec-title">Внасяне на константа под диференциала</div>
+      <div class="sec-sub">Най-лесният вид смяна на променлива</div>
+      <div class="time-chip">⏱ ~30 мин</div>
+    </div>
+
+    <div class="card blue">
+      <div class="card-title">📋 Формулата</div>
+      <div class="formula blue">∫ f(ax + b) dx = (1/a) · F(ax + b) + C</div>
+      <div class="info blue">
+        💡 <strong>С думи:</strong> Ако аргументът е линеен (ax+b), интегрираш нормално и <strong>делиш на коефициента пред x</strong>.
+      </div>
+      <div class="info red">
+        ⚠️ Работи САМО когато вътрешната функция е <strong>линейна</strong> (ax+b). За по-сложни функции → следващия блок!
+      </div>
+    </div>
+
+    <div class="card green">
+      <div class="card-title">📘 Примери стъпка по стъпка</div>
+      <div class="steps">
+        <div class="step">
+          <div class="snum green">Ex1</div>
+          <div class="stxt">
+            <div class="stitle">∫ e^(3x) dx</div>
+            <div class="sbody">
+              Вътрешна функция: <code>3x</code>, коефициент a=3<br>
+              Интегрираме eˣ → eˣ, делим на 3:<br>
+              <strong>= (1/3)e^(3x) + C</strong><br><br>
+              Проверка: <code>[(1/3)e^(3x)]' = (1/3)·3·e^(3x) = e^(3x)</code> ✓
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum green">Ex2</div>
+          <div class="stxt">
+            <div class="stitle">∫ sin(2x + 1) dx</div>
+            <div class="sbody">
+              Вътрешна: <code>2x+1</code>, a=2<br>
+              Интегрираме sin → −cos, делим на 2:<br>
+              <strong>= −(1/2)cos(2x+1) + C</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum green">Ex3</div>
+          <div class="stxt">
+            <div class="stitle">∫ (4x − 3)⁵ dx</div>
+            <div class="sbody">
+              Вътрешна: <code>4x−3</code>, a=4<br>
+              Интегрираме xⁿ → xⁿ⁺¹/(n+1), делим на 4:<br>
+              <code>= (1/4)·(4x−3)⁶/6 + C</code><br>
+              <strong>= (4x−3)⁶/24 + C</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum green">Ex4</div>
+          <div class="stxt">
+            <div class="stitle">∫ 1/(5x + 2) dx</div>
+            <div class="sbody">
+              Вид 1/x → ln|x|, вътрешна: <code>5x+2</code>, a=5<br>
+              <strong>= (1/5)ln|5x+2| + C</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum blue">Ex5</div>
+          <div class="stxt">
+            <div class="stitle">∫ √(3x − 1) dx</div>
+            <div class="sbody">
+              Запиши: <code>(3x−1)^(1/2)</code>, вътрешна: <code>3x−1</code>, a=3<br>
+              Интегрираме x^(1/2) → x^(3/2)/(3/2), делим на 3:<br>
+              <code>= (1/3)·(3x−1)^(3/2)/(3/2) + C</code><br>
+              <strong>= (2/9)(3x−1)^(3/2) + C</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-s" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-p" onclick="nextSection()">Функция под d →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 3: ФУНКЦИЯ ПОД d -->
+  <div class="section" id="sec2">
+    <div class="sec-header">
+      <div class="sec-label">Блок 03</div>
+      <div class="sec-title">Внасяне на функция под диференциала</div>
+      <div class="sec-sub">Смяна на променлива t = g(x)</div>
+      <div class="time-chip">⏱ ~40 мин</div>
+    </div>
+
+    <div class="card orange">
+      <div class="card-title">🔑 Кога се прилага?</div>
+      <div class="card-sub">Когато в интеграла има функция и нейната производна</div>
+      <div class="formula orange">∫ f(g(x)) · g'(x) dx = F(g(x)) + C</div>
+      <div class="info orange">
+        💡 <strong>Патернът:</strong> Търсиш в интеграла <strong>функция g(x)</strong> и <strong>нейната производна g'(x)</strong> едновременно. Ако ги намериш — можеш да смениш t = g(x).
+      </div>
+    </div>
+
+    <div class="card orange">
+      <div class="card-title">⚙️ Алгоритъм стъпка по стъпка</div>
+      <div class="steps">
+        <div class="step">
+          <div class="snum orange">1</div>
+          <div class="stxt">
+            <div class="stitle">Избери t = g(x)</div>
+            <div class="sbody">Избираш "вътрешната" функция. Обикновено е тази под корен, в степен, в тригонометрична функция и т.н.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum orange">2</div>
+          <div class="stxt">
+            <div class="stitle">Намери dt</div>
+            <div class="sbody"><code>dt = g'(x) dx</code> → изразяваш <code>g'(x) dx</code> чрез <code>dt</code></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum orange">3</div>
+          <div class="stxt">
+            <div class="stitle">Замени в интеграла</div>
+            <div class="sbody">Заменяш g(x) с t и g'(x)dx с dt. Трябва да остане <strong>само t</strong> — без x!</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum orange">4</div>
+          <div class="stxt">
+            <div class="stitle">Интегрирай по t</div>
+            <div class="sbody">Вече имаш прост интеграл от t — решаваш по таблицата.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum orange">5</div>
+          <div class="stxt">
+            <div class="stitle">Върни се към x</div>
+            <div class="sbody">Заменяш t обратно с g(x) и добавяш + C.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title">📘 Примери</div>
+      <div class="steps">
+        <div class="step">
+          <div class="snum purple">Ex1</div>
+          <div class="stxt">
+            <div class="stitle">∫ 2x · e^(x²) dx</div>
+            <div class="sbody">
+              Забелязваме: <code>e^(x²)</code> и <code>2x</code> (производната на x²!)<br>
+              <strong>t = x²</strong> → <code>dt = 2x dx</code><br>
+              Заменяме: <code>∫ eᵗ dt = eᵗ + C</code><br>
+              Връщаме: <strong>= e^(x²) + C</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum purple">Ex2</div>
+          <div class="stxt">
+            <div class="stitle">∫ cos(x) · e^(sin x) dx</div>
+            <div class="sbody">
+              Забелязваме: <code>e^(sin x)</code> и <code>cos x</code> (производната на sin x!)<br>
+              <strong>t = sin x</strong> → <code>dt = cos x dx</code><br>
+              Заменяме: <code>∫ eᵗ dt = eᵗ + C</code><br>
+              Връщаме: <strong>= e^(sin x) + C</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum purple">Ex3</div>
+          <div class="stxt">
+            <div class="stitle">∫ x² / (x³ + 1) dx</div>
+            <div class="sbody">
+              Забелязваме: <code>1/(x³+1)</code> и <code>x²</code> (почти производната на x³+1 = 3x²)<br>
+              <strong>t = x³+1</strong> → <code>dt = 3x² dx</code> → <code>x² dx = dt/3</code><br>
+              Заменяме: <code>∫ (1/t)·(dt/3) = (1/3)∫(1/t)dt = (1/3)ln|t| + C</code><br>
+              Връщаме: <strong>= (1/3)ln|x³+1| + C</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum blue">Ex4</div>
+          <div class="stxt">
+            <div class="stitle">∫ sin(x) / cos²(x) dx</div>
+            <div class="sbody">
+              Забелязваме: <code>1/cos²x</code> и <code>sin x</code> (−производната на cos x)<br>
+              <strong>t = cos x</strong> → <code>dt = −sin x dx</code> → <code>sin x dx = −dt</code><br>
+              Заменяме: <code>∫ (1/t²)·(−dt) = −∫t⁻² dt = −(t⁻¹/(−1)) + C = 1/t + C</code><br>
+              Връщаме: <strong>= 1/cos x + C</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum orange">Ex5</div>
+          <div class="stxt">
+            <div class="stitle">∫ tg(x) dx = ∫ sin(x)/cos(x) dx</div>
+            <div class="sbody">
+              <strong>t = cos x</strong> → <code>dt = −sin x dx</code><br>
+              <code>∫ (−dt/t) = −ln|t| + C</code><br>
+              Връщаме: <strong>= −ln|cos x| + C</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-s" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-p" onclick="nextSection()">Алгоритъм →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 4: АЛГОРИТЪМ -->
+  <div class="section" id="sec3">
+    <div class="sec-header">
+      <div class="sec-label">Блок 04</div>
+      <div class="sec-title">Обобщен алгоритъм — Кое кога?</div>
+      <div class="time-chip">⏱ ~10 мин</div>
+    </div>
+
+    <div class="algo-box">
+      <h3>⚡ Как избираш метода?</h3>
+      <div class="algo-step">
+        <div class="algo-dot">1</div>
+        <div class="algo-text"><strong>Директно от таблицата?</strong> — Ако изразът съвпада точно с табличен интеграл → решаваш веднага.</div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-dot">2</div>
+        <div class="algo-text"><strong>Вътрешната функция линейна ли е (ax+b)?</strong> — Константа под d: интегрираш и делиш на a.</div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-dot">3</div>
+        <div class="algo-text"><strong>Виждаш ли функция И нейната производна?</strong> — Функция под d: <code>t = g(x)</code>, <code>dt = g'(x)dx</code>, заменяш.</div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-dot">4</div>
+        <div class="algo-text"><strong>Нищо не работи?</strong> — Вероятно трябва интегриране по части (Файл 3).</div>
+      </div>
+    </div>
+
+    <div class="card blue">
+      <div class="card-title">📊 Бързо разпознаване на патерните</div>
+      <div class="steps">
+        <div class="step">
+          <div class="snum blue">→</div>
+          <div class="stxt">
+            <div class="sbody"><code>∫ f(ax+b) dx</code> → <strong>Константа</strong>: дели на a</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum green">→</div>
+          <div class="stxt">
+            <div class="sbody"><code>∫ [g(x)]ⁿ · g'(x) dx</code> → <strong>Функция</strong>: t=g(x)</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum orange">→</div>
+          <div class="stxt">
+            <div class="sbody"><code>∫ g'(x)/g(x) dx</code> → <strong>Функция</strong>: t=g(x), резултат: ln|g(x)|+C</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum purple">→</div>
+          <div class="stxt">
+            <div class="sbody"><code>∫ e^(g(x)) · g'(x) dx</code> → <strong>Функция</strong>: t=g(x), резултат: e^(g(x))+C</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-s" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-p" onclick="nextSection()">Задачи →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 5: ЗАДАЧИ -->
+  <div class="section" id="sec4">
+    <div class="sec-header">
+      <div class="sec-label">Блок 05</div>
+      <div class="sec-title">Задачи за практика</div>
+      <div class="time-chip">⏱ ~50 мин</div>
+    </div>
+
+    <div class="card blue">
+      <div class="card-title">🔵 Константа под диференциала</div>
+      <div class="ex-list">
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 01</div>
+          <div class="ex-q">∫ cos(5x) dx</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">Вътрешна: 5x, a=5<br><strong>= (1/5)sin(5x) + C</strong></div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 02</div>
+          <div class="ex-q">∫ e^(−2x) dx</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">Вътрешна: −2x, a=−2<br><strong>= −(1/2)e^(−2x) + C</strong></div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 03</div>
+          <div class="ex-q">∫ (3x + 2)⁴ dx</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">Вътрешна: 3x+2, a=3<br><code>= (1/3)·(3x+2)⁵/5 + C</code><br><strong>= (3x+2)⁵/15 + C</strong></div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 04</div>
+          <div class="ex-q">∫ 1/(2x − 7) dx</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">Вид 1/x → ln, a=2<br><strong>= (1/2)ln|2x−7| + C</strong></div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 05</div>
+          <div class="ex-q">∫ sin(πx + 1) dx</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">Вътрешна: πx+1, a=π<br><strong>= −(1/π)cos(πx+1) + C</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card orange">
+      <div class="card-title">🟠 Функция под диференциала</div>
+      <div class="ex-list">
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 06</div>
+          <div class="ex-q">∫ 3x² · (x³ + 5)⁴ dx</div>
+          <div class="ex-hint">💡 Производната на x³+5 е 3x²!</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            <code>t = x³+5</code> → <code>dt = 3x² dx</code><br>
+            <code>∫ t⁴ dt = t⁵/5 + C</code><br>
+            <strong>= (x³+5)⁵/5 + C</strong>
+          </div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 07</div>
+          <div class="ex-q">∫ sin(x) · cos³(x) dx</div>
+          <div class="ex-hint">💡 Производната на cos x е −sin x</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            <code>t = cos x</code> → <code>dt = −sin x dx</code> → <code>sin x dx = −dt</code><br>
+            <code>∫ t³·(−dt) = −t⁴/4 + C</code><br>
+            <strong>= −cos⁴(x)/4 + C</strong>
+          </div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 08</div>
+          <div class="ex-q">∫ x / (x² + 1) dx</div>
+          <div class="ex-hint">💡 Производната на x²+1 е 2x</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            <code>t = x²+1</code> → <code>dt = 2x dx</code> → <code>x dx = dt/2</code><br>
+            <code>∫ (1/t)·(dt/2) = (1/2)ln|t| + C</code><br>
+            <strong>= (1/2)ln(x²+1) + C</strong>
+          </div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 09</div>
+          <div class="ex-q">∫ eˣ / (eˣ + 3) dx</div>
+          <div class="ex-hint">💡 Производната на eˣ+3 е eˣ!</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            <code>t = eˣ+3</code> → <code>dt = eˣ dx</code><br>
+            <code>∫ (1/t) dt = ln|t| + C</code><br>
+            <strong>= ln(eˣ+3) + C</strong>
+          </div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 10</div>
+          <div class="ex-q">∫ cos(x) · √(sin x) dx</div>
+          <div class="ex-hint">💡 Производната на sin x е cos x</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            <code>t = sin x</code> → <code>dt = cos x dx</code><br>
+            <code>∫ √t dt = ∫ t^(1/2) dt = t^(3/2)/(3/2) + C</code><br>
+            <strong>= (2/3)(sin x)^(3/2) + C</strong>
+          </div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 11</div>
+          <div class="ex-q">∫ (ln x)² / x dx</div>
+          <div class="ex-hint">💡 Производната на ln x е 1/x!</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            <code>t = ln x</code> → <code>dt = (1/x) dx</code><br>
+            <code>∫ t² dt = t³/3 + C</code><br>
+            <strong>= (ln x)³/3 + C</strong>
+          </div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 12 — По-сложна</div>
+          <div class="ex-q">∫ x · e^(x²+1) dx</div>
+          <div class="ex-hint">💡 Производната на x²+1 е 2x — имаш x, трябва ти 2x!</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            <code>t = x²+1</code> → <code>dt = 2x dx</code> → <code>x dx = dt/2</code><br>
+            <code>∫ eᵗ · (dt/2) = (1/2)eᵗ + C</code><br>
+            <strong>= (1/2)e^(x²+1) + C</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-s" onclick="prevSection()">← Алгоритъм</button>
+      <button class="btn btn-p" onclick="goTo(0)">↩ Начало</button>
+    </div>
+  </div>
+
+</div>
+<script>
+  let cur=0;
+  const btns=document.querySelectorAll('.nav-btn');
+  const secs=document.querySelectorAll('.section');
+  function goTo(i){secs[cur].classList.remove('active');btns[cur].classList.remove('active');cur=i;secs[cur].classList.add('active');btns[cur].classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+  function nextSection(){if(cur<4){btns[cur].classList.add('done');goTo(cur+1);}}
+  function prevSection(){if(cur>0)goTo(cur-1);}
+  function toggleEx(el){el.classList.toggle('open');}
+</script>
+</body>
+</html>

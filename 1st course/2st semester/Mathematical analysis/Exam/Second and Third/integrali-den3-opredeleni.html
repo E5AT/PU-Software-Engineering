@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Определен интеграл — Ден 3</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+  :root {
+    --bg:#0f0a14; --surface:#16101e; --surface2:#1e1628;
+    --border:#2a1e3a; --ink:#ede8f8; --muted:#6a5a8a;
+    --accent:#c084fc; --accent2:#f472b6; --accent3:#34d399; --accent4:#fbbf24;
+    --correct:#34d399; --wrong:#f87171;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(192,132,252,0.08) 0%,transparent 60%),
+               radial-gradient(ellipse 50% 40% at 90% 80%,rgba(244,114,182,0.05) 0%,transparent 60%);}
+  .container{max-width:860px;margin:0 auto;padding:52px 28px;position:relative;z-index:1;}
+  .header{margin-bottom:52px;animation:fadeIn 0.9s ease;}
+  .badge{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;}
+  .header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid var(--border);}
+  h1{font-family:'Fraunces',serif;font-size:clamp(36px,6vw,62px);font-weight:900;line-height:1.05;letter-spacing:-2px;}
+  h1 em{font-style:italic;color:var(--accent);}
+  .header-meta{text-align:right;padding:16px 20px;border:1px solid var(--border);background:var(--surface);border-radius:4px;min-width:160px;}
+  .file-num{font-family:'Fraunces',serif;font-size:48px;font-weight:900;color:var(--border);line-height:1;}
+  .file-label{font-size:11px;color:var(--muted);letter-spacing:2px;font-family:'DM Mono',monospace;}
+  .header-desc{margin-top:14px;color:var(--muted);font-size:15px;font-weight:300;}
+  .nav{display:flex;gap:0;margin-bottom:36px;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--surface);}
+  .nav-btn{flex:1;padding:12px 8px;background:transparent;border:none;border-right:1px solid var(--border);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;text-align:center;line-height:1.4;}
+  .nav-btn:last-child{border-right:none;}
+  .nav-btn:hover{background:var(--surface2);color:var(--ink);}
+  .nav-btn.active{background:var(--accent);color:#000;font-weight:700;}
+  .nav-btn.done{background:var(--surface2);color:var(--correct);}
+  .section{display:none;animation:fadeIn 0.4s ease;}
+  .section.active{display:block;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:26px;margin-bottom:16px;position:relative;overflow:hidden;}
+  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+  .card.purple::before{background:linear-gradient(90deg,var(--accent),transparent);}
+  .card.pink::before{background:linear-gradient(90deg,var(--accent2),transparent);}
+  .card.green::before{background:linear-gradient(90deg,var(--accent3),transparent);}
+  .card.amber::before{background:linear-gradient(90deg,var(--accent4),transparent);}
+  .card-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+  .card-sub{color:var(--muted);font-size:13px;margin-bottom:18px;}
+  .formula{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:14px 18px;font-family:'DM Mono',monospace;font-size:14px;margin:10px 0;line-height:1.8;}
+  .formula.purple{color:var(--accent);border-left:3px solid var(--accent);}
+  .formula.pink{color:var(--accent2);border-left:3px solid var(--accent2);}
+  .formula.green{color:var(--accent3);border-left:3px solid var(--accent3);}
+  .formula.amber{color:var(--accent4);border-left:3px solid var(--accent4);}
+  .steps{display:flex;flex-direction:column;gap:14px;margin:14px 0;}
+  .step{display:flex;gap:16px;align-items:flex-start;}
+  .snum{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:15px;font-weight:700;flex-shrink:0;margin-top:1px;}
+  .snum.purple{background:rgba(192,132,252,0.15);color:var(--accent);border:1px solid rgba(192,132,252,0.3);}
+  .snum.pink{background:rgba(244,114,182,0.15);color:var(--accent2);border:1px solid rgba(244,114,182,0.3);}
+  .snum.green{background:rgba(52,211,153,0.15);color:var(--accent3);border:1px solid rgba(52,211,153,0.3);}
+  .snum.amber{background:rgba(251,191,36,0.15);color:var(--accent4);border:1px solid rgba(251,191,36,0.3);}
+  .stxt{flex:1;}
+  .stitle{font-weight:600;font-size:15px;margin-bottom:5px;}
+  .sbody{font-size:14px;color:var(--muted);line-height:1.7;}
+  .sbody code{font-family:'DM Mono',monospace;background:var(--surface2);padding:2px 6px;border-radius:3px;color:var(--accent);font-size:13px;}
+  .sbody code.green{color:var(--accent3);}
+  .sbody code.amber{color:var(--accent4);}
+  .sbody strong{color:var(--ink);}
+  .info{border-radius:6px;padding:12px 16px;font-size:14px;line-height:1.6;margin:10px 0;}
+  .info.purple{background:rgba(192,132,252,0.06);border:1px solid rgba(192,132,252,0.2);}
+  .info.pink{background:rgba(244,114,182,0.06);border:1px solid rgba(244,114,182,0.2);}
+  .info.green{background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.2);}
+  .info.amber{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);}
+  .info.red{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);}
+  .props-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0;}
+  .prop-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:14px;}
+  .prop-num{font-family:'Fraunces',serif;font-size:28px;font-weight:900;color:var(--border);float:right;line-height:1;}
+  .prop-title{font-weight:600;font-size:14px;margin-bottom:6px;color:var(--ink);}
+  .prop-formula{font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);margin-bottom:6px;line-height:1.6;}
+  .prop-desc{font-size:12px;color:var(--muted);line-height:1.5;}
+  .algo-box{background:linear-gradient(135deg,rgba(192,132,252,0.08),rgba(244,114,182,0.06));border:1px solid var(--border);border-radius:8px;padding:24px 28px;margin:16px 0;position:relative;overflow:hidden;}
+  .algo-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));}
+  .algo-box h3{font-family:'Fraunces',serif;font-size:20px;font-weight:700;margin-bottom:16px;}
+  .algo-step{display:flex;gap:14px;align-items:flex-start;margin-bottom:12px;}
+  .algo-dot{width:26px;height:26px;border:2px solid var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:13px;font-weight:700;color:var(--accent);flex-shrink:0;}
+  .algo-text{font-size:14px;line-height:1.6;color:var(--muted);padding-top:2px;}
+  .algo-text strong{color:var(--ink);}
+  .algo-text code{font-family:'DM Mono',monospace;color:var(--accent4);font-size:13px;}
+  .ex-list{display:flex;flex-direction:column;gap:10px;margin:14px 0;}
+  .ex{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:16px;cursor:pointer;transition:all 0.2s;}
+  .ex:hover{border-color:var(--accent);}
+  .ex.open{border-color:var(--correct);}
+  .ex-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:5px;}
+  .ex-q{font-family:'DM Mono',monospace;font-size:16px;color:var(--ink);margin-bottom:6px;}
+  .ex-hint{font-size:12px;color:var(--accent4);margin-bottom:4px;}
+  .ex-tap{font-size:11px;color:var(--muted);font-style:italic;}
+  .ex.open .ex-tap{display:none;}
+  .ex-ans{display:none;margin-top:12px;padding:13px;background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.15);border-radius:4px;font-size:14px;line-height:1.9;color:var(--muted);}
+  .ex.open .ex-ans{display:block;}
+  .ex-ans code{font-family:'DM Mono',monospace;color:var(--accent);background:var(--surface);padding:2px 6px;border-radius:3px;font-size:13px;}
+  .ex-ans strong{color:var(--correct);}
+  .nav-actions{display:flex;gap:12px;justify-content:space-between;margin-top:32px;padding-top:24px;border-top:1px solid var(--border);}
+  .btn{padding:12px 28px;border-radius:6px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+  .btn-p{background:var(--accent);color:#000;}
+  .btn-p:hover{filter:brightness(0.9);transform:translateY(-1px);}
+  .btn-s{background:var(--surface);border:1px solid var(--border);color:var(--ink);}
+  .btn-s:hover{border-color:var(--accent);color:var(--accent);}
+  .sec-header{margin-bottom:24px;}
+  .sec-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
+  .sec-title{font-family:'Fraunces',serif;font-size:30px;font-weight:700;}
+  .sec-sub{font-size:14px;color:var(--muted);margin-top:4px;}
+  .time-chip{display:inline-block;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);border:1px solid var(--border);padding:3px 10px;border-radius:20px;margin-top:6px;}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
+  .compare-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:16px;}
+  .compare-card h4{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+  .compare-card h4.purple{color:var(--accent);}
+  .compare-card h4.green{color:var(--accent3);}
+  .compare-card p{font-size:13px;color:var(--muted);line-height:1.6;}
+  .compare-card code{font-family:'DM Mono',monospace;font-size:12px;color:var(--accent4);}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="badge">Математически анализ · Ден 3</div>
+        <h1>Определен<br><em>интеграл</em></h1>
+        <p class="header-desc">Идея · Нютон-Лайбниц · Свойства · Смяна на граници · Задачи</p>
+      </div>
+      <div class="header-meta">
+        <div class="file-num">03</div>
+        <div class="file-label">ДЕН</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn active" onclick="goTo(0)">💡 Идеята<br><small>какво е</small></button>
+    <button class="nav-btn" onclick="goTo(1)">📐 Нютон-<br><small>Лайбниц</small></button>
+    <button class="nav-btn" onclick="goTo(2)">⚙️ Свойства</button>
+    <button class="nav-btn" onclick="goTo(3)">🔄 Смяна на<br><small>граници</small></button>
+    <button class="nav-btn" onclick="goTo(4)">✏️ Задачи</button>
+  </div>
+
+  <!-- БЛОК 1: ИДЕЯТА -->
+  <div class="section active" id="sec0">
+    <div class="sec-header">
+      <div class="sec-label">Блок 01</div>
+      <div class="sec-title">Какво е определен интеграл?</div>
+      <div class="time-chip">⏱ ~20 мин</div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title">💡 Разликата от неопределения</div>
+      <div class="compare">
+        <div class="compare-card">
+          <h4 class="purple">НЕОПРЕДЕЛЕН</h4>
+          <p>∫ f(x) dx = F(x) + C<br><br>
+          Резултатът е <code>функция</code>.<br>
+          Няма граници на интегриране.<br>
+          Задължително + C.</p>
+        </div>
+        <div class="compare-card">
+          <h4 class="green">ОПРЕДЕЛЕН</h4>
+          <p>∫ₐᵇ f(x) dx = число<br><br>
+          Резултатът е <code>число</code>.<br>
+          Има долна (a) и горна (b) граница.<br>
+          Без + C!</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title">📐 Геометричният смисъл</div>
+      <div class="card-sub">Защо изобщо съществува определеният интеграл</div>
+      <div class="steps">
+        <div class="step">
+          <div class="snum purple">!</div>
+          <div class="stxt">
+            <div class="stitle">∫ₐᵇ f(x) dx = лице под кривата</div>
+            <div class="sbody">
+              Определеният интеграл пресмята <strong>лицето на фигурата</strong> между кривата y=f(x), x-оста и правите x=a и x=b.<br><br>
+              • Ако f(x) > 0 → интегралът е <strong>положителен</strong> (фигура над x-оста)<br>
+              • Ако f(x) < 0 → интегралът е <strong>отрицателен</strong> (фигура под x-оста)<br>
+              • Ако искаш реалното лице → вземаш <strong>|интеграл|</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="info purple">
+        💡 На изпита рядко питат за геометричния смисъл — но помага да разбереш защо смяната на граници при смяна на променлива е задължителна!
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <div></div>
+      <button class="btn btn-p" onclick="nextSection()">Нютон-Лайбниц →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 2: НЮТОН-ЛАЙБНИЦ -->
+  <div class="section" id="sec1">
+    <div class="sec-header">
+      <div class="sec-label">Блок 02</div>
+      <div class="sec-title">Формула на Нютон-Лайбниц</div>
+      <div class="sec-sub">Как реално се пресмята определен интеграл</div>
+      <div class="time-chip">⏱ ~25 мин</div>
+    </div>
+
+    <div class="card green">
+      <div class="card-title">📋 Формулата</div>
+      <div class="formula green">∫ₐᵇ f(x) dx = F(b) − F(a) = [F(x)]ₐᵇ</div>
+      <div class="info green">
+        💡 <strong>С думи:</strong> Намираш първообразната F(x) (без + C!), после заместваш горната граница b и изваждаш стойността при долната граница a.
+      </div>
+      <div class="info red">
+        ⚠️ <strong>Без + C!</strong> При определен интеграл константата C се съкращава (F(b)+C − F(a)−C = F(b)−F(a)), затова не я пишем.
+      </div>
+    </div>
+
+    <div class="card green">
+      <div class="card-title">⚙️ Алгоритъм</div>
+      <div class="algo-box">
+        <h3>⚡ Как пресмяташ определен интеграл</h3>
+        <div class="algo-step">
+          <div class="algo-dot">1</div>
+          <div class="algo-text"><strong>Намери първообразната F(x)</strong> — точно като неопределен интеграл, но <strong>без + C</strong></div>
+        </div>
+        <div class="algo-step">
+          <div class="algo-dot">2</div>
+          <div class="algo-text"><strong>Запиши в скоби с граници:</strong> <code>[F(x)]ₐᵇ</code></div>
+        </div>
+        <div class="algo-step">
+          <div class="algo-dot">3</div>
+          <div class="algo-text"><strong>Замести горната граница b:</strong> намери F(b)</div>
+        </div>
+        <div class="algo-step">
+          <div class="algo-dot">4</div>
+          <div class="algo-text"><strong>Замести долната граница a:</strong> намери F(a)</div>
+        </div>
+        <div class="algo-step">
+          <div class="algo-dot">5</div>
+          <div class="algo-text"><strong>Изчисли F(b) − F(a)</strong> — това е отговорът (число!)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card pink">
+      <div class="card-title">📘 Примери</div>
+      <div class="steps">
+        <div class="step">
+          <div class="snum green">Ex1</div>
+          <div class="stxt">
+            <div class="stitle">∫₀² x² dx</div>
+            <div class="sbody">
+              Първообразна: <code>F(x) = x³/3</code><br>
+              <code>[x³/3]₀² = (2³/3) − (0³/3) = 8/3 − 0</code><br>
+              <strong>= 8/3</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum green">Ex2</div>
+          <div class="stxt">
+            <div class="stitle">∫₀^π sin x dx</div>
+            <div class="sbody">
+              Първообразна: <code>F(x) = −cos x</code><br>
+              <code>[−cos x]₀^π = (−cos π) − (−cos 0) = 1 − (−1) = 2</code><br>
+              <strong>= 2</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum green">Ex3</div>
+          <div class="stxt">
+            <div class="stitle">∫₁^e (1/x) dx</div>
+            <div class="sbody">
+              Първообразна: <code>F(x) = ln|x|</code><br>
+              <code>[ln x]₁^e = ln(e) − ln(1) = 1 − 0</code><br>
+              <strong>= 1</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum pink">Ex4</div>
+          <div class="stxt">
+            <div class="stitle">∫₀¹ (3x² + 2x − 1) dx</div>
+            <div class="sbody">
+              Първообразна: <code>F(x) = x³ + x² − x</code><br>
+              <code>F(1) = 1 + 1 − 1 = 1</code><br>
+              <code>F(0) = 0 + 0 − 0 = 0</code><br>
+              <strong>= 1 − 0 = 1</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum pink">Ex5</div>
+          <div class="stxt">
+            <div class="stitle">∫₀¹ eˣ dx</div>
+            <div class="sbody">
+              Първообразна: <code>F(x) = eˣ</code><br>
+              <code>[eˣ]₀¹ = e¹ − e⁰ = e − 1</code><br>
+              <strong>= e − 1 ≈ 1.718</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-s" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-p" onclick="nextSection()">Свойства →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 3: СВОЙСТВА -->
+  <div class="section" id="sec2">
+    <div class="sec-header">
+      <div class="sec-label">Блок 03</div>
+      <div class="sec-title">Свойства на определения интеграл</div>
+      <div class="time-chip">⏱ ~20 мин</div>
+    </div>
+
+    <div class="card amber">
+      <div class="card-title">📋 Основни свойства</div>
+      <div class="props-grid">
+        <div class="prop-card">
+          <div class="prop-num">1</div>
+          <div class="prop-title">Линейност</div>
+          <div class="prop-formula">∫ₐᵇ [f±g] dx = ∫ₐᵇf dx ± ∫ₐᵇg dx</div>
+          <div class="prop-desc">Разбиваш на сбор/разлика</div>
+        </div>
+        <div class="prop-card">
+          <div class="prop-num">2</div>
+          <div class="prop-title">Константа</div>
+          <div class="prop-formula">∫ₐᵇ k·f dx = k · ∫ₐᵇ f dx</div>
+          <div class="prop-desc">Константата излиза пред</div>
+        </div>
+        <div class="prop-card">
+          <div class="prop-num">3</div>
+          <div class="prop-title">Обръщане на граници</div>
+          <div class="prop-formula">∫ₐᵇ f dx = − ∫ᵦᵃ f dx</div>
+          <div class="prop-desc">Смяната на граници обръща знака</div>
+        </div>
+        <div class="prop-card">
+          <div class="prop-num">4</div>
+          <div class="prop-title">Равни граници</div>
+          <div class="prop-formula">∫ₐᵃ f dx = 0</div>
+          <div class="prop-desc">Интеграл от a до a = 0</div>
+        </div>
+        <div class="prop-card">
+          <div class="prop-num">5</div>
+          <div class="prop-title">Адитивност</div>
+          <div class="prop-formula">∫ₐᵇ f dx = ∫ₐᶜ f dx + ∫ᶜᵇ f dx</div>
+          <div class="prop-desc">Разбиваш на два интеграла в точка c</div>
+        </div>
+        <div class="prop-card">
+          <div class="prop-num">6</div>
+          <div class="prop-title">Четна/Нечетна</div>
+          <div class="prop-formula">f четна: ∫₋ₐᵃ = 2∫₀ᵃ f dx
+f нечетна: ∫₋ₐᵃ = 0</div>
+          <div class="prop-desc">При симетрични граници [−a, a]</div>
+        </div>
+      </div>
+      <div class="info amber">
+        💡 <strong>Свойство 6 е особено полезно!</strong> Ако имаш ∫₋₂² x³ dx — x³ е нечетна функция → интегралът = 0 директно, без изчисления!
+      </div>
+    </div>
+
+    <div class="card amber">
+      <div class="card-title">📘 Примери за свойствата</div>
+      <div class="steps">
+        <div class="step">
+          <div class="snum amber">Ex1</div>
+          <div class="stxt">
+            <div class="stitle">∫₋₃³ x⁵ dx = ?</div>
+            <div class="sbody">
+              x⁵ е <strong>нечетна функция</strong> (f(−x) = −f(x))<br>
+              Границите са симетрични [−3, 3]<br>
+              По свойство 6: <strong>= 0</strong> (без изчисления!)
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum amber">Ex2</div>
+          <div class="stxt">
+            <div class="stitle">∫₋₂² x² dx = ?</div>
+            <div class="sbody">
+              x² е <strong>четна функция</strong>, граници [−2, 2]<br>
+              По свойство 6: <code>= 2∫₀² x² dx = 2[x³/3]₀²</code><br>
+              <code>= 2·(8/3) = 16/3</code><br>
+              <strong>= 16/3</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum amber">Ex3</div>
+          <div class="stxt">
+            <div class="stitle">Адитивност: ∫₀³ f dx = ∫₀¹ f dx + ∫₁³ f dx</div>
+            <div class="sbody">
+              Ако знаеш ∫₀¹ f dx = 2 и ∫₁³ f dx = 5, тогава:<br>
+              <strong>∫₀³ f dx = 2 + 5 = 7</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-s" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-p" onclick="nextSection()">Смяна на граници →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 4: СМЯНА НА ГРАНИЦИ -->
+  <div class="section" id="sec3">
+    <div class="sec-header">
+      <div class="sec-label">Блок 04</div>
+      <div class="sec-title">Смяна на граници при смяна на променлива</div>
+      <div class="sec-sub">Най-важната разлика от неопределения интеграл!</div>
+      <div class="time-chip">⏱ ~30 мин</div>
+    </div>
+
+    <div class="card pink">
+      <div class="card-title">⚠️ Задължителна смяна на граници!</div>
+      <div class="card-sub">Когато правиш смяна t = g(x) в определен интеграл</div>
+      <div class="info red">
+        ⚠️ <strong>Много важно:</strong> При смяна на променлива t = g(x) в ОПРЕДЕЛЕН интеграл ТРЯБВА да смениш и границите! Не можеш да работиш с граници за x и функция от t!
+      </div>
+      <div class="formula pink">Ако t = g(x): новата долна граница = g(a), новата горна граница = g(b)</div>
+    </div>
+
+    <div class="card pink">
+      <div class="card-title">⚙️ Алгоритъм</div>
+      <div class="algo-box">
+        <h3>⚡ Смяна на променлива в определен интеграл</h3>
+        <div class="algo-step">
+          <div class="algo-dot">1</div>
+          <div class="algo-text"><strong>Избери t = g(x)</strong> — същото като при неопределен интеграл</div>
+        </div>
+        <div class="algo-step">
+          <div class="algo-dot">2</div>
+          <div class="algo-text"><strong>Намери dt = g'(x)dx</strong></div>
+        </div>
+        <div class="algo-step">
+          <div class="algo-dot">3</div>
+          <div class="algo-text"><strong>Смени границите:</strong> <code>долна: t = g(a)</code>, <code>горна: t = g(b)</code></div>
+        </div>
+        <div class="algo-step">
+          <div class="algo-dot">4</div>
+          <div class="algo-text"><strong>Реши интеграла по t</strong> с новите граници — вече не се връщаш към x!</div>
+        </div>
+        <div class="algo-step">
+          <div class="algo-dot">5</div>
+          <div class="algo-text"><strong>Приложи Нютон-Лайбниц</strong> с новите граници за t</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title">📘 Примери</div>
+      <div class="steps">
+        <div class="step">
+          <div class="snum purple">Ex1</div>
+          <div class="stxt">
+            <div class="stitle">∫₀¹ 2x·e^(x²) dx</div>
+            <div class="sbody">
+              <strong>t = x²</strong> → dt = 2x dx<br>
+              Смяна на граници:<br>
+              • x=0: <code>t = 0² = 0</code><br>
+              • x=1: <code>t = 1² = 1</code><br>
+              Новият интеграл: <code>∫₀¹ eᵗ dt</code><br>
+              <code>= [eᵗ]₀¹ = e¹ − e⁰ = e − 1</code><br>
+              <strong>= e − 1</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum purple">Ex2</div>
+          <div class="stxt">
+            <div class="stitle">∫₀^(π/2) sin x · cos²x dx</div>
+            <div class="sbody">
+              <strong>t = cos x</strong> → dt = −sin x dx → sin x dx = −dt<br>
+              Смяна на граници:<br>
+              • x=0: <code>t = cos 0 = 1</code><br>
+              • x=π/2: <code>t = cos(π/2) = 0</code><br>
+              Новият интеграл: <code>∫₁⁰ t²·(−dt) = ∫₀¹ t² dt</code><br>
+              <code>= [t³/3]₀¹ = 1/3 − 0</code><br>
+              <strong>= 1/3</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum pink">Ex3</div>
+          <div class="stxt">
+            <div class="stitle">∫₁⁴ x/√(x²+9) dx</div>
+            <div class="sbody">
+              <strong>t = x²+9</strong> → dt = 2x dx → x dx = dt/2<br>
+              Смяна на граници:<br>
+              • x=1: <code>t = 1+9 = 10</code><br>
+              • x=4: <code>t = 16+9 = 25</code><br>
+              Новият интеграл: <code>∫₁₀²⁵ (1/√t)·(dt/2) = (1/2)∫₁₀²⁵ t^(-1/2) dt</code><br>
+              <code>= (1/2)[2√t]₁₀²⁵ = [√t]₁₀²⁵ = √25 − √10 = 5 − √10</code><br>
+              <strong>= 5 − √10</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-s" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-p" onclick="nextSection()">Задачи →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 5: ЗАДАЧИ -->
+  <div class="section" id="sec4">
+    <div class="sec-header">
+      <div class="sec-label">Блок 05</div>
+      <div class="sec-title">Задачи за практика</div>
+      <div class="time-chip">⏱ ~60 мин</div>
+    </div>
+
+    <div class="card green">
+      <div class="card-title">🟢 Лесни — Директно Нютон-Лайбниц</div>
+      <div class="ex-list">
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 01</div>
+          <div class="ex-q">∫₁³ (2x + 1) dx</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            Първообразна: <code>x² + x</code><br>
+            <code>[x²+x]₁³ = (9+3) − (1+1) = 12 − 2</code><br>
+            <strong>= 10</strong>
+          </div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 02</div>
+          <div class="ex-q">∫₀^(π/2) cos x dx</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            Първообразна: <code>sin x</code><br>
+            <code>[sin x]₀^(π/2) = sin(π/2) − sin(0) = 1 − 0</code><br>
+            <strong>= 1</strong>
+          </div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 03</div>
+          <div class="ex-q">∫₁^e ln(x)/x dx</div>
+          <div class="ex-hint">💡 Смяна t = ln x, dt = (1/x)dx</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            t = ln x → dt = (1/x)dx<br>
+            Граници: x=1 → t=0; x=e → t=1<br>
+            <code>∫₀¹ t dt = [t²/2]₀¹ = 1/2</code><br>
+            <strong>= 1/2</strong>
+          </div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 04</div>
+          <div class="ex-q">∫₋₂² (x³ + x) dx</div>
+          <div class="ex-hint">💡 Провери за четност/нечетност!</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            x³ е нечетна, x е нечетна → x³+x е нечетна<br>
+            Границите са симетрични [−2, 2]<br>
+            По свойство 6 за нечетни функции:<br>
+            <strong>= 0</strong>
+          </div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 05</div>
+          <div class="ex-q">∫₀¹ x·eˣ dx</div>
+          <div class="ex-hint">💡 Интегриране по части! u=x, dv=eˣdx</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            По части: u=x, dv=eˣdx → du=dx, v=eˣ<br>
+            <code>∫₀¹ xeˣdx = [xeˣ]₀¹ − ∫₀¹ eˣdx</code><br>
+            <code>= (1·e − 0) − [eˣ]₀¹</code><br>
+            <code>= e − (e − 1)</code><br>
+            <strong>= 1</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title">🟡 Средни — Смяна на граници</div>
+      <div class="ex-list">
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 06</div>
+          <div class="ex-q">∫₀¹ x·(x²+1)³ dx</div>
+          <div class="ex-hint">💡 t = x²+1, смени и границите!</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            t=x²+1 → dt=2x dx → x dx=dt/2<br>
+            Граници: x=0→t=1; x=1→t=2<br>
+            <code>∫₁² t³·(dt/2) = (1/2)[t⁴/4]₁² = (1/8)(16−1)</code><br>
+            <strong>= 15/8</strong>
+          </div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 07</div>
+          <div class="ex-q">∫₀^(π/4) sin(2x) dx</div>
+          <div class="ex-hint">💡 Константа под d: a=2</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            Константа под d, a=2:<br>
+            Първообразна: <code>−(1/2)cos(2x)</code><br>
+            <code>[−(1/2)cos(2x)]₀^(π/4)</code><br>
+            <code>= −(1/2)cos(π/2) − (−(1/2)cos(0))</code><br>
+            <code>= 0 + 1/2</code><br>
+            <strong>= 1/2</strong>
+          </div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 08</div>
+          <div class="ex-q">∫₀¹ eˣ/(eˣ+2) dx</div>
+          <div class="ex-hint">💡 t = eˣ+2, производната е eˣ!</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            t=eˣ+2 → dt=eˣdx<br>
+            Граници: x=0→t=e⁰+2=3; x=1→t=e+2<br>
+            <code>∫₃^(e+2) (1/t)dt = [ln t]₃^(e+2)</code><br>
+            <code>= ln(e+2) − ln 3</code><br>
+            <strong>= ln((e+2)/3)</strong>
+          </div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 09</div>
+          <div class="ex-q">∫₀¹ x·ln(x+1) dx</div>
+          <div class="ex-hint">💡 Интегриране по части: u=ln(x+1), dv=x dx</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            u=ln(x+1), dv=x dx → du=1/(x+1)dx, v=x²/2<br>
+            <code>= [x²/2·ln(x+1)]₀¹ − ∫₀¹ x²/(2(x+1)) dx</code><br>
+            <code>= (1/2)ln2 − 0 − (1/2)∫₀¹ x²/(x+1) dx</code><br>
+            За ∫x²/(x+1)dx: x²/(x+1) = x−1+1/(x+1)<br>
+            <code>∫₀¹(x−1+1/(x+1))dx = [x²/2−x+ln(x+1)]₀¹</code><br>
+            <code>= (1/2−1+ln2) − 0 = ln2 − 1/2</code><br>
+            <code>= (1/2)ln2 − (1/2)(ln2−1/2)</code><br>
+            <strong>= (1/2)ln2 − (1/2)ln2 + 1/4 = 1/4</strong>
+          </div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 10 — Свойства</div>
+          <div class="ex-q">∫₋π^π (x⁴·cos x + x·sin²x) dx</div>
+          <div class="ex-hint">💡 Анализирай четността на всеки член!</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            Граници: симетрични [−π, π]<br><br>
+            <strong>x⁴·cos x:</strong> x⁴ е четна, cos x е четна → произведението е <strong>четна</strong><br>
+            ∫₋π^π x⁴cos x dx = 2∫₀^π x⁴cos x dx (нужно по части — не пресмятаме)<br><br>
+            <strong>x·sin²x:</strong> x е нечетна, sin²x е четна → произведението е <strong>нечетна</strong><br>
+            ∫₋π^π x·sin²x dx = <strong>0</strong><br><br>
+            Забележка: ако задачата иска само да покажеш свойствата → вторият член = 0 директно!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-s" onclick="prevSection()">← Смяна на граници</button>
+      <button class="btn btn-p" onclick="goTo(0)">↩ Начало</button>
+    </div>
+  </div>
+
+</div>
+<script>
+  let cur=0;
+  const btns=document.querySelectorAll('.nav-btn');
+  const secs=document.querySelectorAll('.section');
+  function goTo(i){secs[cur].classList.remove('active');btns[cur].classList.remove('active');cur=i;secs[cur].classList.add('active');btns[cur].classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+  function nextSection(){if(cur<4){btns[cur].classList.add('done');goTo(cur+1);}}
+  function prevSection(){if(cur>0)goTo(cur-1);}
+  function toggleEx(el){el.classList.toggle('open');}
+</script>
+</body>
+</html>

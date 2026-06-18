@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Алгоритми — Граници & Изследване</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+  :root {
+    --bg:#08080d; --surface:#0e0e16; --surface2:#14141f;
+    --border:#1e1e2e; --ink:#cdd6f4; --muted:#6c7086;
+    --accent:#cba6f7; --accent2:#89b4fa; --accent3:#a6e3a1;
+    --accent4:#f38ba8; --accent5:#fab387; --accent6:#f9e2af;
+    --correct:#a6e3a1; --wrong:#f38ba8;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 80% 40% at 50% 0%,rgba(203,166,247,0.06) 0%,transparent 60%),
+               radial-gradient(ellipse 50% 30% at 90% 90%,rgba(137,180,250,0.04) 0%,transparent 60%);}
+  .container{max-width:920px;margin:0 auto;padding:48px 24px;position:relative;z-index:1;}
+
+  /* Header */
+  .header{text-align:center;margin-bottom:52px;animation:fadeIn 0.8s ease;}
+  .badge{display:inline-block;background:rgba(203,166,247,0.08);border:1px solid rgba(203,166,247,0.2);color:var(--accent);font-family:'DM Mono',monospace;font-size:10px;font-weight:600;letter-spacing:3px;padding:6px 18px;border-radius:20px;margin-bottom:18px;text-transform:uppercase;}
+  h1{font-family:'Fraunces',serif;font-size:clamp(32px,6vw,56px);font-weight:900;line-height:1.05;letter-spacing:-2px;margin-bottom:10px;}
+  h1 em{font-style:italic;color:var(--accent);}
+  .subtitle{color:var(--muted);font-size:15px;}
+
+  /* Tabs */
+  .tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:36px;}
+  .tab-btn{padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s;text-align:center;}
+  .tab-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .tab-btn.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+  .tab{display:none;animation:fadeIn 0.4s ease;}
+  .tab.active{display:block;}
+
+  /* Section dividers */
+  .sec-header{margin-bottom:20px;margin-top:8px;}
+  .sec-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;}
+  .sec-title{font-family:'Fraunces',serif;font-size:26px;font-weight:700;}
+  .sec-sub{font-size:13px;color:var(--muted);margin-top:3px;}
+
+  /* Cards */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:14px;position:relative;overflow:hidden;}
+  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+  .card.purple::before{background:linear-gradient(90deg,var(--accent),transparent);}
+  .card.blue::before{background:linear-gradient(90deg,var(--accent2),transparent);}
+  .card.green::before{background:linear-gradient(90deg,var(--accent3),transparent);}
+  .card.red::before{background:linear-gradient(90deg,var(--accent4),transparent);}
+  .card.orange::before{background:linear-gradient(90deg,var(--accent5),transparent);}
+  .card.yellow::before{background:linear-gradient(90deg,var(--accent6),transparent);}
+  .card-title{font-family:'Fraunces',serif;font-size:20px;font-weight:700;margin-bottom:5px;}
+  .card-sub{color:var(--muted);font-size:13px;margin-bottom:16px;}
+
+  /* Big algo box */
+  .algo{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:0;margin:12px 0;overflow:hidden;}
+  .algo-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+  .algo-header h3{font-family:'Fraunces',serif;font-size:17px;font-weight:700;}
+  .algo-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+  .algo-icon.purple{background:rgba(203,166,247,0.15);}
+  .algo-icon.blue{background:rgba(137,180,250,0.15);}
+  .algo-icon.green{background:rgba(166,227,161,0.15);}
+  .algo-icon.orange{background:rgba(250,179,135,0.15);}
+  .algo-body{padding:16px 20px;}
+  .algo-step{display:flex;gap:14px;align-items:flex-start;margin-bottom:12px;}
+  .algo-step:last-child{margin-bottom:0;}
+  .algo-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;font-weight:600;flex-shrink:0;margin-top:1px;}
+  .algo-num.purple{background:rgba(203,166,247,0.15);color:var(--accent);border:1px solid rgba(203,166,247,0.25);}
+  .algo-num.blue{background:rgba(137,180,250,0.15);color:var(--accent2);border:1px solid rgba(137,180,250,0.25);}
+  .algo-num.green{background:rgba(166,227,161,0.15);color:var(--accent3);border:1px solid rgba(166,227,161,0.25);}
+  .algo-num.orange{background:rgba(250,179,135,0.15);color:var(--accent5);border:1px solid rgba(250,179,135,0.25);}
+  .algo-num.yellow{background:rgba(249,226,175,0.15);color:var(--accent6);border:1px solid rgba(249,226,175,0.25);}
+  .algo-num.red{background:rgba(243,139,168,0.15);color:var(--accent4);border:1px solid rgba(243,139,168,0.25);}
+  .algo-text{flex:1;font-size:14px;color:var(--muted);line-height:1.6;padding-top:3px;}
+  .algo-text strong{color:var(--ink);}
+  .algo-text code{font-family:'DM Mono',monospace;background:var(--surface);padding:2px 6px;border-radius:3px;color:var(--accent5);font-size:12px;}
+  .algo-text .tag{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;padding:1px 7px;border-radius:10px;margin-left:6px;vertical-align:middle;}
+  .algo-text .tag.purple{background:rgba(203,166,247,0.15);color:var(--accent);}
+  .algo-text .tag.blue{background:rgba(137,180,250,0.15);color:var(--accent2);}
+  .algo-text .tag.green{background:rgba(166,227,161,0.15);color:var(--accent3);}
+  .algo-text .tag.orange{background:rgba(250,179,135,0.15);color:var(--accent5);}
+  .algo-text .tag.red{background:rgba(243,139,168,0.15);color:var(--accent4);}
+
+  /* Decision tree */
+  .decision{margin:14px 0;}
+  .d-node{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:6px 0;font-size:14px;display:flex;align-items:center;gap:10px;}
+  .d-node.question{border-left:3px solid var(--accent);}
+  .d-node.answer{border-left:3px solid var(--accent3);color:var(--muted);}
+  .d-node.warning{border-left:3px solid var(--accent4);color:var(--muted);}
+  .d-arrow{color:var(--muted);font-size:12px;margin-left:16px;font-family:'DM Mono',monospace;}
+  .d-label{font-family:'DM Mono',monospace;font-size:11px;padding:2px 8px;border-radius:10px;flex-shrink:0;}
+  .d-label.yes{background:rgba(166,227,161,0.15);color:var(--accent3);}
+  .d-label.no{background:rgba(243,139,168,0.15);color:var(--accent4);}
+  .d-label.q{background:rgba(203,166,247,0.15);color:var(--accent);}
+  .d-content{flex:1;}
+  .d-content code{font-family:'DM Mono',monospace;font-size:12px;color:var(--accent5);}
+
+  /* Forms grid */
+  .forms-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:12px 0;}
+  .form-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;}
+  .form-sym{font-family:'DM Mono',monospace;font-size:22px;font-weight:700;margin-bottom:6px;}
+  .form-sym.purple{color:var(--accent);}
+  .form-sym.blue{color:var(--accent2);}
+  .form-sym.green{color:var(--accent3);}
+  .form-sym.orange{color:var(--accent5);}
+  .form-sym.red{color:var(--accent4);}
+  .form-desc{font-size:12px;color:var(--muted);line-height:1.4;}
+  .form-method{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent6);margin-top:4px;}
+
+  /* Asymptotes */
+  .asymp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0;}
+  .asymp-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;}
+  .asymp-type{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;margin-bottom:8px;}
+  .asymp-type.purple{color:var(--accent);}
+  .asymp-type.blue{color:var(--accent2);}
+  .asymp-type.green{color:var(--accent3);}
+  .asymp-formula{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent6);margin-bottom:6px;line-height:1.6;}
+  .asymp-desc{font-size:12px;color:var(--muted);line-height:1.5;}
+
+  /* Sign table */
+  .sign-table{margin:12px 0;}
+  .sign-row{display:flex;gap:2px;margin-bottom:2px;}
+  .sign-cell{flex:1;padding:8px 4px;text-align:center;font-family:'DM Mono',monospace;font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:3px;}
+  .sign-cell.header{color:var(--accent);font-size:11px;}
+  .sign-cell.pos{color:var(--accent3);}
+  .sign-cell.neg{color:var(--accent4);}
+  .sign-cell.zero{color:var(--accent6);}
+  .sign-cell.label{color:var(--accent2);font-size:11px;letter-spacing:1px;}
+
+  /* Full algo table */
+  .full-table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0;}
+  .full-table th{background:var(--surface2);padding:9px 12px;text-align:left;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);border-bottom:1px solid var(--border);}
+  .full-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top;}
+  .full-table tr:last-child td{border-bottom:none;}
+  .full-table tr:hover td{background:var(--surface2);}
+  .full-table td:first-child{font-family:'DM Mono',monospace;color:var(--accent);font-weight:700;width:32px;text-align:center;}
+  .full-table td:nth-child(2){font-weight:600;color:var(--ink);width:210px;}
+  .full-table td:last-child{color:var(--muted);font-size:12px;line-height:1.5;}
+  .full-table td:last-child code{font-family:'DM Mono',monospace;color:var(--accent5);font-size:11px;background:var(--surface);padding:1px 5px;border-radius:3px;}
+
+  /* Info */
+  .info{border-radius:6px;padding:11px 15px;font-size:13px;line-height:1.6;margin:10px 0;}
+  .info.purple{background:rgba(203,166,247,0.06);border:1px solid rgba(203,166,247,0.15);}
+  .info.blue{background:rgba(137,180,250,0.06);border:1px solid rgba(137,180,250,0.15);}
+  .info.green{background:rgba(166,227,161,0.06);border:1px solid rgba(166,227,161,0.15);}
+  .info.red{background:rgba(243,139,168,0.06);border:1px solid rgba(243,139,168,0.15);}
+  .info.orange{background:rgba(250,179,135,0.06);border:1px solid rgba(250,179,135,0.15);}
+
+  hr{border:none;border-top:1px solid var(--border);margin:20px 0;}
+
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="badge">📋 АЛГОРИТМИ</div>
+    <h1>Граници &<br><em>Изследване</em></h1>
+    <p class="subtitle">Алгоритъм за граници · Неопределени форми · Пълно изследване на функция</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab(0)">∞ Алгоритъм за граници</button>
+    <button class="tab-btn" onclick="switchTab(1)">📈 Изследване на функция</button>
+  </div>
+
+  <!-- ==================== ТАБ 1: ГРАНИЦИ ==================== -->
+  <div class="tab active" id="tab0">
+
+    <div class="sec-header">
+      <div class="sec-label">Алгоритъм 01</div>
+      <div class="sec-title">Намиране на граница</div>
+      <div class="sec-sub">Следвай стъпките в ред — никога не прескачай!</div>
+    </div>
+
+    <!-- Decision flow -->
+    <div class="card purple">
+      <div class="card-title">🗺️ Дърво на решенията</div>
+      <div class="card-sub">Кой метод кога?</div>
+      <div class="decision">
+        <div class="d-node question">
+          <div class="d-label q">СТЪПКА 1</div>
+          <div class="d-content">Замести x директно. Получаваш ли нормален резултат (не 0/0, ∞/∞ и т.н.)?</div>
+        </div>
+        <div class="d-arrow">├─ <span class="d-label yes">ДА</span></div>
+        <div class="d-node answer" style="margin-left:20px">
+          <div class="d-content">✅ <strong>Готово!</strong> Това е отговорът.</div>
+        </div>
+        <div class="d-arrow">└─ <span class="d-label no">НЕ</span> → Определи неопределената форма:</div>
+
+        <div class="d-node question" style="margin-left:20px;margin-top:8px">
+          <div class="d-label q">СТЪПКА 2</div>
+          <div class="d-content">Коя форма получи?</div>
+        </div>
+
+        <div class="d-arrow" style="margin-left:20px">├─ <code>0/0</code> с полиноми → <strong>Факторизация</strong> (разложи и съкрати)</div>
+        <div class="d-arrow" style="margin-left:20px">├─ <code>0/0</code> с корени → <strong>Спрегнато</strong> (умножи по конюгат)</div>
+        <div class="d-arrow" style="margin-left:20px">├─ <code>∞/∞</code> рационална → <strong>Дели по най-висока степен</strong></div>
+        <div class="d-arrow" style="margin-left:20px">├─ <code>∞−∞</code> с корени → <strong>Спрегнато</strong></div>
+        <div class="d-arrow" style="margin-left:20px">├─ <code>0/0</code> или <code>∞/∞</code> с exp/ln → <strong>Лопитал</strong></div>
+        <div class="d-arrow" style="margin-left:20px">├─ <code>0·∞</code> → Преобразувай в дроб → <strong>Лопитал</strong></div>
+        <div class="d-arrow" style="margin-left:20px">├─ <code>1^∞, 0⁰, ∞⁰</code> → <strong>ln y = ... → Лопитал → e^резултат</strong></div>
+        <div class="d-arrow" style="margin-left:20px">└─ <code>sin/tan/arcsin/arctg</code> около 0 → <strong>Специални граници</strong></div>
+      </div>
+    </div>
+
+    <!-- Неопределени форми -->
+    <div class="card blue">
+      <div class="card-title">⚠️ Неопределени форми</div>
+      <div class="card-sub">Разпознай я → избери метода</div>
+      <div class="forms-grid">
+        <div class="form-card">
+          <div class="form-sym purple">0/0</div>
+          <div class="form-desc">Нула върху нула</div>
+          <div class="form-method">факторизация / спрегнато / Лопитал</div>
+        </div>
+        <div class="form-card">
+          <div class="form-sym blue">∞/∞</div>
+          <div class="form-desc">Безкрайност върху безкрайност</div>
+          <div class="form-method">дели по xⁿ / Лопитал</div>
+        </div>
+        <div class="form-card">
+          <div class="form-sym orange">0·∞</div>
+          <div class="form-desc">Нула по безкрайност</div>
+          <div class="form-method">→ дроб → Лопитал</div>
+        </div>
+        <div class="form-card">
+          <div class="form-sym green">∞−∞</div>
+          <div class="form-desc">Разлика от безкрайности</div>
+          <div class="form-method">спрегнато / общ знам.</div>
+        </div>
+        <div class="form-card">
+          <div class="form-sym purple">1^∞</div>
+          <div class="form-desc">Единица на степен ∞</div>
+          <div class="form-method">ln y → Лопитал → e^L</div>
+        </div>
+        <div class="form-card">
+          <div class="form-sym red">0⁰ ∞⁰</div>
+          <div class="form-desc">Степенни форми</div>
+          <div class="form-method">ln y → Лопитал → e^L</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Методи детайлно -->
+    <div class="card green">
+      <div class="card-title">🔧 Методите в детайл</div>
+
+      <div class="algo">
+        <div class="algo-header">
+          <div class="algo-icon purple">①</div>
+          <h3>Факторизация <span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);">→ за 0/0 с полиноми</span></h3>
+        </div>
+        <div class="algo-body">
+          <div class="algo-step">
+            <div class="algo-num purple">1</div>
+            <div class="algo-text">Разложи числителя и знаменателя на множители</div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num purple">2</div>
+            <div class="algo-text">Съкрати общия множител (x−a) — той е причината за 0/0</div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num purple">3</div>
+            <div class="algo-text">Замести директно в опростения израз<br>
+            <strong>Пример:</strong> <code>lim(x→2) (x²−4)/(x−2) = lim(x+2) = 4</code></div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num purple">!</div>
+            <div class="algo-text" style="color:var(--muted)">Полезни разложения: <code>x²−a² = (x−a)(x+a)</code> | <code>x³−a³ = (x−a)(x²+ax+a²)</code></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="algo" style="margin-top:10px">
+        <div class="algo-header">
+          <div class="algo-icon blue">②</div>
+          <h3>Спрегнато <span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);">→ за корени</span></h3>
+        </div>
+        <div class="algo-body">
+          <div class="algo-step">
+            <div class="algo-num blue">1</div>
+            <div class="algo-text">Умножи горе и долу по спреженото: ако имаш <code>(√A − √B)</code> умножаваш по <code>(√A + √B)</code></div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num blue">2</div>
+            <div class="algo-text">Използваш <code>(√A−√B)(√A+√B) = A−B</code> → коренът изчезва</div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num blue">3</div>
+            <div class="algo-text">Съкрати и замести<br>
+            <strong>Пример:</strong> <code>lim(x→0) (√(x+1)−1)/x · (√(x+1)+1)/(√(x+1)+1) = x/[x(√(x+1)+1)] = 1/2</code></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="algo" style="margin-top:10px">
+        <div class="algo-header">
+          <div class="algo-icon green">③</div>
+          <h3>Дели по xⁿ <span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);">→ за ∞/∞ при x→∞</span></h3>
+        </div>
+        <div class="algo-body">
+          <div class="algo-step">
+            <div class="algo-num green">1</div>
+            <div class="algo-text">Намери <strong>най-голямата степен</strong> на x в целия израз</div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num green">2</div>
+            <div class="algo-text">Дели всеки член горе и долу по тази степен</div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num green">3</div>
+            <div class="algo-text">При x→∞: всички <code>c/xⁿ → 0</code> → остава само водещото съотношение<br>
+            <strong>Бързо правило:</strong> сравни степените на числителя (m) и знаменателя (n):<br>
+            m &lt; n → граница = <code>0</code> | m = n → граница = <code>водещи коеф.</code> | m &gt; n → граница = <code>±∞</code></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="algo" style="margin-top:10px">
+        <div class="algo-header">
+          <div class="algo-icon orange">④</div>
+          <h3>Лопитал <span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);">→ 0/0 или ∞/∞ с exp/ln/trig</span></h3>
+        </div>
+        <div class="algo-body">
+          <div class="algo-step">
+            <div class="algo-num orange">1</div>
+            <div class="algo-text">Провери: имаш ли точно <code>0/0</code> или <code>∞/∞</code>? (НЕ за 0·∞!)</div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num orange">2</div>
+            <div class="algo-text">Диференцирай числителя и знаменателя <strong>поотделно</strong> (не като частно!)</div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num orange">3</div>
+            <div class="algo-text">Намери новата граница. Ако пак е 0/0 или ∞/∞ → прилагай отново</div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num orange">!</div>
+            <div class="algo-text">За <code>0·∞</code>: запиши като <code>f/(1/g)</code> или <code>g/(1/f)</code> → получаваш дроб → Лопитал</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Специални граници -->
+    <div class="card yellow">
+      <div class="card-title">⭐ Специални граници — наизуст</div>
+      <div class="algo-body" style="padding:0">
+        <div class="algo-step">
+          <div class="algo-num yellow">→</div>
+          <div class="algo-text"><code>lim(x→0) sin(x)/x = 1</code> &nbsp;|&nbsp; <code>lim sin(ax)/(bx) = a/b</code></div>
+        </div>
+        <div class="algo-step">
+          <div class="algo-num yellow">→</div>
+          <div class="algo-text"><code>lim(x→0) tan(x)/x = 1</code></div>
+        </div>
+        <div class="algo-step">
+          <div class="algo-num yellow">→</div>
+          <div class="algo-text"><code>lim(x→0) (1−cosx)/x² = 1/2</code></div>
+        </div>
+        <div class="algo-step">
+          <div class="algo-num yellow">→</div>
+          <div class="algo-text"><code>lim(x→0) arcsin(x)/x = 1</code> &nbsp;|&nbsp; <code>lim arctg(x)/x = 1</code></div>
+        </div>
+        <div class="algo-step">
+          <div class="algo-num yellow">→</div>
+          <div class="algo-text"><code>lim(x→0) (eˣ−1)/x = 1</code> &nbsp;|&nbsp; <code>lim(e^(ax)−1)/(bx) = a/b</code></div>
+        </div>
+        <div class="algo-step">
+          <div class="algo-num yellow">→</div>
+          <div class="algo-text"><code>lim(x→0) ln(1+x)/x = 1</code></div>
+        </div>
+        <div class="algo-step">
+          <div class="algo-num yellow">→</div>
+          <div class="algo-text"><code>lim(x→∞) (1+1/x)ˣ = e</code> &nbsp;|&nbsp; <code>lim(x→0) (1+x)^(1/x) = e</code></div>
+        </div>
+        <div class="algo-step">
+          <div class="algo-num yellow">→</div>
+          <div class="algo-text"><code>lim(x→+∞) arctg(x) = π/2</code> &nbsp;|&nbsp; <code>lim(x→−∞) arctg(x) = −π/2</code></div>
+        </div>
+        <div class="algo-step">
+          <div class="algo-num yellow">→</div>
+          <div class="algo-text"><code>lim(x→+∞) arcctg(x) = 0</code> &nbsp;|&nbsp; <code>lim(x→−∞) arcctg(x) = π</code></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Степенни форми -->
+    <div class="card red">
+      <div class="card-title">🔢 Степенни форми (1^∞, 0⁰, ∞⁰)</div>
+      <div class="algo">
+        <div class="algo-header">
+          <div class="algo-icon orange">y</div>
+          <h3>Универсален алгоритъм</h3>
+        </div>
+        <div class="algo-body">
+          <div class="algo-step">
+            <div class="algo-num red">1</div>
+            <div class="algo-text">Запиши <code>y = f(x)^g(x)</code></div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num red">2</div>
+            <div class="algo-text">Вземи ln: <code>ln y = g(x)·ln(f(x))</code> → сега имаш <code>0·∞</code></div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num red">3</div>
+            <div class="algo-text">Преобразувай в дроб и приложи Лопитал → <code>lim ln y = L</code></div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num red">4</div>
+            <div class="algo-text">Отговорът: <code>lim y = e^L</code></div>
+          </div>
+        </div>
+      </div>
+      <div class="info orange">
+        💡 Ако L=0 → отговорът е e⁰=1 | Ако L=1 → e | Ако L=−1 → 1/e
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==================== ТАБ 2: ИЗСЛЕДВАНЕ ==================== -->
+  <div class="tab" id="tab1">
+
+    <div class="sec-header">
+      <div class="sec-label">Алгоритъм 02</div>
+      <div class="sec-title">Пълно изследване на функция</div>
+      <div class="sec-sub">14 стъпки — следвай в ред, нищо не пропускаш</div>
+    </div>
+
+    <!-- Full table -->
+    <div class="card purple">
+      <div class="card-title">📋 Пълният алгоритъм</div>
+      <table class="full-table">
+        <tr><th>#</th><th>Стъпка</th><th>Какво правиш и как</th></tr>
+        <tr>
+          <td>1</td>
+          <td>Дефиниц. множество D(f)</td>
+          <td>Намираш кога функцията е дефинирана. Правила: <code>знам≠0</code>, <code>корен≥0</code>, <code>ln>0</code></td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Четност / Нечетност</td>
+          <td>Смяташ f(−x). Ако = f(x) → четна (симетрия спрямо y). Ако = −f(x) → нечетна (симетрия спрямо 0)</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Нули на функцията</td>
+          <td>Решаваш <code>f(x) = 0</code></td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Знак на функцията</td>
+          <td>Проверяваш знака в интервалите между нулите и "лошите" точки (извън D)</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>Граници</td>
+          <td>Пресмяташ lim при x→±∞ и в точките извън D(f)</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>Хоризонтални асимптоти</td>
+          <td><code>lim(x→±∞) f(x) = L</code> → y=L е хориз. асимптота</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td>Вертикални асимптоти</td>
+          <td>В точките x=a ∉ D(f) където |f(x)| → ∞</td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td>Наклонени асимптоти</td>
+          <td><code>k = lim f(x)/x</code> при x→±∞; <code>b = lim [f(x)−kx]</code>; y=kx+b</td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td>Първа производна f'(x)</td>
+          <td>Намираш f'(x), решаваш <code>f'(x) = 0</code> → критични точки</td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td>Монотонност</td>
+          <td>f'>0 → нараства; f'&lt;0 → намалява. Съставяш таблица на знаците</td>
+        </tr>
+        <tr>
+          <td>11</td>
+          <td>Локални екстремуми</td>
+          <td>В критичните точки: f' сменя +→− → <code>max</code>; f' сменя −→+ → <code>min</code>; не сменя → нема</td>
+        </tr>
+        <tr>
+          <td>12</td>
+          <td>Втора производна f''(x)</td>
+          <td>Намираш f''(x), решаваш <code>f''(x) = 0</code></td>
+        </tr>
+        <tr>
+          <td>13</td>
+          <td>Изпъкналост / Вдлъбнатост</td>
+          <td>f''>0 → изпъкнала надолу (U); f''&lt;0 → вдлъбната (∩)</td>
+        </tr>
+        <tr>
+          <td>14</td>
+          <td>Инфлексни точки</td>
+          <td>Там където f'' сменя знак (и точката е в D!)</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Асимптоти детайлно -->
+    <div class="card blue">
+      <div class="card-title">📐 Асимптоти — детайлно</div>
+      <div class="asymp-grid">
+        <div class="asymp-card">
+          <div class="asymp-type purple">ВЕРТИКАЛНА</div>
+          <div class="asymp-formula">x = a</div>
+          <div class="asymp-desc">Когато |f(x)| → ∞ при x→a. Търсиш в точките извън D(f). Проверяваш lim от ляво и дясно.</div>
+        </div>
+        <div class="asymp-card">
+          <div class="asymp-type blue">ХОРИЗОНТАЛНА</div>
+          <div class="asymp-formula">y = L</div>
+          <div class="asymp-desc">lim(x→+∞) f(x) = L или lim(x→−∞) f(x) = L. Може различни за +∞ и −∞!</div>
+        </div>
+        <div class="asymp-card">
+          <div class="asymp-type green">НАКЛОНЕНА</div>
+          <div class="asymp-formula">y = kx + b</div>
+          <div class="asymp-desc">k = lim f(x)/x; b = lim[f(x)−kx]. Търсиш само ако няма хоризонтална (k≠0)!</div>
+        </div>
+      </div>
+      <div class="info blue">
+        💡 Ако lim f(x) = L (крайно) → хоризонтална. Ако lim f(x)/x = k≠0 → наклонена. Ако lim f(x) = ±∞ и lim f(x)/x = 0 → няма асимптота при ∞.
+      </div>
+    </div>
+
+    <!-- Знакова таблица -->
+    <div class="card green">
+      <div class="card-title">📊 Как се прави таблица на знаците</div>
+      <div class="card-sub">За f' (монотонност) и f'' (изпъкналост)</div>
+      <div class="algo">
+        <div class="algo-body">
+          <div class="algo-step">
+            <div class="algo-num green">1</div>
+            <div class="algo-text">Намери всички точки където f'=0 или f' не съществува (и точките извън D)</div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num green">2</div>
+            <div class="algo-text">Наредги ги на числова ос — те разделят ℝ на интервали</div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num green">3</div>
+            <div class="algo-text">За всеки интервал избери тестова точка и намери знака на f'</div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num green">4</div>
+            <div class="algo-text">Попълни таблицата: + за нарастване, − за намаляване</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-sub" style="margin-top:14px;margin-bottom:8px">Пример за f(x) с критична точка x=0 и x=2:</div>
+      <div class="sign-table">
+        <div class="sign-row">
+          <div class="sign-cell header">x</div>
+          <div class="sign-cell header">(−∞, 0)</div>
+          <div class="sign-cell header">0</div>
+          <div class="sign-cell header">(0, 2)</div>
+          <div class="sign-cell header">2</div>
+          <div class="sign-cell header">(2, +∞)</div>
+        </div>
+        <div class="sign-row">
+          <div class="sign-cell label">f'(x)</div>
+          <div class="sign-cell neg">−</div>
+          <div class="sign-cell zero">0</div>
+          <div class="sign-cell pos">+</div>
+          <div class="sign-cell zero">0</div>
+          <div class="sign-cell neg">−</div>
+        </div>
+        <div class="sign-row">
+          <div class="sign-cell label">f(x)</div>
+          <div class="sign-cell neg">↘ намал.</div>
+          <div class="sign-cell zero">min</div>
+          <div class="sign-cell pos">↗ нараства</div>
+          <div class="sign-cell zero">max</div>
+          <div class="sign-cell neg">↘ намал.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Екстремуми и инфлексни -->
+    <div class="card orange">
+      <div class="card-title">🎯 Екстремуми и инфлексни точки — обобщение</div>
+      <div class="algo">
+        <div class="algo-body">
+          <div class="algo-step">
+            <div class="algo-num orange">MAX</div>
+            <div class="algo-text"><strong>Локален максимум:</strong> f'(x₀)=0 И f' сменя знак от <strong>+ → −</strong> при преминаване през x₀<br>
+            Или: f'(x₀)=0 И <strong>f''(x₀) &lt; 0</strong></div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num green">MIN</div>
+            <div class="algo-text"><strong>Локален минимум:</strong> f'(x₀)=0 И f' сменя знак от <strong>− → +</strong> при преминаване през x₀<br>
+            Или: f'(x₀)=0 И <strong>f''(x₀) &gt; 0</strong></div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num purple">INF</div>
+            <div class="algo-text"><strong>Инфлексна точка:</strong> f''(x₀)=0 И f'' <strong>сменя знак</strong> при преминаване през x₀<br>
+            ⚠️ Ако f'' не сменя знак → НЕ е инфлексна точка!</div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num red">∄</div>
+            <div class="algo-text"><strong>Нема екстремум:</strong> f'(x₀)=0 но f' не сменя знак → точката е само "плато"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Примерна схема -->
+    <div class="card purple">
+      <div class="card-title">📝 Примерна схема за писане на решение</div>
+      <div class="card-sub">Точно така изписваш на изпит</div>
+      <div class="algo">
+        <div class="algo-body">
+          <div class="algo-step">
+            <div class="algo-num purple">1</div>
+            <div class="algo-text"><strong>D(f) = ...</strong> (намираш и записваш)</div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num purple">2</div>
+            <div class="algo-text"><strong>f(−x) = ...</strong> → четна / нечетна / нито</div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num purple">3</div>
+            <div class="algo-text"><strong>Нули:</strong> f(x)=0 → x=...</div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num purple">5</div>
+            <div class="algo-text"><strong>Граници:</strong> lim(x→+∞) f(x) = ... ; lim(x→−∞) f(x) = ... ; lim(x→a) f(x) = ±∞</div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num purple">6-8</div>
+            <div class="algo-text"><strong>Асимптоти:</strong> Вертикални: x=... | Хоризонтална: y=... | Наклонена: y=kx+b</div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num purple">9</div>
+            <div class="algo-text"><strong>f'(x) = ...</strong> ; f'(x)=0 → x=... (критични точки)</div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num purple">10-11</div>
+            <div class="algo-text"><strong>Таблица на знаците на f'</strong> → интервали на нарастване/намаляване → екстремуми</div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num purple">12</div>
+            <div class="algo-text"><strong>f''(x) = ...</strong> ; f''(x)=0 → x=...</div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num purple">13-14</div>
+            <div class="algo-text"><strong>Таблица на знаците на f''</strong> → изпъкналост/вдлъбнатост → инфлексни точки</div>
+          </div>
+          <div class="algo-step">
+            <div class="algo-num purple">15</div>
+            <div class="algo-text"><strong>Графика</strong> — нанасяш всички намерени точки и информация</div>
+          </div>
+        </div>
+      </div>
+      <div class="info purple">
+        💪 <strong>Съвет за изпита:</strong> Дори да не можеш да пресметнеш дадена стъпка — запиши я! Преподавателят дава частични точки за показана структура и метод.
+      </div>
+    </div>
+
+  </div>
+
+</div>
+<script>
+  function switchTab(i){
+    document.querySelectorAll('.tab').forEach((t,idx)=>{t.classList.toggle('active',idx===i);});
+    document.querySelectorAll('.tab-btn').forEach((b,idx)=>{b.classList.toggle('active',idx===i);});
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+</script>
+</body>
+</html>

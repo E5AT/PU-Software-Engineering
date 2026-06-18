@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Пищови + Финални задачи</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+  :root {
+    --bg:#07090e; --surface:#0d1018; --surface2:#131620;
+    --border:#1a1e2e; --ink:#dde2f0; --muted:#4a5070;
+    --c1:#f9a8d4; --c2:#93c5fd; --c3:#86efac; --c4:#fde68a; --c5:#c4b5fd; --c6:#67e8f9;
+    --correct:#86efac; --wrong:#fca5a5;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(249,168,212,0.06) 0%,transparent 60%);}
+  .container{max-width:1020px;margin:0 auto;padding:36px 20px;position:relative;z-index:1;}
+
+  /* Header */
+  .header{text-align:center;margin-bottom:32px;}
+  .badge{display:inline-block;background:rgba(249,168,212,0.1);border:1px solid rgba(249,168,212,0.3);color:var(--c1);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;padding:6px 18px;border-radius:20px;margin-bottom:14px;text-transform:uppercase;}
+  h1{font-family:'Fraunces',serif;font-size:clamp(28px,5vw,48px);font-weight:900;letter-spacing:-2px;margin-bottom:6px;}
+  h1 em{font-style:italic;color:var(--c1);}
+  .subtitle{color:var(--muted);font-size:13px;}
+
+  /* Tabs */
+  .tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:28px;}
+  .tb{padding:13px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;text-align:center;}
+  .tb:hover{border-color:var(--c1);color:var(--c1);}
+  .tb.active{font-weight:700;color:#000;}
+  .tab{display:none;animation:fi 0.4s ease;}
+  .tab.active{display:block;}
+
+  /* ===== PISHOVI STYLES ===== */
+  .pish-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-bottom:20px;}
+
+  .pish{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+  .pish-header{padding:12px 16px;display:flex;align-items:center;gap:10px;}
+  .pish-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+  .pish-title{font-family:'Fraunces',serif;font-size:16px;font-weight:700;}
+  .pish-body{padding:0 16px 14px;}
+
+  .step-list{display:flex;flex-direction:column;gap:6px;}
+  .sl{display:flex;gap:10px;align-items:flex-start;font-size:13px;}
+  .sn{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;}
+  .st{flex:1;color:var(--muted);line-height:1.5;}
+  .st strong{color:var(--ink);}
+  .st code{font-family:'DM Mono',monospace;font-size:11px;padding:1px 5px;border-radius:3px;background:var(--surface2);}
+
+  /* Color classes */
+  .pink .pish-header{background:rgba(249,168,212,0.07);border-bottom:1px solid rgba(249,168,212,0.15);}
+  .pink .pish-icon{background:rgba(249,168,212,0.12);}
+  .pink .pish-title{color:var(--c1);}
+  .pink .sn{background:rgba(249,168,212,0.12);color:var(--c1);border:1px solid rgba(249,168,212,0.25);}
+  .pink .st code{color:var(--c1);}
+
+  .blue .pish-header{background:rgba(147,197,253,0.07);border-bottom:1px solid rgba(147,197,253,0.15);}
+  .blue .pish-icon{background:rgba(147,197,253,0.12);}
+  .blue .pish-title{color:var(--c2);}
+  .blue .sn{background:rgba(147,197,253,0.12);color:var(--c2);border:1px solid rgba(147,197,253,0.25);}
+  .blue .st code{color:var(--c2);}
+
+  .green .pish-header{background:rgba(134,239,172,0.07);border-bottom:1px solid rgba(134,239,172,0.15);}
+  .green .pish-icon{background:rgba(134,239,172,0.12);}
+  .green .pish-title{color:var(--c3);}
+  .green .sn{background:rgba(134,239,172,0.12);color:var(--c3);border:1px solid rgba(134,239,172,0.25);}
+  .green .st code{color:var(--c3);}
+
+  .yellow .pish-header{background:rgba(253,230,138,0.07);border-bottom:1px solid rgba(253,230,138,0.15);}
+  .yellow .pish-icon{background:rgba(253,230,138,0.12);}
+  .yellow .pish-title{color:var(--c4);}
+  .yellow .sn{background:rgba(253,230,138,0.12);color:var(--c4);border:1px solid rgba(253,230,138,0.25);}
+  .yellow .st code{color:var(--c4);}
+
+  .purple .pish-header{background:rgba(196,181,253,0.07);border-bottom:1px solid rgba(196,181,253,0.15);}
+  .purple .pish-icon{background:rgba(196,181,253,0.12);}
+  .purple .pish-title{color:var(--c5);}
+  .purple .sn{background:rgba(196,181,253,0.12);color:var(--c5);border:1px solid rgba(196,181,253,0.25);}
+  .purple .st code{color:var(--c5);}
+
+  .cyan .pish-header{background:rgba(103,232,249,0.07);border-bottom:1px solid rgba(103,232,249,0.15);}
+  .cyan .pish-icon{background:rgba(103,232,249,0.12);}
+  .cyan .pish-title{color:var(--c6);}
+  .cyan .sn{background:rgba(103,232,249,0.12);color:var(--c6);border:1px solid rgba(103,232,249,0.25);}
+  .cyan .st code{color:var(--c6);}
+
+  /* Quick ref table */
+  .qref{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+  .qref td{padding:7px 12px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;}
+  .qref td:first-child{color:var(--c4);width:40%;}
+  .qref td:last-child{color:var(--c3);}
+  .qref tr:last-child td{border-bottom:none;}
+  .qref tr:hover td{background:var(--surface2);}
+
+  /* Info boxes */
+  .info{border-radius:6px;padding:10px 14px;font-size:13px;line-height:1.6;margin:8px 0;}
+  .info.red{background:rgba(252,165,165,0.06);border:1px solid rgba(252,165,165,0.2);}
+  .info.yellow{background:rgba(253,230,138,0.06);border:1px solid rgba(253,230,138,0.2);}
+
+  /* Section divider */
+  .div{display:flex;align-items:center;gap:10px;margin:18px 0 12px;}
+  .div-line{flex:1;height:1px;background:var(--border);}
+  .div-lbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;white-space:nowrap;}
+
+  /* ===== EXERCISE STYLES ===== */
+  .ex-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-bottom:14px;}
+  .ex{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:15px;cursor:pointer;transition:all 0.2s;}
+  .ex:hover{border-color:var(--c1);transform:translateY(-1px);}
+  .ex.open{border-color:var(--correct);}
+  .ex-top{display:flex;justify-content:space-between;margin-bottom:7px;}
+  .ex-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
+  .ex-tag{font-family:'DM Mono',monospace;font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(249,168,212,0.1);color:var(--c1);}
+  .ex-q{font-family:'DM Mono',monospace;font-size:15px;color:var(--ink);line-height:1.5;margin-bottom:5px;}
+  .ex-hint{font-size:12px;color:var(--c4);margin-bottom:4px;}
+  .ex-tap{font-size:11px;color:var(--muted);font-style:italic;}
+  .ex.open .ex-tap{display:none;}
+  .ex-ans{display:none;margin-top:10px;padding:11px;background:rgba(134,239,172,0.05);border:1px solid rgba(134,239,172,0.15);border-radius:6px;font-size:13px;line-height:1.85;color:var(--muted);}
+  .ex.open .ex-ans{display:block;}
+  .ex-ans code{font-family:'DM Mono',monospace;font-size:12px;color:var(--c2);background:var(--surface);padding:1px 5px;border-radius:3px;}
+  .ex-ans strong{display:block;margin-top:5px;font-family:'DM Mono',monospace;font-size:14px;color:var(--correct);}
+
+  @keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="badge">⚡ ИЗПИТНА ПОДГОТОВКА</div>
+    <h1><em>Пищови</em> + Финални задачи</h1>
+    <p class="subtitle">Всеки алгоритъм накратко · Задачи за последния час · Успех!</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tb active" style="background:var(--c1);border-color:var(--c1);" onclick="sw(0)">📋 Пищови — Всички алгоритми</button>
+    <button class="tb" onclick="sw(1)">✏️ Финални задачи — реши ги сега</button>
+  </div>
+
+  <!-- ===== ТАБ 1: ПИЩОВИ ===== -->
+  <div class="tab active" id="tab0">
+
+    <div class="div"><div class="div-line"></div><div class="div-lbl">ГРАНИЦИ</div><div class="div-line"></div></div>
+    <div class="pish-grid">
+
+      <div class="pish blue">
+        <div class="pish-header"><div class="pish-icon">🔍</div><div class="pish-title">Как избирам метода</div></div>
+        <div class="pish-body"><div class="step-list">
+          <div class="sl"><div class="sn">1</div><div class="st">Замести директно. Нормален резултат? → <strong>Готово</strong></div></div>
+          <div class="sl"><div class="sn">2</div><div class="st"><code>0/0</code> с полиноми → <strong>Факторизация</strong></div></div>
+          <div class="sl"><div class="sn">3</div><div class="st"><code>0/0</code> с корени → <strong>Спрегнато</strong></div></div>
+          <div class="sl"><div class="sn">4</div><div class="st"><code>∞/∞</code> рационална → <strong>Дели по xⁿ</strong></div></div>
+          <div class="sl"><div class="sn">5</div><div class="st"><code>∞−∞</code> с корени → <strong>Спрегнато</strong></div></div>
+          <div class="sl"><div class="sn">6</div><div class="st"><code>0/0</code> или <code>∞/∞</code> с exp/ln → <strong>Лопитал</strong></div></div>
+          <div class="sl"><div class="sn">7</div><div class="st"><code>0·∞</code> → дроб → <strong>Лопитал</strong></div></div>
+          <div class="sl"><div class="sn">8</div><div class="st"><code>1^∞, 0⁰, ∞⁰</code> → <strong>ln y → Лопитал → e^L</strong></div></div>
+          <div class="sl"><div class="sn">9</div><div class="st">sin/tan/arcsin/arctg около 0 → <strong>Специални</strong></div></div>
+        </div></div>
+      </div>
+
+      <div class="pish blue">
+        <div class="pish-header"><div class="pish-icon">⭐</div><div class="pish-title">Специални граници наизуст</div></div>
+        <div class="pish-body">
+          <table class="qref">
+            <tr><td>sin(x)/x → 0</td><td>= 1</td></tr>
+            <tr><td>sin(ax)/(bx)</td><td>= a/b</td></tr>
+            <tr><td>tan(x)/x → 0</td><td>= 1</td></tr>
+            <tr><td>(1−cosx)/x²</td><td>= 1/2</td></tr>
+            <tr><td>(eˣ−1)/x → 0</td><td>= 1</td></tr>
+            <tr><td>ln(1+x)/x → 0</td><td>= 1</td></tr>
+            <tr><td>arcsin(x)/x</td><td>= 1</td></tr>
+            <tr><td>arctg(x)/x</td><td>= 1</td></tr>
+            <tr><td>arctg(x) → +∞</td><td>= π/2</td></tr>
+            <tr><td>arctg(x) → −∞</td><td>= −π/2</td></tr>
+            <tr><td>(1+1/x)ˣ → ∞</td><td>= e</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="pish cyan">
+        <div class="pish-header"><div class="pish-icon">🔢</div><div class="pish-title">Степенни форми (1^∞, 0⁰, ∞⁰)</div></div>
+        <div class="pish-body"><div class="step-list">
+          <div class="sl"><div class="sn">1</div><div class="st">Запиши <code>y = f(x)^g(x)</code></div></div>
+          <div class="sl"><div class="sn">2</div><div class="st">Вземи ln: <code>ln y = g(x)·ln(f(x))</code></div></div>
+          <div class="sl"><div class="sn">3</div><div class="st">Преобразувай 0·∞ в дроб → Лопитал</div></div>
+          <div class="sl"><div class="sn">4</div><div class="st">Намери <code>lim ln y = L</code></div></div>
+          <div class="sl"><div class="sn">5</div><div class="st">Отговор: <code>lim y = e^L</code></div></div>
+        </div>
+        <div class="info yellow" style="margin-top:10px">L=0 → e⁰=1 | L=1 → e | L=−1 → 1/e</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="div"><div class="div-line"></div><div class="div-lbl">ЕЛЕМЕНТАРНИ ФУНКЦИИ & ПРОИЗВОДНИ</div><div class="div-line"></div></div>
+    <div class="pish-grid">
+
+      <div class="pish pink">
+        <div class="pish-header"><div class="pish-icon">📋</div><div class="pish-title">Производни — наизуст</div></div>
+        <div class="pish-body">
+          <table class="qref">
+            <tr><td>xⁿ</td><td>nxⁿ⁻¹</td></tr>
+            <tr><td>eˣ</td><td>eˣ</td></tr>
+            <tr><td>ln x</td><td>1/x</td></tr>
+            <tr><td>sin x</td><td>cos x</td></tr>
+            <tr><td>cos x</td><td>−sin x</td></tr>
+            <tr><td>tg x</td><td>1/cos²x</td></tr>
+            <tr><td>arcsin x</td><td>1/√(1−x²)</td></tr>
+            <tr><td>arccos x</td><td>−1/√(1−x²)</td></tr>
+            <tr><td>arctg x</td><td>1/(1+x²)</td></tr>
+            <tr><td>arcctg x</td><td>−1/(1+x²)</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="pish pink">
+        <div class="pish-header"><div class="pish-icon">⚙️</div><div class="pish-title">Правила за диф-ране</div></div>
+        <div class="pish-body"><div class="step-list">
+          <div class="sl"><div class="sn">+</div><div class="st"><code>(f±g)' = f'±g'</code></div></div>
+          <div class="sl"><div class="sn">×</div><div class="st"><code>(fg)' = f'g + fg'</code></div></div>
+          <div class="sl"><div class="sn">÷</div><div class="st"><code>(f/g)' = (f'g−fg')/g²</code></div></div>
+          <div class="sl"><div class="sn">🔗</div><div class="st"><strong>Верижно:</strong> <code>[f(g(x))]' = f'(g(x))·g'(x)</code></div></div>
+        </div>
+        <div class="info red" style="margin-top:10px">⚠️ Честа грешка: при частното реда е f'g − fg', НЕ обратното!</div>
+        </div>
+      </div>
+
+      <div class="pish pink">
+        <div class="pish-header"><div class="pish-icon">🏠</div><div class="pish-title">Дефиниционна област</div></div>
+        <div class="pish-body"><div class="step-list">
+          <div class="sl"><div class="sn">÷</div><div class="st"><strong>Дроб:</strong> знам <code>≠ 0</code></div></div>
+          <div class="sl"><div class="sn">√</div><div class="st"><strong>Корен (четен):</strong> изразът <code>≥ 0</code></div></div>
+          <div class="sl"><div class="sn">ln</div><div class="st"><strong>Логаритъм:</strong> аргументът <code>> 0</code></div></div>
+          <div class="sl"><div class="sn">as</div><div class="st"><strong>arcsin/arccos:</strong> аргументът <code>∈ [−1,1]</code></div></div>
+          <div class="sl"><div class="sn">∩</div><div class="st"><strong>Комбинирано:</strong> пресичаш всички условия</div></div>
+        </div></div>
+      </div>
+
+    </div>
+
+    <div class="div"><div class="div-line"></div><div class="div-lbl">ИЗСЛЕДВАНЕ НА ФУНКЦИЯ</div><div class="div-line"></div></div>
+    <div class="pish-grid">
+
+      <div class="pish yellow">
+        <div class="pish-header"><div class="pish-icon">📊</div><div class="pish-title">14-те стъпки</div></div>
+        <div class="pish-body"><div class="step-list">
+          <div class="sl"><div class="sn">1</div><div class="st"><strong>D(f)</strong> — дефиниционно множество</div></div>
+          <div class="sl"><div class="sn">2</div><div class="st"><strong>Четност</strong> — f(−x)=f(x) или −f(x)?</div></div>
+          <div class="sl"><div class="sn">3</div><div class="st"><strong>Нули</strong> — f(x)=0</div></div>
+          <div class="sl"><div class="sn">4</div><div class="st"><strong>Знак</strong> — в интервалите</div></div>
+          <div class="sl"><div class="sn">5</div><div class="st"><strong>Граници</strong> — при ±∞ и извън D</div></div>
+          <div class="sl"><div class="sn">6</div><div class="st"><strong>Хориз. асимптоти</strong> — lim f=L → y=L</div></div>
+          <div class="sl"><div class="sn">7</div><div class="st"><strong>Верт. асимптоти</strong> — извън D, |f|→∞</div></div>
+          <div class="sl"><div class="sn">8</div><div class="st"><strong>Накл. асимптоти</strong> — k=lim f/x, b=lim(f−kx)</div></div>
+          <div class="sl"><div class="sn">9</div><div class="st"><strong>f'(x)</strong> — намираш, решаваш f'=0</div></div>
+          <div class="sl"><div class="sn">10</div><div class="st"><strong>Монотонност</strong> — f'>0 ↗, f'<0 ↘</div></div>
+          <div class="sl"><div class="sn">11</div><div class="st"><strong>Екстремуми</strong> — смяна на знака на f'</div></div>
+          <div class="sl"><div class="sn">12</div><div class="st"><strong>f''(x)</strong> — намираш, решаваш f''=0</div></div>
+          <div class="sl"><div class="sn">13</div><div class="st"><strong>Изпъкналост</strong> — f''>0 (U), f''<0 (∩)</div></div>
+          <div class="sl"><div class="sn">14</div><div class="st"><strong>Инфлексни</strong> — f'' сменя знак</div></div>
+        </div></div>
+      </div>
+
+      <div class="pish yellow">
+        <div class="pish-header"><div class="pish-icon">📐</div><div class="pish-title">Асимптоти — бързо</div></div>
+        <div class="pish-body"><div class="step-list">
+          <div class="sl"><div class="sn">V</div><div class="st"><strong>Вертикална x=a:</strong> a∉D(f) и |f(x)|→∞<br>Проверявай lim от ляво И дясно</div></div>
+          <div class="sl"><div class="sn">H</div><div class="st"><strong>Хоризонтална y=L:</strong> <code>lim(x→±∞) f(x) = L</code></div></div>
+          <div class="sl"><div class="sn">N</div><div class="st"><strong>Наклонена y=kx+b:</strong><br><code>k = lim f(x)/x</code> (при x→∞)<br><code>b = lim [f(x)−kx]</code></div></div>
+        </div>
+        <div class="info red" style="margin-top:10px">⚠️ Наклонена само ако k≠0! Ако има хоризонтална — няма наклонена.</div>
+        <div class="step-list" style="margin-top:10px">
+          <div class="sl"><div class="sn">!</div><div class="st"><strong>max:</strong> f' сменя +→− | <strong>min:</strong> f' сменя −→+</div></div>
+          <div class="sl"><div class="sn">!</div><div class="st"><strong>инфлексна:</strong> f'' сменя знак (НЕ само f''=0!)</div></div>
+        </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="div"><div class="div-line"></div><div class="div-lbl">ИНТЕГРИРАНЕ</div><div class="div-line"></div></div>
+    <div class="pish-grid">
+
+      <div class="pish green">
+        <div class="pish-header"><div class="pish-icon">📋</div><div class="pish-title">Таблица интеграли</div></div>
+        <div class="pish-body">
+          <table class="qref">
+            <tr><td>∫xⁿ dx</td><td>xⁿ⁺¹/(n+1)+C</td></tr>
+            <tr><td>∫1/x dx</td><td>ln|x|+C</td></tr>
+            <tr><td>∫eˣ dx</td><td>eˣ+C</td></tr>
+            <tr><td>∫sin x dx</td><td>−cos x+C</td></tr>
+            <tr><td>∫cos x dx</td><td>sin x+C</td></tr>
+            <tr><td>∫1/cos²x dx</td><td>tg x+C</td></tr>
+            <tr><td>∫1/sin²x dx</td><td>−ctg x+C</td></tr>
+            <tr><td>∫1/(1+x²) dx</td><td>arctg x+C</td></tr>
+            <tr><td>∫1/√(1−x²) dx</td><td>arcsin x+C</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="pish green">
+        <div class="pish-header"><div class="pish-icon">🔄</div><div class="pish-title">Кой метод кога</div></div>
+        <div class="pish-body"><div class="step-list">
+          <div class="sl"><div class="sn">1</div><div class="st"><strong>Директно</strong> — опрости (раздели дробта, разкрий скоба, корен → степен), после таблицата</div></div>
+          <div class="sl"><div class="sn">2</div><div class="st"><strong>Константа под d:</strong> вътрешната <code>ax+b</code> → интегрирай и дели на <code>a</code></div></div>
+          <div class="sl"><div class="sn">3</div><div class="st"><strong>Функция под d:</strong> виждаш <code>g(x)</code> и <code>g'(x)</code> едновременно → <code>t=g(x)</code>, <code>dt=g'dx</code></div></div>
+          <div class="sl"><div class="sn">4</div><div class="st"><strong>По части:</strong> произведение от 2 вида → LIATE за u<br><code>∫u dv = uv − ∫v du</code></div></div>
+        </div></div>
+      </div>
+
+      <div class="pish purple">
+        <div class="pish-header"><div class="pish-icon">🎯</div><div class="pish-title">LIATE — избор на u</div></div>
+        <div class="pish-body"><div class="step-list">
+          <div class="sl"><div class="sn">L</div><div class="st"><strong>L</strong>ogarithm — ln x, log x → u=ln</div></div>
+          <div class="sl"><div class="sn">I</div><div class="st"><strong>I</strong>nverse trig — arcsin, arctg → u=arc</div></div>
+          <div class="sl"><div class="sn">A</div><div class="st"><strong>A</strong>lgebraic — x, x², x³ → u=полином</div></div>
+          <div class="sl"><div class="sn">T</div><div class="st"><strong>T</strong>rig — sin, cos → u=тригон.</div></div>
+          <div class="sl"><div class="sn">E</div><div class="st"><strong>E</strong>xponential — eˣ, aˣ → u=eˣ (рядко)</div></div>
+        </div>
+        <div class="info yellow" style="margin-top:10px">
+          Цикличен (eˣsin, eˣcos): прилагаш 2 пъти → получаваш I = ... − I → <strong>2I = ...</strong> → дели!
+        </div>
+        </div>
+      </div>
+
+      <div class="pish purple">
+        <div class="pish-header"><div class="pish-icon">📏</div><div class="pish-title">Определен интеграл</div></div>
+        <div class="pish-body"><div class="step-list">
+          <div class="sl"><div class="sn">NL</div><div class="st"><strong>Нютон-Лайбниц:</strong> <code>∫ₐᵇ f dx = F(b)−F(a)</code><br>БЕЗ +C!</div></div>
+          <div class="sl"><div class="sn">⚠</div><div class="st">При смяна <code>t=g(x)</code>: ЗАДЪЛЖИТЕЛНО смени граници!<br>долна: <code>t=g(a)</code>, горна: <code>t=g(b)</code></div></div>
+          <div class="sl"><div class="sn">4</div><div class="st"><strong>Четна</strong> ф-я, [−a,a]: <code>∫₋ₐᵃ = 2∫₀ᵃ</code></div></div>
+          <div class="sl"><div class="sn">N</div><div class="st"><strong>Нечетна</strong> ф-я, [−a,a]: <code>∫₋ₐᵃ = 0</code></div></div>
+        </div></div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ===== ТАБ 2: ФИНАЛНИ ЗАДАЧИ ===== -->
+  <div class="tab" id="tab1">
+
+    <div class="div"><div class="div-line"></div><div class="div-lbl">ГРАНИЦИ — СМЕСЕНИ</div><div class="div-line"></div></div>
+    <div class="ex-grid">
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">01</div><div class="ex-tag">ГРАНИЦА</div></div>
+        <div class="ex-q">lim(x→2) (x³−8)/(x²−4)</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          <code>(x−2)(x²+2x+4)/[(x−2)(x+2)] = (x²+2x+4)/(x+2)</code><br>
+          При x=2: <code>12/4</code><strong>= 3</strong>
+        </div>
+      </div>
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">02</div><div class="ex-tag">ГРАНИЦА</div></div>
+        <div class="ex-q">lim(x→∞) (2x²−3x+1)/(x²+5x−2)</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">Равни степени → водещи коеф:<strong>= 2</strong></div>
+      </div>
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">03</div><div class="ex-tag">ГРАНИЦА</div></div>
+        <div class="ex-q">lim(x→0) sin(2x)/arctg(3x)</div>
+        <div class="ex-hint">💡 И двете → специални</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          <code>= [sin2x/(2x)]·(2x)/(3x)·[(3x)/arctg3x]</code><br>
+          <code>= 1 · 2/3 · 1</code><strong>= 2/3</strong>
+        </div>
+      </div>
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">04</div><div class="ex-tag">ГРАНИЦА</div></div>
+        <div class="ex-q">lim(x→0) (e^(2x)−1)/sin(3x)</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          <code>= [(e^2x−1)/(2x)]·(2x/3x)·[3x/sin3x]</code><br>
+          <code>= 1·(2/3)·1</code><strong>= 2/3</strong>
+        </div>
+      </div>
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">05</div><div class="ex-tag">ГРАНИЦА</div></div>
+        <div class="ex-q">lim(x→+∞) x·(arctg x − π/2)</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          0·∞ → <code>(arctgx−π/2)/(1/x)</code> → Лопитал:<br>
+          <code>[1/(1+x²)] / (−1/x²) = −x²/(1+x²) → −1</code><strong>= −1</strong>
+        </div>
+      </div>
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">06</div><div class="ex-tag">ГРАНИЦА</div></div>
+        <div class="ex-q">lim(x→0⁺) x^x</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          Форма 0⁰: ln y = x·lnx → 0·(−∞)<br>
+          → <code>lnx/(1/x)</code> → Лопитал: <code>(1/x)/(−1/x²)=−x→0</code><br>
+          ln y→0 → <strong>= e⁰ = 1</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="div"><div class="div-line"></div><div class="div-lbl">ЕЛЕМЕНТАРНИ ФУНКЦИИ</div><div class="div-line"></div></div>
+    <div class="ex-grid">
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">07</div><div class="ex-tag">ДОМЕЙН</div></div>
+        <div class="ex-q">D(f) за f(x) = √(ln(x−1))</div>
+        <div class="ex-hint">💡 Два слоя условия!</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          ln дефиниран: <code>x−1 > 0 → x > 1</code><br>
+          Корен: <code>ln(x−1) ≥ 0 → x−1 ≥ 1 → x ≥ 2</code><br>
+          <strong>D(f) = [2, +∞)</strong>
+        </div>
+      </div>
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">08</div><div class="ex-tag">ПРОИЗВОДНА</div></div>
+        <div class="ex-q">f(x) = ln(cos x) — намери f'(x)</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          Верижно: <code>1/cosx · (−sinx)</code><br>
+          <strong>f'(x) = −tg(x)</strong>
+        </div>
+      </div>
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">09</div><div class="ex-tag">ПРОИЗВОДНА</div></div>
+        <div class="ex-q">f(x) = arcsin(x)·arccos(x)</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          Произведение: f'=arcsinx', g'=arccosx'<br>
+          <code>= (1/√(1−x²))·arccosx + arcsinx·(−1/√(1−x²))</code><br>
+          <strong>= (arccos x − arcsin x)/√(1−x²)</strong>
+        </div>
+      </div>
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">10</div><div class="ex-tag">ЧЕТНОСТ</div></div>
+        <div class="ex-q">Четна/нечетна: f(x) = x³·cos(x)</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          f(−x) = (−x)³·cos(−x) = −x³·cos(x) = −f(x)<br>
+          <strong>Нечетна функция</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="div"><div class="div-line"></div><div class="div-lbl">ИЗСЛЕДВАНЕ НА ФУНКЦИЯ</div><div class="div-line"></div></div>
+    <div class="ex-grid">
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">11</div><div class="ex-tag">АСИМПТОТИ</div></div>
+        <div class="ex-q">f(x) = (x²+x−2)/(x−1) — асимптоти</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          D: x≠1. (x²+x−2)=(x+2)(x−1) → <code>f = x+2</code> (при x≠1)<br>
+          При x=1: f(x)=3 → <strong>НЕ е вертикална!</strong> (дупка в графиката)<br>
+          lim f/x = 1 → k=1; b=lim(f−x)=lim 2=2<br>
+          <strong>Наклонена: y=x+2 (без вертикална!)</strong>
+        </div>
+      </div>
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">12</div><div class="ex-tag">МОНОТОННОСТ</div></div>
+        <div class="ex-q">f(x) = x·ln(x) — намери екстремуми</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          D: x>0<br>
+          f'(x) = ln(x) + x·(1/x) = ln(x) + 1<br>
+          f'=0 → <code>lnx=−1 → x=1/e</code><br>
+          x∈(0,1/e): f'&lt;0↘ | x>1/e: f'>0↗<br>
+          f(1/e) = (1/e)·(−1) = −1/e<br>
+          <strong>Локален min: (1/e, −1/e)</strong>
+        </div>
+      </div>
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">13</div><div class="ex-tag">ИНФЛЕКСНИ</div></div>
+        <div class="ex-q">f(x) = x³−3x² — инфлексни точки</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          f'=3x²−6x<br>
+          f''=6x−6=6(x−1)<br>
+          f''=0 → x=1; сменя знак (−→+)<br>
+          f(1)=1−3=−2<br>
+          <strong>Инфлексна точка: (1, −2)</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="div"><div class="div-line"></div><div class="div-lbl">НЕОПРЕДЕЛЕНИ ИНТЕГРАЛИ</div><div class="div-line"></div></div>
+    <div class="ex-grid">
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">14</div><div class="ex-tag">ДИРЕКТНО</div></div>
+        <div class="ex-q">∫ (3√x − 2/x² + cos x) dx</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          <code>3x^(1/2) − 2x^(−2) + cosx</code><br>
+          <strong>= 2x^(3/2) + 2/x + sin x + C</strong>
+        </div>
+      </div>
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">15</div><div class="ex-tag">КОНСТАНТА</div></div>
+        <div class="ex-q">∫ e^(−x/2) dx</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          a=−1/2, вид eˣ → дели на −1/2 = умножи по −2:<br>
+          <strong>= −2e^(−x/2) + C</strong>
+        </div>
+      </div>
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">16</div><div class="ex-tag">СМЯНА</div></div>
+        <div class="ex-q">∫ x³·√(x⁴+1) dx</div>
+        <div class="ex-hint">💡 t = x⁴+1</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          t=x⁴+1, dt=4x³dx → x³dx=dt/4<br>
+          <code>∫√t·dt/4 = (1/4)·(2/3)t^(3/2)</code><br>
+          <strong>= (1/6)(x⁴+1)^(3/2) + C</strong>
+        </div>
+      </div>
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">17</div><div class="ex-tag">СМЯНА</div></div>
+        <div class="ex-q">∫ cos²(x)·sin(x) dx</div>
+        <div class="ex-hint">💡 t = cos(x)</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          t=cosx, dt=−sinx dx → sinx dx=−dt<br>
+          <code>∫t²·(−dt) = −t³/3</code><br>
+          <strong>= −cos³(x)/3 + C</strong>
+        </div>
+      </div>
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">18</div><div class="ex-tag">ПО ЧАСТИ</div></div>
+        <div class="ex-q">∫ x·e^(−x) dx</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          u=x, dv=e^(−x)dx → du=dx, v=−e^(−x)<br>
+          <code>−xe^(−x) − ∫(−e^(−x))dx = −xe^(−x) − e^(−x)</code><br>
+          <strong>= −e^(−x)(x+1) + C</strong>
+        </div>
+      </div>
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">19</div><div class="ex-tag">ПО ЧАСТИ</div></div>
+        <div class="ex-q">∫ ln(x)/x² dx</div>
+        <div class="ex-hint">💡 u=ln(x), dv=x⁻²dx</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          u=lnx, v=−1/x; du=1/x dx<br>
+          <code>−lnx/x − ∫(−1/x)·(1/x)dx = −lnx/x − 1/x</code><br>
+          <strong>= −(ln x + 1)/x + C</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="div"><div class="div-line"></div><div class="div-lbl">ОПРЕДЕЛЕНИ ИНТЕГРАЛИ</div><div class="div-line"></div></div>
+    <div class="ex-grid">
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">20</div><div class="ex-tag">НЮТОН-ЛАЙБНИЦ</div></div>
+        <div class="ex-q">∫₋₁¹ (x³+2x²−x+1) dx</div>
+        <div class="ex-hint">💡 x³ и −x са нечетни!</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          x³ нечетна → ∫₋₁¹x³dx=0<br>
+          −x нечетна → ∫₋₁¹(−x)dx=0<br>
+          Остава: <code>∫₋₁¹(2x²+1)dx = 2·[x³/3]₋₁¹+[x]₋₁¹</code><br>
+          <code>= 2·(2/3)+2 = 4/3+2</code><strong>= 10/3</strong>
+        </div>
+      </div>
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">21</div><div class="ex-tag">СМЯНА ГРАНИЦИ</div></div>
+        <div class="ex-q">∫₀^(π/2) cos(x)·e^(sin x) dx</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          t=sinx, dt=cosx dx<br>
+          x=0→t=0; x=π/2→t=1<br>
+          <code>∫₀¹ eᵗ dt = [eᵗ]₀¹ = e−1</code><strong>= e−1</strong>
+        </div>
+      </div>
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">22</div><div class="ex-tag">ПО ЧАСТИ</div></div>
+        <div class="ex-q">∫₀¹ x·e^(−x) dx</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          u=x, dv=e^(−x)dx → v=−e^(−x)<br>
+          <code>[−xe^(−x)]₀¹ + ∫₀¹e^(−x)dx</code><br>
+          <code>= −e^(−1) + [−e^(−x)]₀¹</code><br>
+          <code>= −1/e + (−1/e+1)</code><strong>= 1 − 2/e</strong>
+        </div>
+      </div>
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">23</div><div class="ex-tag">СВОЙСТВА</div></div>
+        <div class="ex-q">∫₋π^π x²·sin(x) dx</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          x² четна, sin(x) нечетна → произведението <strong>нечетна</strong><br>
+          Граници [−π, π] симетрични:<strong>= 0</strong>
+        </div>
+      </div>
+      <div class="ex" onclick="tog(this)">
+        <div class="ex-top"><div class="ex-num">24</div><div class="ex-tag">СМЕСЕН</div></div>
+        <div class="ex-q">∫₁⁴ √x/(√x+1) dx</div>
+        <div class="ex-hint">💡 t=√x, x=t², dx=2t dt</div>
+        <div class="ex-tap">👆 Кликни за решение</div>
+        <div class="ex-ans">
+          t=√x, dx=2t dt; x=1→t=1; x=4→t=2<br>
+          <code>∫₁² t/(t+1)·2t dt = 2∫₁² t²/(t+1) dt</code><br>
+          t²/(t+1) = t−1+1/(t+1):<br>
+          <code>2[t²/2−t+ln(t+1)]₁² = 2[(2−2+ln3)−(1/2−1+ln2)]</code><br>
+          <code>= 2[ln3 − ln2 + 1/2]</code><strong>= 2ln(3/2) + 1</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="info yellow" style="margin:24px 0 0;font-size:15px;text-align:center;padding:16px;">
+      🍀 <strong>Успех на изпита!</strong> Помни: показвай всяка стъпка, дори да не можеш да довършиш — частичните точки се броят!
+    </div>
+
+  </div>
+
+</div>
+<script>
+  function tog(el){
+    el.classList.toggle('open');
+  }
+  function sw(i){
+    document.querySelectorAll('.tab').forEach((t,idx)=>t.classList.toggle('active',idx===i));
+    document.querySelectorAll('.tb').forEach((b,idx)=>{
+      b.classList.toggle('active',idx===i);
+      if(idx===i){b.style.background='var(--c1)';b.style.borderColor='var(--c1)';b.style.color='#000';}
+      else{b.style.background='';b.style.borderColor='';b.style.color='';}
+    });
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+</script>
+</body>
+</html>

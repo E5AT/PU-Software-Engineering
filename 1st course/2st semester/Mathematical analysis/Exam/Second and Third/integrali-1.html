@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Интеграли — Файл 1</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #f5f0e8;
+    --surface: #fffdf8;
+    --surface2: #f0ebe0;
+    --border: #d4c9b0;
+    --ink: #1a1510;
+    --muted: #7a6f5e;
+    --accent: #c8410a;
+    --accent2: #1a6b3a;
+    --accent3: #1a3d6b;
+    --accent4: #7a1a6b;
+    --correct: #1a6b3a;
+    --wrong: #c8410a;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(180,160,120,0.15) 28px);
+  }
+
+  .container { max-width: 860px; margin: 0 auto; padding: 52px 28px; }
+
+  /* Header */
+  .header {
+    margin-bottom: 56px;
+    padding-bottom: 32px;
+    border-bottom: 3px double var(--border);
+    animation: fadeIn 1s ease;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(38px, 7vw, 68px);
+    font-weight: 900;
+    line-height: 1;
+    color: var(--ink);
+    letter-spacing: -2px;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .header-meta {
+    text-align: right;
+    padding: 16px 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 4px;
+    min-width: 180px;
+  }
+
+  .header-meta .file-num {
+    font-family: 'Fraunces', serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--border);
+    line-height: 1;
+  }
+
+  .header-meta .file-label {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .header-desc {
+    margin-top: 16px;
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 300;
+  }
+
+  /* Nav */
+  .nav {
+    display: flex;
+    gap: 0;
+    margin-bottom: 40px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--surface);
+    animation: fadeIn 0.6s ease 0.2s both;
+  }
+
+  .nav-btn {
+    flex: 1;
+    padding: 12px 8px;
+    background: transparent;
+    border: none;
+    border-right: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .nav-btn:last-child { border-right: none; }
+  .nav-btn:hover { background: var(--surface2); color: var(--ink); }
+  .nav-btn.active { background: var(--ink); color: var(--bg); font-weight: 600; }
+  .nav-btn.done { background: var(--surface2); color: var(--accent2); }
+
+  /* Sections */
+  .section { display: none; animation: fadeIn 0.4s ease; }
+  .section.active { display: block; }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 28px;
+    margin-bottom: 18px;
+    position: relative;
+  }
+
+  .card-stripe {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    border-radius: 6px 0 0 6px;
+  }
+
+  .card-stripe.red { background: var(--accent); }
+  .card-stripe.green { background: var(--accent2); }
+  .card-stripe.blue { background: var(--accent3); }
+  .card-stripe.purple { background: var(--accent4); }
+
+  .card-inner { padding-left: 16px; }
+
+  .card-title {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+
+  .card-sub { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+
+  /* Formula */
+  .formula {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 14px 18px;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    color: var(--accent3);
+    margin: 10px 0;
+    line-height: 1.8;
+    position: relative;
+  }
+
+  .formula.red { color: var(--accent); border-left: 3px solid var(--accent); }
+  .formula.green { color: var(--accent2); border-left: 3px solid var(--accent2); }
+  .formula.blue { color: var(--accent3); border-left: 3px solid var(--accent3); }
+  .formula.purple { color: var(--accent4); border-left: 3px solid var(--accent4); }
+
+  /* Table */
+  .int-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin: 14px 0;
+  }
+
+  .int-table th {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 10px 14px;
+    text-align: left;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    font-weight: 500;
+  }
+
+  .int-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  .int-table tr:hover td { background: var(--surface2); }
+
+  .int-table td:first-child {
+    font-family: 'DM Mono', monospace;
+    color: var(--accent);
+    font-size: 13px;
+    width: 35%;
+  }
+
+  .int-table td:last-child {
+    font-family: 'DM Mono', monospace;
+    color: var(--accent3);
+    font-size: 13px;
+  }
+
+  /* Steps */
+  .steps { display: flex; flex-direction: column; gap: 14px; margin: 14px 0; }
+
+  .step { display: flex; gap: 16px; align-items: flex-start; }
+
+  .snum {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-size: 16px; font-weight: 700;
+    flex-shrink: 0; margin-top: 1px;
+  }
+
+  .snum.red { background: var(--accent); color: #fff; }
+  .snum.green { background: var(--accent2); color: #fff; }
+  .snum.blue { background: var(--accent3); color: #fff; }
+  .snum.purple { background: var(--accent4); color: #fff; }
+
+  .stxt { flex: 1; }
+  .stitle { font-weight: 600; font-size: 15px; margin-bottom: 5px; color: var(--ink); }
+  .sbody { font-size: 14px; color: var(--muted); line-height: 1.7; }
+  .sbody code { font-family: 'DM Mono', monospace; background: var(--surface2); padding: 2px 6px; border-radius: 3px; color: var(--accent3); font-size: 13px; border: 1px solid var(--border); }
+  .sbody strong { color: var(--ink); }
+
+  /* Info */
+  .info { border-radius: 4px; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 10px 0; }
+  .info.red { background: rgba(200,65,10,0.06); border: 1px solid rgba(200,65,10,0.2); border-left: 3px solid var(--accent); }
+  .info.green { background: rgba(26,107,58,0.06); border: 1px solid rgba(26,107,58,0.2); border-left: 3px solid var(--accent2); }
+  .info.blue { background: rgba(26,61,107,0.06); border: 1px solid rgba(26,61,107,0.2); border-left: 3px solid var(--accent3); }
+  .info.purple { background: rgba(122,26,107,0.06); border: 1px solid rgba(122,26,107,0.2); border-left: 3px solid var(--accent4); }
+
+  /* Exercises */
+  .ex-list { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; }
+
+  .ex {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .ex:hover { border-color: var(--ink); box-shadow: 2px 2px 0 var(--border); }
+  .ex.open { border-color: var(--accent2); box-shadow: 2px 2px 0 rgba(26,107,58,0.2); }
+
+  .ex-num { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-bottom: 5px; }
+  .ex-q { font-family: 'DM Mono', monospace; font-size: 16px; color: var(--ink); margin-bottom: 6px; }
+  .ex-hint { font-size: 12px; color: var(--accent); margin-bottom: 4px; }
+  .ex-tap { font-size: 11px; color: var(--muted); font-style: italic; }
+  .ex.open .ex-tap { display: none; }
+
+  .ex-ans {
+    display: none;
+    margin-top: 12px;
+    padding: 13px;
+    background: rgba(26,107,58,0.05);
+    border: 1px solid rgba(26,107,58,0.2);
+    border-radius: 3px;
+    font-size: 14px;
+    line-height: 1.9;
+    color: var(--muted);
+  }
+
+  .ex.open .ex-ans { display: block; }
+  .ex-ans code { font-family: 'DM Mono', monospace; color: var(--accent3); background: var(--surface2); padding: 2px 6px; border-radius: 3px; font-size: 13px; border: 1px solid var(--border); }
+  .ex-ans strong { color: var(--accent2); }
+
+  /* Algo box */
+  .algo-box {
+    background: var(--ink);
+    color: var(--bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 16px 0;
+  }
+
+  .algo-box h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--bg);
+  }
+
+  .algo-step {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+
+  .algo-dot {
+    width: 26px; height: 26px;
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-size: 13px; font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .algo-text { font-size: 14px; line-height: 1.6; color: rgba(245,240,232,0.85); padding-top: 2px; }
+  .algo-text strong { color: var(--bg); }
+  .algo-text code { font-family: 'DM Mono', monospace; color: #fbbf24; font-size: 13px; }
+
+  /* Nav actions */
+  .nav-actions { display: flex; gap: 12px; justify-content: space-between; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); }
+
+  .btn { padding: 12px 28px; border-radius: 4px; border: none; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-p { background: var(--ink); color: var(--bg); }
+  .btn-p:hover { background: var(--accent); }
+  .btn-s { background: var(--surface); border: 1px solid var(--border); color: var(--ink); }
+  .btn-s:hover { border-color: var(--ink); }
+
+  .sec-header { margin-bottom: 24px; }
+  .sec-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+  .sec-title { font-family: 'Fraunces', serif; font-size: 30px; font-weight: 700; color: var(--ink); }
+  .sec-sub { font-size: 14px; color: var(--muted); margin-top: 4px; }
+  .time-chip { display: inline-block; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); border: 1px solid var(--border); padding: 3px 10px; border-radius: 20px; margin-top: 6px; }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="badge">Математически анализ · Сп. Софтуерно Инженерство</div>
+        <h1>Не­опре­де­лени<br><em>интеграли</em></h1>
+        <p class="header-desc">Основи · Свойства · Таблица · Непосредствено интегриране</p>
+      </div>
+      <div class="header-meta">
+        <div class="file-num">01</div>
+        <div class="file-label">ФАЙЛ</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div class="nav">
+    <button class="nav-btn active" onclick="goTo(0)">📖 Какво е<br>интеграл</button>
+    <button class="nav-btn" onclick="goTo(1)">⚙️ Свойства</button>
+    <button class="nav-btn" onclick="goTo(2)">📋 Таблица<br>формули</button>
+    <button class="nav-btn" onclick="goTo(3)">🧮 Алгоритъм</button>
+    <button class="nav-btn" onclick="goTo(4)">✏️ Задачи</button>
+  </div>
+
+  <!-- БЛОК 1: КАКВО Е ИНТЕГРАЛ -->
+  <div class="section active" id="sec0">
+    <div class="sec-header">
+      <div class="sec-label">Блок 01</div>
+      <div class="sec-title">Какво е неопределен интеграл?</div>
+      <div class="sec-sub">Интуицията преди формулите</div>
+      <div class="time-chip">⏱ ~20 мин</div>
+    </div>
+
+    <div class="card">
+      <div class="card-stripe red"></div>
+      <div class="card-inner">
+        <div class="card-title">💡 Основната идея</div>
+        <div class="card-sub">Интегрирането е обратното на диференцирането</div>
+        <div class="steps">
+          <div class="step">
+            <div class="snum red">?</div>
+            <div class="stxt">
+              <div class="stitle">Аналогията</div>
+              <div class="sbody">
+                Знаеш че <code>(x²)' = 2x</code><br><br>
+                Неопределеният интеграл пита обратното:<br>
+                <strong>"Коя функция, като я диференцираме, дава 2x?"</strong><br><br>
+                Отговорът е x² — но и x²+1, x²+5, x²+C за всяка константа C!<br>
+                Затова пишем: <code>∫ 2x dx = x² + C</code>
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="snum red">!</div>
+            <div class="stxt">
+              <div class="stitle">Константата C — задължителна!</div>
+              <div class="sbody">
+                Винаги добавяш <strong>+ C</strong> в края.<br>
+                C е произволна константа — не можем да знаем точната стойност без допълнително условие.<br><br>
+                <strong>Без + C → грешен отговор на изпит!</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="formula blue">∫ f(x) dx = F(x) + C &nbsp;&nbsp; където F'(x) = f(x)</div>
+        <div class="info blue">
+          💡 <strong>Терминология:</strong> f(x) се казва <strong>подинтегрална функция</strong>, dx показва спрямо коя променлива интегрираме, F(x) е <strong>първообразна</strong> на f(x).
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-stripe green"></div>
+      <div class="card-inner">
+        <div class="card-title">✅ Как проверяваш резултата</div>
+        <div class="card-sub">Диференцирай отговора — трябва да получиш подинтегралната функция</div>
+        <div class="steps">
+          <div class="step">
+            <div class="snum green">Ex</div>
+            <div class="stxt">
+              <div class="sbody">
+                Твърдим: <code>∫ 3x² dx = x³ + C</code><br><br>
+                Проверка: <code>(x³ + C)' = 3x² + 0 = 3x²</code> ✓<br><br>
+                Получихме обратно подинтегралната функция → правилно!
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="info green">
+          💡 <strong>Навик за изпит:</strong> Винаги можеш да проверяваш сам като диференцираш отговора. Ако получиш подинтегралната функция — правилно!
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <div></div>
+      <button class="btn btn-p" onclick="nextSection()">Свойства →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 2: СВОЙСТВА -->
+  <div class="section" id="sec1">
+    <div class="sec-header">
+      <div class="sec-label">Блок 02</div>
+      <div class="sec-title">Свойства на неопределения интеграл</div>
+      <div class="time-chip">⏱ ~20 мин</div>
+    </div>
+
+    <div class="card">
+      <div class="card-stripe blue"></div>
+      <div class="card-inner">
+        <div class="card-title">Четирите основни свойства</div>
+        <div class="formula blue">1. ∫ [f(x) + g(x)] dx = ∫ f(x) dx + ∫ g(x) dx</div>
+        <div class="formula blue">2. ∫ [f(x) − g(x)] dx = ∫ f(x) dx − ∫ g(x) dx</div>
+        <div class="formula blue">3. ∫ k·f(x) dx = k · ∫ f(x) dx &nbsp;&nbsp; (k = константа ≠ 0)</div>
+        <div class="formula blue">4. [∫ f(x) dx]' = f(x) &nbsp;&nbsp; (интеграл и производна се "унищожават")</div>
+        <div class="info red">
+          ⚠️ <strong>Важно за свойство 3:</strong> Константата излиза пред интеграла. Но ако имаш функция от x — НЕ можеш да я изнесеш!<br>
+          ✓ <code>∫ 5x² dx = 5∫ x² dx</code><br>
+          ✗ <code>∫ x·sin(x) dx ≠ x · ∫ sin(x) dx</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-stripe green"></div>
+      <div class="card-inner">
+        <div class="card-title">Примери за прилагане на свойствата</div>
+        <div class="steps">
+          <div class="step">
+            <div class="snum green">Ex1</div>
+            <div class="stxt">
+              <div class="stitle">∫ (3x² + 2x − 5) dx</div>
+              <div class="sbody">
+                Свойство 1 (разбиваш): <code>∫3x²dx + ∫2x dx − ∫5 dx</code><br>
+                Свойство 3 (изнасяш): <code>3∫x²dx + 2∫x dx − 5∫dx</code><br>
+                По таблицата: <code>3·(x³/3) + 2·(x²/2) − 5x + C</code><br>
+                <strong>= x³ + x² − 5x + C</strong>
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="snum green">Ex2</div>
+            <div class="stxt">
+              <div class="stitle">∫ (eˣ − cos x + 1/x) dx</div>
+              <div class="sbody">
+                <code>= ∫eˣdx − ∫cos x dx + ∫(1/x)dx</code><br>
+                <strong>= eˣ − sin x + ln|x| + C</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-s" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-p" onclick="nextSection()">Таблица →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 3: ТАБЛИЦА -->
+  <div class="section" id="sec2">
+    <div class="sec-header">
+      <div class="sec-label">Блок 03</div>
+      <div class="sec-title">Таблица с основни интеграли</div>
+      <div class="sec-sub">Учи наизуст — всичко останало се свежда до тях</div>
+      <div class="time-chip">⏱ ~25 мин</div>
+    </div>
+
+    <div class="card">
+      <div class="card-stripe red"></div>
+      <div class="card-inner">
+        <div class="card-title">Задължителни формули</div>
+        <table class="int-table">
+          <tr><th>Подинтегрална функция</th><th>Интеграл</th></tr>
+          <tr><td>∫ dx</td><td>x + C</td></tr>
+          <tr><td>∫ xⁿ dx &nbsp;(n ≠ -1)</td><td>xⁿ⁺¹/(n+1) + C</td></tr>
+          <tr><td>∫ 1/x dx</td><td>ln|x| + C</td></tr>
+          <tr><td>∫ eˣ dx</td><td>eˣ + C</td></tr>
+          <tr><td>∫ aˣ dx</td><td>aˣ/ln(a) + C</td></tr>
+          <tr><td>∫ sin(x) dx</td><td>−cos(x) + C</td></tr>
+          <tr><td>∫ cos(x) dx</td><td>sin(x) + C</td></tr>
+          <tr><td>∫ 1/cos²(x) dx</td><td>tg(x) + C</td></tr>
+          <tr><td>∫ 1/sin²(x) dx</td><td>−ctg(x) + C</td></tr>
+          <tr><td>∫ 1/(1+x²) dx</td><td>arctg(x) + C</td></tr>
+          <tr><td>∫ 1/√(1−x²) dx</td><td>arcsin(x) + C</td></tr>
+          <tr><td>∫ √x dx = ∫ x^(1/2) dx</td><td>(2/3)x^(3/2) + C</td></tr>
+          <tr><td>∫ 1/√x dx = ∫ x^(-1/2) dx</td><td>2√x + C</td></tr>
+        </table>
+        <div class="info red">
+          ⚠️ <strong>Трик за xⁿ:</strong> "Степента нараства с 1, делиш на новата степен"<br>
+          Пример: ∫x⁴dx = x⁵/5 + C &nbsp;|&nbsp; ∫x⁻³dx = x⁻²/(−2) + C = −1/(2x²) + C
+        </div>
+        <div class="info green">
+          💡 <strong>Трик за проверка:</strong> Диференцирай резултата — трябва да получиш подинтегралната функция!
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-s" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-p" onclick="nextSection()">Алгоритъм →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 4: АЛГОРИТЪМ -->
+  <div class="section" id="sec3">
+    <div class="sec-header">
+      <div class="sec-label">Блок 04</div>
+      <div class="sec-title">Алгоритъм за непосредствено интегриране</div>
+      <div class="sec-sub">Следвай стъпките преди да пишеш нещо</div>
+      <div class="time-chip">⏱ ~15 мин</div>
+    </div>
+
+    <div class="algo-box">
+      <h3>⚡ Алгоритъм — Непосредствено интегриране</h3>
+      <div class="algo-step">
+        <div class="algo-dot">1</div>
+        <div class="algo-text"><strong>Опрости израза</strong> — разкрий скоби, раздели дроби, запиши корени като степени (√x = x^(1/2))</div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-dot">2</div>
+        <div class="algo-text"><strong>Разбий на сбор/разлика</strong> — използвай свойство 1 и 2 за да разбиеш на по-прости интеграли</div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-dot">3</div>
+        <div class="algo-text"><strong>Изнеси константите</strong> — използвай свойство 3 за числата пред функциите</div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-dot">4</div>
+        <div class="algo-text"><strong>Намери интеграла по таблицата</strong> — всеки член трябва да съответства на табличен интеграл</div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-dot">5</div>
+        <div class="algo-text"><strong>Добави + C</strong> — задължително! Само един C в края, не за всеки член.</div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-dot">6</div>
+        <div class="algo-text"><strong>Провери</strong> — диференцирай резултата, трябва да получиш <code>f(x)</code></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-stripe purple"></div>
+      <div class="card-inner">
+        <div class="card-title">Пример — Пълно решение по алгоритъма</div>
+        <div class="steps">
+          <div class="step">
+            <div class="snum purple">Ex</div>
+            <div class="stxt">
+              <div class="stitle">∫ (2x³ − 3√x + 5/x − eˣ) dx</div>
+              <div class="sbody">
+                <strong>Стъпка 1 — Запиши корена като степен:</strong><br>
+                <code>∫ (2x³ − 3x^(1/2) + 5·x⁻¹ − eˣ) dx</code><br><br>
+                <strong>Стъпки 2-3 — Разбий и изнеси:</strong><br>
+                <code>= 2∫x³dx − 3∫x^(1/2)dx + 5∫(1/x)dx − ∫eˣdx</code><br><br>
+                <strong>Стъпка 4 — По таблицата:</strong><br>
+                <code>= 2·(x⁴/4) − 3·(x^(3/2)/(3/2)) + 5·ln|x| − eˣ</code><br>
+                <code>= (x⁴/2) − 3·(2/3)·x^(3/2) + 5ln|x| − eˣ</code><br><br>
+                <strong>Стъпка 5 — + C:</strong><br>
+                <strong>= x⁴/2 − 2x^(3/2) + 5ln|x| − eˣ + C</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-s" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-p" onclick="nextSection()">Задачи →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 5: ЗАДАЧИ -->
+  <div class="section" id="sec4">
+    <div class="sec-header">
+      <div class="sec-label">Блок 05</div>
+      <div class="sec-title">Задачи за практика</div>
+      <div class="sec-sub">Кликни за решение — но първо опитай сам!</div>
+      <div class="time-chip">⏱ ~40 мин</div>
+    </div>
+
+    <div class="card">
+      <div class="card-stripe green"></div>
+      <div class="card-inner">
+        <div class="card-title">🟢 Лесни — Директно от таблицата</div>
+        <div class="ex-list">
+          <div class="ex" onclick="toggleEx(this)">
+            <div class="ex-num">ЗАДАЧА 01</div>
+            <div class="ex-q">∫ x⁵ dx</div>
+            <div class="ex-tap">👆 Кликни за решение</div>
+            <div class="ex-ans"><strong>= x⁶/6 + C</strong><br><small>Формула xⁿ: степента нараства с 1, делиш на новата степен</small></div>
+          </div>
+          <div class="ex" onclick="toggleEx(this)">
+            <div class="ex-num">ЗАДАЧА 02</div>
+            <div class="ex-q">∫ (1/x³) dx = ∫ x⁻³ dx</div>
+            <div class="ex-tap">👆 Кликни за решение</div>
+            <div class="ex-ans">
+              <code>∫ x⁻³ dx = x⁻²/(−2) + C</code><br>
+              <strong>= −1/(2x²) + C</strong>
+            </div>
+          </div>
+          <div class="ex" onclick="toggleEx(this)">
+            <div class="ex-num">ЗАДАЧА 03</div>
+            <div class="ex-q">∫ (eˣ + cos x) dx</div>
+            <div class="ex-tap">👆 Кликни за решение</div>
+            <div class="ex-ans"><strong>= eˣ + sin x + C</strong></div>
+          </div>
+          <div class="ex" onclick="toggleEx(this)">
+            <div class="ex-num">ЗАДАЧА 04</div>
+            <div class="ex-q">∫ (3/x + 2sin x) dx</div>
+            <div class="ex-tap">👆 Кликни за решение</div>
+            <div class="ex-ans">
+              <code>= 3∫(1/x)dx + 2∫sin x dx</code><br>
+              <strong>= 3ln|x| − 2cos x + C</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-stripe red"></div>
+      <div class="card-inner">
+        <div class="card-title">🟡 Средни — Опростяване преди интегриране</div>
+        <div class="ex-list">
+          <div class="ex" onclick="toggleEx(this)">
+            <div class="ex-num">ЗАДАЧА 05</div>
+            <div class="ex-q">∫ (x + 1)² dx</div>
+            <div class="ex-hint">💡 Разкрий скобата първо!</div>
+            <div class="ex-tap">👆 Кликни за решение</div>
+            <div class="ex-ans">
+              Разкриваме: <code>(x+1)² = x² + 2x + 1</code><br>
+              <code>∫(x²+2x+1)dx = x³/3 + x² + x + C</code><br>
+              <strong>= x³/3 + x² + x + C</strong>
+            </div>
+          </div>
+          <div class="ex" onclick="toggleEx(this)">
+            <div class="ex-num">ЗАДАЧА 06</div>
+            <div class="ex-q">∫ (x² + 3x − 2) / x dx</div>
+            <div class="ex-hint">💡 Раздели дробта на x</div>
+            <div class="ex-tap">👆 Кликни за решение</div>
+            <div class="ex-ans">
+              Разделяме: <code>x²/x + 3x/x − 2/x = x + 3 − 2/x</code><br>
+              <code>∫(x + 3 − 2/x)dx</code><br>
+              <strong>= x²/2 + 3x − 2ln|x| + C</strong>
+            </div>
+          </div>
+          <div class="ex" onclick="toggleEx(this)">
+            <div class="ex-num">ЗАДАЧА 07</div>
+            <div class="ex-q">∫ (√x + 1/√x) dx</div>
+            <div class="ex-hint">💡 Запиши като степени: x^(1/2) и x^(-1/2)</div>
+            <div class="ex-tap">👆 Кликни за решение</div>
+            <div class="ex-ans">
+              <code>∫(x^(1/2) + x^(-1/2))dx</code><br>
+              <code>= x^(3/2)/(3/2) + x^(1/2)/(1/2) + C</code><br>
+              <strong>= (2/3)x^(3/2) + 2√x + C</strong>
+            </div>
+          </div>
+          <div class="ex" onclick="toggleEx(this)">
+            <div class="ex-num">ЗАДАЧА 08</div>
+            <div class="ex-q">∫ (x³ − 1) / x² dx</div>
+            <div class="ex-hint">💡 Раздели на x²</div>
+            <div class="ex-tap">👆 Кликни за решение</div>
+            <div class="ex-ans">
+              <code>x³/x² − 1/x² = x − x⁻²</code><br>
+              <code>∫(x − x⁻²)dx = x²/2 − x⁻¹/(−1) + C</code><br>
+              <strong>= x²/2 + 1/x + C</strong>
+            </div>
+          </div>
+          <div class="ex" onclick="toggleEx(this)">
+            <div class="ex-num">ЗАДАЧА 09</div>
+            <div class="ex-q">∫ (2x − 1)(x + 3) dx</div>
+            <div class="ex-hint">💡 Разкрий произведението</div>
+            <div class="ex-tap">👆 Кликни за решение</div>
+            <div class="ex-ans">
+              <code>(2x−1)(x+3) = 2x²+6x−x−3 = 2x²+5x−3</code><br>
+              <code>∫(2x²+5x−3)dx</code><br>
+              <strong>= (2/3)x³ + (5/2)x² − 3x + C</strong>
+            </div>
+          </div>
+          <div class="ex" onclick="toggleEx(this)">
+            <div class="ex-num">ЗАДАЧА 10</div>
+            <div class="ex-q">∫ (5·2ˣ − 3/cos²x + 2/√(1−x²)) dx</div>
+            <div class="ex-hint">💡 Три члена — три табл. формули</div>
+            <div class="ex-tap">👆 Кликни за решение</div>
+            <div class="ex-ans">
+              <code>= 5∫2ˣdx − 3∫(1/cos²x)dx + 2∫(1/√(1−x²))dx</code><br>
+              <strong>= 5·(2ˣ/ln2) − 3tg(x) + 2arcsin(x) + C</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-s" onclick="prevSection()">← Алгоритъм</button>
+      <button class="btn btn-p" onclick="goTo(0)">↩ Начало</button>
+    </div>
+  </div>
+
+</div>
+<script>
+  let cur=0;
+  const btns=document.querySelectorAll('.nav-btn');
+  const secs=document.querySelectorAll('.section');
+  function goTo(i){secs[cur].classList.remove('active');btns[cur].classList.remove('active');cur=i;secs[cur].classList.add('active');btns[cur].classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+  function nextSection(){if(cur<4){btns[cur].classList.add('done');goTo(cur+1);}}
+  function prevSection(){if(cur>0)goTo(cur-1);}
+  function toggleEx(el){el.classList.toggle('open');}
+</script>
+</body>
+</html>

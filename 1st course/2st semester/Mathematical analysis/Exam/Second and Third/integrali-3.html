@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Интеграли — Файл 3</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+  :root {
+    --bg:#0a0f0a; --surface:#101510; --surface2:#181e18;
+    --border:#243024; --ink:#e8f0e8; --muted:#5a7055;
+    --accent:#a3e635; --accent2:#34d399; --accent3:#fb923c; --accent4:#818cf8;
+    --correct:#34d399; --wrong:#f87171;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 60% 50% at 0% 50%,rgba(163,230,53,0.06) 0%,transparent 60%),
+               radial-gradient(ellipse 50% 40% at 100% 20%,rgba(129,140,248,0.05) 0%,transparent 60%);}
+  .container{max-width:860px;margin:0 auto;padding:52px 28px;position:relative;z-index:1;}
+
+  /* Header */
+  .header{margin-bottom:52px;animation:fadeIn 0.9s ease;}
+  .badge{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;}
+  .header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid var(--border);}
+  h1{font-family:'Fraunces',serif;font-size:clamp(36px,6vw,62px);font-weight:900;line-height:1.05;letter-spacing:-2px;}
+  h1 em{font-style:italic;color:var(--accent);}
+  .header-meta{text-align:right;padding:16px 20px;border:1px solid var(--border);background:var(--surface);border-radius:4px;min-width:160px;}
+  .file-num{font-family:'Fraunces',serif;font-size:48px;font-weight:900;color:var(--border);line-height:1;}
+  .file-label{font-size:11px;color:var(--muted);letter-spacing:2px;font-family:'DM Mono',monospace;}
+  .header-desc{margin-top:14px;color:var(--muted);font-size:15px;font-weight:300;}
+
+  /* Nav */
+  .nav{display:flex;gap:0;margin-bottom:36px;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--surface);animation:fadeIn 0.6s ease 0.2s both;}
+  .nav-btn{flex:1;padding:12px 8px;background:transparent;border:none;border-right:1px solid var(--border);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;text-align:center;line-height:1.4;}
+  .nav-btn:last-child{border-right:none;}
+  .nav-btn:hover{background:var(--surface2);color:var(--ink);}
+  .nav-btn.active{background:var(--accent);color:#000;font-weight:700;}
+  .nav-btn.done{background:var(--surface2);color:var(--correct);}
+
+  /* Sections */
+  .section{display:none;animation:fadeIn 0.4s ease;}
+  .section.active{display:block;}
+
+  /* Cards */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:26px;margin-bottom:16px;position:relative;overflow:hidden;}
+  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+  .card.lime::before{background:linear-gradient(90deg,var(--accent),transparent);}
+  .card.green::before{background:linear-gradient(90deg,var(--accent2),transparent);}
+  .card.orange::before{background:linear-gradient(90deg,var(--accent3),transparent);}
+  .card.purple::before{background:linear-gradient(90deg,var(--accent4),transparent);}
+  .card-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+  .card-sub{color:var(--muted);font-size:13px;margin-bottom:18px;}
+
+  /* Formula */
+  .formula{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:14px 18px;font-family:'DM Mono',monospace;font-size:14px;margin:10px 0;line-height:1.8;}
+  .formula.lime{color:var(--accent);border-left:3px solid var(--accent);}
+  .formula.green{color:var(--accent2);border-left:3px solid var(--accent2);}
+  .formula.orange{color:var(--accent3);border-left:3px solid var(--accent3);}
+  .formula.purple{color:var(--accent4);border-left:3px solid var(--accent4);}
+
+  /* Steps */
+  .steps{display:flex;flex-direction:column;gap:14px;margin:14px 0;}
+  .step{display:flex;gap:16px;align-items:flex-start;}
+  .snum{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:15px;font-weight:700;flex-shrink:0;margin-top:1px;}
+  .snum.lime{background:rgba(163,230,53,0.15);color:var(--accent);border:1px solid rgba(163,230,53,0.3);}
+  .snum.green{background:rgba(52,211,153,0.15);color:var(--accent2);border:1px solid rgba(52,211,153,0.3);}
+  .snum.orange{background:rgba(251,146,60,0.15);color:var(--accent3);border:1px solid rgba(251,146,60,0.3);}
+  .snum.purple{background:rgba(129,140,248,0.15);color:var(--accent4);border:1px solid rgba(129,140,248,0.3);}
+  .stxt{flex:1;}
+  .stitle{font-weight:600;font-size:15px;margin-bottom:5px;}
+  .sbody{font-size:14px;color:var(--muted);line-height:1.7;}
+  .sbody code{font-family:'DM Mono',monospace;background:var(--surface2);padding:2px 6px;border-radius:3px;color:var(--accent);font-size:13px;}
+  .sbody code.green{color:var(--accent2);}
+  .sbody code.orange{color:var(--accent3);}
+  .sbody code.purple{color:var(--accent4);}
+  .sbody strong{color:var(--ink);}
+
+  /* Info */
+  .info{border-radius:6px;padding:12px 16px;font-size:14px;line-height:1.6;margin:10px 0;}
+  .info.lime{background:rgba(163,230,53,0.06);border:1px solid rgba(163,230,53,0.2);}
+  .info.green{background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.2);}
+  .info.orange{background:rgba(251,146,60,0.06);border:1px solid rgba(251,146,60,0.2);}
+  .info.purple{background:rgba(129,140,248,0.06);border:1px solid rgba(129,140,248,0.2);}
+  .info.red{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);}
+
+  /* LIATE table */
+  .liate{display:grid;grid-template-columns:auto 1fr 1fr;gap:1px;background:var(--border);border-radius:6px;overflow:hidden;margin:14px 0;}
+  .liate-cell{background:var(--surface2);padding:12px 16px;font-size:14px;}
+  .liate-cell.header{background:var(--surface);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--muted);font-weight:500;}
+  .liate-cell.rank{font-family:'Fraunces',serif;font-size:22px;font-weight:900;color:var(--border);text-align:center;}
+  .liate-cell.letter{font-family:'Fraunces',serif;font-size:20px;font-weight:700;}
+  .liate-cell.letter.L{color:var(--accent4);}
+  .liate-cell.letter.I{color:var(--accent);}
+  .liate-cell.letter.A{color:var(--accent3);}
+  .liate-cell.letter.T{color:var(--accent2);}
+  .liate-cell.letter.E{color:#f472b6;}
+  .liate-cell.desc{color:var(--muted);}
+
+  /* UV table */
+  .uv-table{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0;}
+  .uv-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:16px;}
+  .uv-card h4{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:2px;margin-bottom:10px;}
+  .uv-card h4.u{color:var(--accent);}
+  .uv-card h4.v{color:var(--accent2);}
+  .uv-card p{font-size:14px;color:var(--muted);line-height:1.6;}
+  .uv-card code{font-family:'DM Mono',monospace;font-size:13px;}
+
+  /* Exercises */
+  .ex-list{display:flex;flex-direction:column;gap:10px;margin:14px 0;}
+  .ex{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:16px;cursor:pointer;transition:all 0.2s;}
+  .ex:hover{border-color:var(--accent);}
+  .ex.open{border-color:var(--correct);}
+  .ex-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:5px;}
+  .ex-q{font-family:'DM Mono',monospace;font-size:16px;color:var(--ink);margin-bottom:6px;}
+  .ex-hint{font-size:12px;color:var(--accent3);margin-bottom:4px;}
+  .ex-tap{font-size:11px;color:var(--muted);font-style:italic;}
+  .ex.open .ex-tap{display:none;}
+  .ex-ans{display:none;margin-top:12px;padding:13px;background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.15);border-radius:4px;font-size:14px;line-height:1.9;color:var(--muted);}
+  .ex.open .ex-ans{display:block;}
+  .ex-ans code{font-family:'DM Mono',monospace;color:var(--accent);background:var(--surface);padding:2px 6px;border-radius:3px;font-size:13px;}
+  .ex-ans strong{color:var(--correct);}
+  .ex-ans .uv-show{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0;}
+  .ex-ans .uv-box{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:10px;font-family:'DM Mono',monospace;font-size:12px;}
+  .ex-ans .uv-box span{color:var(--muted);display:block;font-size:10px;letter-spacing:1px;margin-bottom:4px;}
+  .ex-ans .uv-box.u-box{color:var(--accent);}
+  .ex-ans .uv-box.v-box{color:var(--accent2);}
+
+  /* Algo box */
+  .algo-box{background:linear-gradient(135deg,rgba(163,230,53,0.08),rgba(129,140,248,0.08));border:1px solid var(--border);border-radius:8px;padding:24px 28px;margin:16px 0;position:relative;overflow:hidden;}
+  .algo-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent4));}
+  .algo-box h3{font-family:'Fraunces',serif;font-size:20px;font-weight:700;margin-bottom:16px;}
+  .algo-step{display:flex;gap:14px;align-items:flex-start;margin-bottom:12px;}
+  .algo-dot{width:26px;height:26px;border:2px solid var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:13px;font-weight:700;color:var(--accent);flex-shrink:0;}
+  .algo-text{font-size:14px;line-height:1.6;color:var(--muted);padding-top:2px;}
+  .algo-text strong{color:var(--ink);}
+  .algo-text code{font-family:'DM Mono',monospace;color:var(--accent3);font-size:13px;}
+
+  /* Nav actions */
+  .nav-actions{display:flex;gap:12px;justify-content:space-between;margin-top:32px;padding-top:24px;border-top:1px solid var(--border);}
+  .btn{padding:12px 28px;border-radius:6px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+  .btn-p{background:var(--accent);color:#000;}
+  .btn-p:hover{filter:brightness(0.9);transform:translateY(-1px);}
+  .btn-s{background:var(--surface);border:1px solid var(--border);color:var(--ink);}
+  .btn-s:hover{border-color:var(--accent);color:var(--accent);}
+
+  .sec-header{margin-bottom:24px;}
+  .sec-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
+  .sec-title{font-family:'Fraunces',serif;font-size:30px;font-weight:700;}
+  .sec-sub{font-size:14px;color:var(--muted);margin-top:4px;}
+  .time-chip{display:inline-block;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);border:1px solid var(--border);padding:3px 10px;border-radius:20px;margin-top:6px;}
+
+  /* Final summary */
+  .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:16px 0;}
+  .summary-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:18px;}
+  .summary-card h4{font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:8px;}
+  .summary-card p{font-size:13px;color:var(--muted);line-height:1.6;}
+  .summary-card code{font-family:'DM Mono',monospace;color:var(--accent2);font-size:12px;}
+  .summary-num{font-family:'Fraunces',serif;font-size:32px;font-weight:900;color:var(--border);float:right;line-height:1;}
+
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="badge">Математически анализ · Файл 03</div>
+        <h1>Интегриране<br><em>по части</em></h1>
+        <p class="header-desc">Формула · LIATE правило · Алгоритъм · Примери · Задачи</p>
+      </div>
+      <div class="header-meta">
+        <div class="file-num">03</div>
+        <div class="file-label">ФАЙЛ</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div class="nav">
+    <button class="nav-btn active" onclick="goTo(0)">📐 Формулата</button>
+    <button class="nav-btn" onclick="goTo(1)">🎯 LIATE<br><small>кое е u?</small></button>
+    <button class="nav-btn" onclick="goTo(2)">⚡ Алгоритъм</button>
+    <button class="nav-btn" onclick="goTo(3)">📘 Примери</button>
+    <button class="nav-btn" onclick="goTo(4)">✏️ Задачи</button>
+  </div>
+
+  <!-- БЛОК 1: ФОРМУЛАТА -->
+  <div class="section active" id="sec0">
+    <div class="sec-header">
+      <div class="sec-label">Блок 01</div>
+      <div class="sec-title">Формулата за интегриране по части</div>
+      <div class="time-chip">⏱ ~15 мин</div>
+    </div>
+
+    <div class="card lime">
+      <div class="card-title">💡 Кога се използва?</div>
+      <div class="card-sub">Когато имаш произведение от два различни вида функции</div>
+      <div class="steps">
+        <div class="step">
+          <div class="snum lime">?</div>
+          <div class="stxt">
+            <div class="stitle">Типичните случаи</div>
+            <div class="sbody">
+              • <code>x · eˣ</code> — полином × експонента<br>
+              • <code>x · sin x</code> — полином × тригонометрична<br>
+              • <code>x · ln x</code> — полином × логаритъм<br>
+              • <code>eˣ · sin x</code> — експонента × тригонометрична<br>
+              • <code>ln x</code> — само логаритъм (смята се като <code>ln x · 1</code>)<br><br>
+              При тези случаи нито директното интегриране, нито смяната на променлива работят!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card lime">
+      <div class="card-title">📋 Формулата</div>
+      <div class="formula lime">∫ u · dv = u · v − ∫ v · du</div>
+      <div class="info lime">
+        💡 <strong>Произходът:</strong> Формулата идва от правилото за производна на произведение:<br>
+        <code>(u·v)' = u'·v + u·v'</code> → интегрираме двете страни → <code>∫u dv = uv − ∫v du</code>
+      </div>
+      <div class="uv-table">
+        <div class="uv-card">
+          <h4 class="u">u — Избираш</h4>
+          <p>Функцията която <strong>диференцираш</strong>.<br>Трябва да стане по-проста след диференциране.<br><code>du = u' dx</code></p>
+        </div>
+        <div class="uv-card">
+          <h4 class="v">dv — Избираш</h4>
+          <p>Остатъкът (включително dx).<br>Трябва лесно да се <strong>интегрира</strong>.<br><code>v = ∫ dv</code></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <div></div>
+      <button class="btn btn-p" onclick="nextSection()">LIATE правило →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 2: LIATE -->
+  <div class="section" id="sec1">
+    <div class="sec-header">
+      <div class="sec-label">Блок 02</div>
+      <div class="sec-title">LIATE — Как избираш u?</div>
+      <div class="sec-sub">Най-важното правило за интегриране по части</div>
+      <div class="time-chip">⏱ ~20 мин</div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title">🎯 Правилото LIATE</div>
+      <div class="card-sub">Избираш u = функцията която е по-наляво в тази наредба</div>
+      <div class="liate">
+        <div class="liate-cell header">РЕД</div>
+        <div class="liate-cell header">БУКВА</div>
+        <div class="liate-cell header">ВИД ФУНКЦИЯ</div>
+
+        <div class="liate-cell rank">1</div>
+        <div class="liate-cell letter L">L</div>
+        <div class="liate-cell desc"><strong>L</strong>ogarithm — Логаритми: ln x, log x</div>
+
+        <div class="liate-cell rank">2</div>
+        <div class="liate-cell letter I">I</div>
+        <div class="liate-cell desc"><strong>I</strong>nverse trig — Обратни тригон.: arcsin, arctan...</div>
+
+        <div class="liate-cell rank">3</div>
+        <div class="liate-cell letter A">A</div>
+        <div class="liate-cell desc"><strong>A</strong>lgebraic — Алгебрични: x, x², x³...</div>
+
+        <div class="liate-cell rank">4</div>
+        <div class="liate-cell letter T">T</div>
+        <div class="liate-cell desc"><strong>T</strong>rigonometric — Тригон.: sin x, cos x...</div>
+
+        <div class="liate-cell rank">5</div>
+        <div class="liate-cell letter E">E</div>
+        <div class="liate-cell desc"><strong>E</strong>xponential — Експонента: eˣ, aˣ</div>
+      </div>
+      <div class="info purple">
+        💡 <strong>Как се ползва:</strong> Гледаш кои два вида функции имаш. u = тази с по-малък номер в LIATE. dv = тази с по-голям номер (+ dx).
+      </div>
+    </div>
+
+    <div class="card green">
+      <div class="card-title">📊 Примери за избор на u</div>
+      <div class="steps">
+        <div class="step">
+          <div class="snum green">Ex1</div>
+          <div class="stxt">
+            <div class="stitle">∫ x · eˣ dx</div>
+            <div class="sbody">
+              x е A(3), eˣ е E(5) → <strong>u = x</strong>, <strong>dv = eˣ dx</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum green">Ex2</div>
+          <div class="stxt">
+            <div class="stitle">∫ x · sin x dx</div>
+            <div class="sbody">
+              x е A(3), sin x е T(4) → <strong>u = x</strong>, <strong>dv = sin x dx</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum green">Ex3</div>
+          <div class="stxt">
+            <div class="stitle">∫ ln x dx</div>
+            <div class="sbody">
+              ln x е L(1), 1 е A(3) → <strong>u = ln x</strong>, <strong>dv = dx</strong><br>
+              (Пишем ln x · 1 dx)
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum green">Ex4</div>
+          <div class="stxt">
+            <div class="stitle">∫ x² · ln x dx</div>
+            <div class="sbody">
+              ln x е L(1), x² е A(3) → <strong>u = ln x</strong>, <strong>dv = x² dx</strong>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum purple">Ex5</div>
+          <div class="stxt">
+            <div class="stitle">∫ eˣ · sin x dx</div>
+            <div class="sbody">
+              sin x е T(4), eˣ е E(5) → <strong>u = sin x</strong>, <strong>dv = eˣ dx</strong><br>
+              (Специален случай — нужни са 2 интегрирания по части!)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-s" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-p" onclick="nextSection()">Алгоритъм →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 3: АЛГОРИТЪМ -->
+  <div class="section" id="sec2">
+    <div class="sec-header">
+      <div class="sec-label">Блок 03</div>
+      <div class="sec-title">Алгоритъм — Стъпка по стъпка</div>
+      <div class="time-chip">⏱ ~10 мин</div>
+    </div>
+
+    <div class="algo-box">
+      <h3>⚡ Алгоритъм за интегриране по части</h3>
+      <div class="algo-step">
+        <div class="algo-dot">1</div>
+        <div class="algo-text"><strong>Разпознай</strong> — имаш ли произведение от два вида функции? Работи ли смяна на променлива? Ако не → интегриране по части.</div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-dot">2</div>
+        <div class="algo-text"><strong>Избери u и dv</strong> по правилото LIATE. Запиши ги ясно.</div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-dot">3</div>
+        <div class="algo-text"><strong>Намери du и v</strong>: <code>du = u' dx</code> и <code>v = ∫ dv</code></div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-dot">4</div>
+        <div class="algo-text"><strong>Приложи формулата:</strong> <code>∫ u dv = u·v − ∫ v du</code></div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-dot">5</div>
+        <div class="algo-text"><strong>Реши новия интеграл</strong> ∫v du — той трябва да е по-прост! Ако не е — проверяваш избора на u.</div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-dot">6</div>
+        <div class="algo-text"><strong>Добави + C</strong> в края и провери с диференциране.</div>
+      </div>
+    </div>
+
+    <div class="card orange">
+      <div class="card-title">⚠️ Специални случаи</div>
+      <div class="steps">
+        <div class="step">
+          <div class="snum orange">!</div>
+          <div class="stxt">
+            <div class="stitle">Двойно интегриране по части (eˣ·sin x)</div>
+            <div class="sbody">
+              При <code>∫ eˣ sin x dx</code> прилагаш по части 2 пъти и получаваш<br>
+              <code>∫ eˣ sin x dx = ... − ∫ eˣ sin x dx</code><br>
+              Местиш интеграла от дясно наляво и делиш!<br>
+              <code>2∫ eˣ sin x dx = ...</code> → <code>∫ eˣ sin x dx = .../2</code>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum orange">!</div>
+          <div class="stxt">
+            <div class="stitle">Повторно по части (x²·eˣ)</div>
+            <div class="sbody">
+              При <code>∫ x² eˣ dx</code> прилагаш по части 2 пъти —<br>
+              първо намаляш x² до x, после x до константа.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-s" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-p" onclick="nextSection()">Примери →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 4: ПРИМЕРИ -->
+  <div class="section" id="sec3">
+    <div class="sec-header">
+      <div class="sec-label">Блок 04</div>
+      <div class="sec-title">Пълни примери</div>
+      <div class="sec-sub">Всяка стъпка изписана</div>
+      <div class="time-chip">⏱ ~30 мин</div>
+    </div>
+
+    <div class="card lime">
+      <div class="card-title">Пример 1 — ∫ x · eˣ dx</div>
+      <div class="steps">
+        <div class="step">
+          <div class="snum lime">1</div>
+          <div class="stxt">
+            <div class="stitle">Избор по LIATE: x е A, eˣ е E</div>
+            <div class="sbody">
+              <code>u = x</code> &nbsp;&nbsp;&nbsp; <code>dv = eˣ dx</code>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum lime">2</div>
+          <div class="stxt">
+            <div class="stitle">Намираме du и v</div>
+            <div class="sbody">
+              <code>du = dx</code> &nbsp;&nbsp;&nbsp; <code>v = eˣ</code>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum lime">3</div>
+          <div class="stxt">
+            <div class="stitle">Прилагаме формулата</div>
+            <div class="sbody">
+              <code>∫ x eˣ dx = x·eˣ − ∫ eˣ dx</code><br>
+              <code>= x·eˣ − eˣ + C</code><br>
+              <strong>= eˣ(x − 1) + C</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card green">
+      <div class="card-title">Пример 2 — ∫ x · cos x dx</div>
+      <div class="steps">
+        <div class="step">
+          <div class="snum green">1</div>
+          <div class="stxt">
+            <div class="sbody"><code>u = x</code> (A), &nbsp; <code>dv = cos x dx</code> (T)</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum green">2</div>
+          <div class="stxt">
+            <div class="sbody"><code>du = dx</code>, &nbsp; <code>v = sin x</code></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum green">3</div>
+          <div class="stxt">
+            <div class="sbody">
+              <code>∫ x cos x dx = x·sin x − ∫ sin x dx</code><br>
+              <code>= x·sin x − (−cos x) + C</code><br>
+              <strong>= x·sin x + cos x + C</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title">Пример 3 — ∫ ln x dx</div>
+      <div class="steps">
+        <div class="step">
+          <div class="snum purple">1</div>
+          <div class="stxt">
+            <div class="sbody"><code>u = ln x</code> (L), &nbsp; <code>dv = dx</code> (пишем ln x · 1 dx)</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum purple">2</div>
+          <div class="stxt">
+            <div class="sbody"><code>du = (1/x) dx</code>, &nbsp; <code>v = x</code></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum purple">3</div>
+          <div class="stxt">
+            <div class="sbody">
+              <code>∫ ln x dx = x·ln x − ∫ x·(1/x) dx</code><br>
+              <code>= x·ln x − ∫ 1 dx</code><br>
+              <strong>= x·ln x − x + C = x(ln x − 1) + C</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card orange">
+      <div class="card-title">Пример 4 — ∫ x² · eˣ dx (двойно по части)</div>
+      <div class="steps">
+        <div class="step">
+          <div class="snum orange">1</div>
+          <div class="stxt">
+            <div class="sbody">
+              <code>u = x²</code>, <code>dv = eˣ dx</code><br>
+              <code>du = 2x dx</code>, <code>v = eˣ</code><br>
+              <code>= x²eˣ − ∫ 2x eˣ dx</code>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum orange">2</div>
+          <div class="stxt">
+            <div class="stitle">Прилагаме пак за ∫ 2x eˣ dx</div>
+            <div class="sbody">
+              <code>u = 2x</code>, <code>dv = eˣ dx</code><br>
+              <code>du = 2 dx</code>, <code>v = eˣ</code><br>
+              <code>= 2x eˣ − ∫ 2eˣ dx = 2x eˣ − 2eˣ</code>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum orange">3</div>
+          <div class="stxt">
+            <div class="stitle">Събираме</div>
+            <div class="sbody">
+              <code>∫ x²eˣ dx = x²eˣ − (2xeˣ − 2eˣ) + C</code><br>
+              <strong>= eˣ(x² − 2x + 2) + C</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card lime">
+      <div class="card-title">Пример 5 — ∫ eˣ · sin x dx (цикличен)</div>
+      <div class="steps">
+        <div class="step">
+          <div class="snum lime">1</div>
+          <div class="stxt">
+            <div class="sbody">
+              <code>u = sin x</code>, <code>dv = eˣ dx</code><br>
+              <code>du = cos x dx</code>, <code>v = eˣ</code><br>
+              <code>∫eˣsin x dx = eˣsin x − ∫eˣcos x dx</code>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum lime">2</div>
+          <div class="stxt">
+            <div class="stitle">Прилагаме пак за ∫eˣ cos x dx</div>
+            <div class="sbody">
+              <code>u = cos x</code>, <code>dv = eˣ dx</code><br>
+              <code>du = −sin x dx</code>, <code>v = eˣ</code><br>
+              <code>= eˣcos x − ∫eˣ(−sin x)dx = eˣcos x + ∫eˣsin x dx</code>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum lime">3</div>
+          <div class="stxt">
+            <div class="stitle">Заместваме и решаваме уравнението!</div>
+            <div class="sbody">
+              <code>∫eˣsin x dx = eˣsin x − eˣcos x − ∫eˣsin x dx</code><br>
+              <code>2∫eˣsin x dx = eˣsin x − eˣcos x</code><br>
+              <strong>∫eˣsin x dx = eˣ(sin x − cos x)/2 + C</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-s" onclick="prevSection()">← Назад</button>
+      <button class="btn btn-p" onclick="nextSection()">Задачи →</button>
+    </div>
+  </div>
+
+  <!-- БЛОК 5: ЗАДАЧИ -->
+  <div class="section" id="sec4">
+    <div class="sec-header">
+      <div class="sec-label">Блок 05</div>
+      <div class="sec-title">Задачи за практика</div>
+      <div class="sec-sub">Кликни за решение — но първо опитай сам!</div>
+      <div class="time-chip">⏱ ~60 мин</div>
+    </div>
+
+    <div class="card green">
+      <div class="card-title">🟢 Лесни — Едно интегриране</div>
+      <div class="ex-list">
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 01</div>
+          <div class="ex-q">∫ x · e^(2x) dx</div>
+          <div class="ex-hint">💡 u = x (A), dv = e^(2x)dx (E)</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            <div class="uv-show">
+              <div class="uv-box u-box"><span>U =</span>x</div>
+              <div class="uv-box v-box"><span>dV =</span>e^(2x) dx</div>
+              <div class="uv-box u-box"><span>dU =</span>dx</div>
+              <div class="uv-box v-box"><span>V =</span>(1/2)e^(2x)</div>
+            </div>
+            <code>∫ x e^(2x) dx = x·(1/2)e^(2x) − ∫(1/2)e^(2x)dx</code><br>
+            <code>= (x/2)e^(2x) − (1/4)e^(2x) + C</code><br>
+            <strong>= (e^(2x)/4)(2x − 1) + C</strong>
+          </div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 02</div>
+          <div class="ex-q">∫ x · sin(3x) dx</div>
+          <div class="ex-hint">💡 u = x, dv = sin(3x)dx</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            <div class="uv-show">
+              <div class="uv-box u-box"><span>U =</span>x</div>
+              <div class="uv-box v-box"><span>dV =</span>sin(3x) dx</div>
+              <div class="uv-box u-box"><span>dU =</span>dx</div>
+              <div class="uv-box v-box"><span>V =</span>−(1/3)cos(3x)</div>
+            </div>
+            <code>= x·(−1/3)cos(3x) − ∫(−1/3)cos(3x)dx</code><br>
+            <code>= −(x/3)cos(3x) + (1/3)·(1/3)sin(3x) + C</code><br>
+            <strong>= −(x/3)cos(3x) + (1/9)sin(3x) + C</strong>
+          </div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 03</div>
+          <div class="ex-q">∫ x · ln x dx</div>
+          <div class="ex-hint">💡 u = ln x (L), dv = x dx (A)</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            <div class="uv-show">
+              <div class="uv-box u-box"><span>U =</span>ln x</div>
+              <div class="uv-box v-box"><span>dV =</span>x dx</div>
+              <div class="uv-box u-box"><span>dU =</span>(1/x) dx</div>
+              <div class="uv-box v-box"><span>V =</span>x²/2</div>
+            </div>
+            <code>= (x²/2)·ln x − ∫(x²/2)·(1/x)dx</code><br>
+            <code>= (x²/2)ln x − (1/2)∫x dx</code><br>
+            <code>= (x²/2)ln x − x²/4 + C</code><br>
+            <strong>= (x²/4)(2ln x − 1) + C</strong>
+          </div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 04</div>
+          <div class="ex-q">∫ arctg(x) dx</div>
+          <div class="ex-hint">💡 u = arctg x (I), dv = dx</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            <div class="uv-show">
+              <div class="uv-box u-box"><span>U =</span>arctg x</div>
+              <div class="uv-box v-box"><span>dV =</span>dx</div>
+              <div class="uv-box u-box"><span>dU =</span>1/(1+x²) dx</div>
+              <div class="uv-box v-box"><span>V =</span>x</div>
+            </div>
+            <code>= x·arctg x − ∫ x/(1+x²) dx</code><br>
+            Новият интеграл: смяна t=1+x², dt=2x dx:<br>
+            <code>∫ x/(1+x²)dx = (1/2)ln(1+x²)</code><br>
+            <strong>= x·arctg x − (1/2)ln(1+x²) + C</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card orange">
+      <div class="card-title">🟡 По-сложни — Двойно интегриране</div>
+      <div class="ex-list">
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 05</div>
+          <div class="ex-q">∫ x² · cos x dx</div>
+          <div class="ex-hint">💡 Прилагаш по части 2 пъти — степента намалява</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            <strong>Първо:</strong> u=x², dv=cos x dx → du=2x dx, v=sin x<br>
+            <code>= x²sin x − ∫2x sin x dx</code><br><br>
+            <strong>За ∫2x sin x dx:</strong> u=2x, dv=sin x dx → du=2dx, v=−cos x<br>
+            <code>= −2x cos x + ∫2cos x dx = −2x cos x + 2sin x</code><br><br>
+            <strong>Финал:</strong><br>
+            <code>= x²sin x − (−2x cos x + 2sin x) + C</code><br>
+            <strong>= x²sin x + 2x cos x − 2sin x + C</strong>
+          </div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 06</div>
+          <div class="ex-q">∫ eˣ · cos x dx</div>
+          <div class="ex-hint">💡 Цикличен случай — прилагаш 2 пъти и решаваш уравнение!</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            <strong>Нека I = ∫eˣ cos x dx</strong><br><br>
+            u=cos x, dv=eˣdx → du=−sin x dx, v=eˣ<br>
+            <code>I = eˣcos x + ∫eˣsin x dx</code><br><br>
+            За ∫eˣsin x dx: u=sin x, dv=eˣdx → du=cos x dx, v=eˣ<br>
+            <code>= eˣsin x − ∫eˣcos x dx = eˣsin x − I</code><br><br>
+            Заместваме: <code>I = eˣcos x + eˣsin x − I</code><br>
+            <code>2I = eˣ(cos x + sin x)</code><br>
+            <strong>I = eˣ(cos x + sin x)/2 + C</strong>
+          </div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 07</div>
+          <div class="ex-q">∫ x² · ln x dx</div>
+          <div class="ex-hint">💡 u = ln x (L), dv = x²dx</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            <div class="uv-show">
+              <div class="uv-box u-box"><span>U =</span>ln x</div>
+              <div class="uv-box v-box"><span>dV =</span>x² dx</div>
+              <div class="uv-box u-box"><span>dU =</span>(1/x) dx</div>
+              <div class="uv-box v-box"><span>V =</span>x³/3</div>
+            </div>
+            <code>= (x³/3)ln x − ∫(x³/3)·(1/x)dx</code><br>
+            <code>= (x³/3)ln x − (1/3)∫x²dx</code><br>
+            <code>= (x³/3)ln x − x³/9 + C</code><br>
+            <strong>= (x³/9)(3ln x − 1) + C</strong>
+          </div>
+        </div>
+        <div class="ex" onclick="toggleEx(this)">
+          <div class="ex-num">ЗАДАЧА 08</div>
+          <div class="ex-q">∫ x · arcsin x dx</div>
+          <div class="ex-hint">💡 u = arcsin x (I), dv = x dx (A)</div>
+          <div class="ex-tap">👆 Кликни за решение</div>
+          <div class="ex-ans">
+            <div class="uv-show">
+              <div class="uv-box u-box"><span>U =</span>arcsin x</div>
+              <div class="uv-box v-box"><span>dV =</span>x dx</div>
+              <div class="uv-box u-box"><span>dU =</span>1/√(1−x²) dx</div>
+              <div class="uv-box v-box"><span>V =</span>x²/2</div>
+            </div>
+            <code>= (x²/2)arcsin x − ∫(x²/2)/√(1−x²) dx</code><br>
+            За ∫x²/(2√(1−x²))dx: t=1−x², dt=−2x dx (по-сложно)<br>
+            Пренаписваме x²=1−(1−x²):<br>
+            <code>∫x²/√(1−x²)dx = ∫(1−(1−x²))/√(1−x²)dx</code><br>
+            <code>= ∫1/√(1−x²)dx − ∫√(1−x²)dx</code><br>
+            <code>= arcsin x − (x√(1−x²)/2 + arcsin x/2)</code><br>
+            <strong>= (x²/2)arcsin x + (x√(1−x²))/4 − (arcsin x)/4 + C</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="card lime" style="margin-top:24px">
+      <div class="card-title">🏁 Обобщение — Трите файла</div>
+      <div class="card-sub">Ако знаеш това, знаеш интегрирането</div>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-num">01</div>
+          <h4>Непосредствено</h4>
+          <p>Опрости → разбий → изнеси константи → таблица → <code>+ C</code></p>
+        </div>
+        <div class="summary-card">
+          <div class="summary-num">02</div>
+          <h4>Смяна на променлива</h4>
+          <p>Линейна → дели на a. Сложна → <code>t = g(x)</code>, <code>dt = g'dx</code></p>
+        </div>
+        <div class="summary-card">
+          <div class="summary-num">03</div>
+          <h4>По части</h4>
+          <p>LIATE → избери u → намери du и v → <code>∫u dv = uv − ∫v du</code></p>
+        </div>
+      </div>
+      <div class="info lime" style="margin-top:12px">
+        💪 <strong>Преди изпита:</strong> Реши по 3-4 задачи от всеки тип. Ако знаеш кой метод кога се прилага — вече си наполовина готов!
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-s" onclick="prevSection()">← Примери</button>
+      <button class="btn btn-p" onclick="goTo(0)">↩ Начало</button>
+    </div>
+  </div>
+
+</div>
+<script>
+  let cur=0;
+  const btns=document.querySelectorAll('.nav-btn');
+  const secs=document.querySelectorAll('.section');
+  function goTo(i){secs[cur].classList.remove('active');btns[cur].classList.remove('active');cur=i;secs[cur].classList.add('active');btns[cur].classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+  function nextSection(){if(cur<4){btns[cur].classList.add('done');goTo(cur+1);}}
+  function prevSection(){if(cur>0)goTo(cur-1);}
+  function toggleEx(el){el.classList.toggle('open');}
+</script>
+</body>
+</html>
