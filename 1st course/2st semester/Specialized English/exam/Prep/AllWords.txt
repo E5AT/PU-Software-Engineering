@@ -1,0 +1,400 @@
+1.UX Writer
+2.Data Scientist
+3.Web developer
+4.DevOps engineer
+5.Blockchain developer
+
+a) A person who creates the texts that appear in the interface of websites and apps.
+b) A person who designs and develops websites and website applications.
+c) An IT professional who oversees code releases and deployments and optimizes development process.
+d) A person who builds applications based on blockchain architecture or protocols.
+e) A person who is responsible for collecting and analysing large data sets.
+
+---
+
+Word Box:
+Collect • Handle • Keep up with • Compete • Specialize in • Qualify • Shorten • Take on
+
+1. _____ user data.
+2. _____ for a job.
+3. _____ with other people.
+4. _____ a difficult task.
+5. _____ web development.
+6. _____ development time.
+7. _____ customer requests.
+8. _____ customer requests.
+
+---
+
+1.Encounter
+2.Career path
+3.Stakeholders
+4.Expertise
+5.Despite
+6.Core
+7.Broad range
+8.From scratch
+9.Optimize
+10.These days
+11.In a nutshell
+
+a) come across or experience something
+b) expert knowledge and skills
+c) from the very beginning
+d) make something more effective
+e) a wide variety
+f) nowadays
+g) in a few words
+h) the way you progress in your work
+i) in spite of
+j) people who have an interest in a certain business
+k) fundamental
+
+---
+
+Underappreciated — not appreciated enough.
+Be critical to — extremely important to the success of something.
+Go unnoticed — fail to attract any attention.
+Seamless — perfect, smooth.
+
+---
+
+To be aligned — to be in agreement with.
+Risk tolerance — the amount of loss an investor is ready to handle.
+
+---
+
+1.Pain point
+2.Scalable
+3.Pivot
+4.To be in charge
+5.Bring (someone) on board
+6.Expenses
+7.Take into account
+8.Annual
+9.Jack of all trades
+10.Prospective
+11.Come across
+12.Concise
+13.At stake
+
+a) Having an ability to grow bigger
+b) Ask someone to join the team
+c) Change the course of the existing strategy
+d) A problem that a business / service can solve
+e) Encounter
+f) Likely to happen
+g) Short and informative
+h) At risk
+i) Yearly
+j) Consider
+k) Someone who can handle many different responsibilities
+l) Costs *(Note: Labelled as 'i' in the image)*
+m) To be the main person responsible for something
+
+---
+
+Word Box:
+Corner the market • On the market • Break into a market • Marketer • Beat (someone) to market • Market economy • In the market for • Go-to-market strategy
+
+1. The United States is a _____ where the prices are determined by the rules of supply and demand.
+2. They were planning to release their app next month but their competitors _____ them _____.
+3. This is the best solution _____ right now.
+4. A company always takes a risk when it tries to _____ a new _____.
+5. We need to create a strong _____ if we want our product to be successful from the first day of the launch.
+6. That company has _____ and become the leading desktop manufacturer in the industry.
+7. I'm _____ for a new pair of headphones.
+8. Have you considered hiring a _____ to help you with promoting your services?
+
+---
+
+cutting-edge - extremely modern and advanced
+    *cutting-edge technology*
+
+---
+
+TIL — today I learned.
+Killer — excellent / very good.
+
+---
+
+1.Breakthrough
+2.Term
+3.Tackle (an issue)
+4.Fascinating
+5.Render something obsolete
+6.Overestimate
+
+a) a word or phrase used to describe a thing or to express a concept
+b) the opposite of “underestimate”
+c) to attempt to deal with something
+d) a sudden important discovery or development
+e) very interesting *(Note: Labelled as 'c' in the image)*
+f) make something useless and old-fashioned *(Note: Labelled as 'd' in the image)*
+
+---
+
+Word Box:
+leveraged • downside • point out • taking over • high-skilled • drive • low-skilled
+
+#ARTIFICIAL INTELLIGENCE
+In popular culture AI is often shown destroying humans and 1) _____ the world but in reality this technology has a vast number of useful applications. In marketing and social media AI is used to gather user data and track user behavior and later convert that data into predictions that businesses can use to 2) _____ their strategy. AI is even 3) _____ for lie detection and emotional recognition. Some people 4) _____ that one big 5) _____ of AI is that it replaces a lot of jobs such as truck drivers and factory workers. However, it is worth noting that while AI is going to remove some 6) _____ jobs it is probably going to create more 7) _____ jobs.
+
+---
+
+Shortage — a situation where there is not enough of something.
+Literacy — ability to read and write.
+Numeracy — ability to use mathematics.
+
+---
+
+Word Box:
+up • for • on • out • at • of • to • into • in • by
+
+1.  I’m looking _____ a new job in technical recruiting.
+2.  You need to back _____ your opinions with facts.
+3.  The number of programming jobs is growing _____ the day.
+4.  You will need to change your work routine _____ some point.
+5.  I’ve heard that PHP is going _____ of use.
+6.  You have a natural talent for logical thinking that you can tap _____.
+7.  It is up _____ you what you decide to do.
+8.  She can easily take advantage _____ this situation.
+9.  He’s an amazing coder, _____ top of being a great guy.
+10. He coded the entire application _____ C++.
+
+---
+
+Complete the speech with connective phrases from the text.
+
+Word Box:
+on top of that • chances are • that said • overall
+
+— Can you tell me about the most interesting course you’ve ever taken?
+— Sure. It was a web development course that I took last October. _____ I was very happy with how the course was structured. _____, there were certain parts that were very difficult and not explained in enough detail. What made this course stand out to me were the useful and practical project sections. _____, there were also plenty of quizzes and gamification features. _____, if you’ve ever googled “web development course”, you’ve seen on the first page, that’s how popular it is.
+
+---
+
+| Term | Definition |
+| :--- | :--- |
+|1. Back (something) up | Support something or someone. |
+|2. Dimension | An aspect or feature of a situation. |
+|3. Rank (verb) | Give (someone or something) a rank or place within a grading system (rank high, rank low, rank first etc.) |
+|4. Relative | Considered in relation or in proportion to something else. |
+|5. Look for (something) | Try to find someone or something. |
+|6. Overall | Taken as a whole; in all. |
+|7. Code / program in (a certain language) | Write code in (a certain language). |
+|8. Go out of use | Stop being used (the opposite of “to be in use”). |
+|9. Take advantage of | Use something for your own benefit. |
+|10. Notorious | Famous or well known, typically for some bad quality. |
+|11. Cumbersome | Slow or complicated and therefore inefficient. |
+|12. Competitors | Business rivals. |
+|13. By the day | With each day. |
+|14. That said | Despite what one just said. |
+|15. Demand | The desire of consumers, clients, employers, etc. for a particular commodity, service, or other item. |
+|15. Straightforward | Uncomplicated and easy to do or understand. |
+|16. Trendy | Very fashionable or up to date. |
+|17. Chances are | It is very likely that. |
+|18. At some point | At an unspecified time in the future. |
+|19. A waste of time | Something inefficient or unproductive. |
+|20. Enterprise | A for-profit business or company. |
+|21. Concern | A matter of interest or importance to someone. |
+|22. Go-to | Regularly or repeatedly chosen or employed for reliably good results. |
+|23. Market share | The portion of a market controlled by a particular company or product. |
+|24. Keep (growing) | Continue (to grow) constantly. |
+|25. On top of that | In addition to that. |
+|26. Versatile | Having many applications. |
+|27. It is up to you | It depends on what you decide. |
+
+---
+
+Under pretty harsh conditions — in a difficult environment.
+The stuff you’re missing — the things you haven’t learned yet.
+
+---
+
+Startup — a newly established business. A software startup that’s valued at more than a billion dollars is called a “unicorn”, implying that such cases are extremely rare.
+Shareholder — an owner of shares in a company.
+Incubator — an organization engaged in the business of fostering early-stage companies.
+Accelerator — an organization that offers a range of support services and funding opportunities for startups.
+Pitch deck — a presentation deck that is used to pitch your idea or company to any number of audiences, generally investors.
+API (Application Programming Interface) — a set of programming code that enables data transmission between one software product and another.
+CEO (Chief Executive Officer) — the highest-ranking person in a company or other institution, ultimately responsible for taking managerial decisions.
+MVP (Minimum Viable Product) — a version of a product with just enough features to be usable by early customers.
+VC (Venture Capital) — a form of private equity and a type of financing that investors provide to startup companies and small businesses.
+Bootstrap — start up (an internet-based business or other enterprise) with minimal financial resources.
+Scale up — (of a company or system) increase production or capacity.
+Middleman — a person who buys goods from producers and sells them to retailers or consumers, an intermediary.
+
+---
+
+The best yet — the best (piece of feedback) so far.
+In the entire world — in the whole world.
+
+---
+
+Encryption — a method of securing data by scrambling it so that only authorized parties can understand the data by decrypting (unscrambling) it.
+Supercomputer — extremely powerful computer with superior computing power.
+Virtual Reality — a computer-generated simulation in which a person can interact within an artificial three-dimensional environment using electronic devices, such as special goggles with a screen or gloves fitted with sensors.
+Augmented reality — a technology that superimposes a computer-generated image on a user's view of the real world, thus providing a composite view.
+Artificial intelligence — computer systems that are able to perform tasks normally requiring human intelligence, such as visual perception, speech recognition, decision-making, and translation between languages.
+Early adopter — an individual or business who uses a new product, innovation, or technology before others.
+Primary — in UI design, a “primary” color is a color that makes most of the design as opposed to the “accent” color which is used to accentuate buttons and other call-to-actions.
+Business forecasting — the process of predicting future developments in business based on analysis of trends in past and present data.
+Gaming (the gaming industry) — the industry involved with development, marketing, and monetization of video games.
+
+---
+
+Low-level programming language — a programming language that provides little or no abstraction from a computer's instruction set architecture. In other words, a language that is “closer to the metal”.
+Runtime environment — the environment in which a program or application is executed.
+Object-oriented programming (OOP) — a programming paradigm based on the concept of "objects", which can contain data and code.
+Interpreted languages — programming languages which are generally interpreted, without compiling a program into machine instructions (as opposed to compiled languages).
+Terminal — a device at which a user enters data or commands for a computer system and which displays the received output.
+Merge — combine two or more data sets into a single data set.
+Compile — convert (a program) into a machine-code or lower-level form in which the program can be executed.
+OS — Operating System (the low-level software that supports a computer's basic functions, such as scheduling tasks and controlling peripherals).
+
+---
+
+(Do something) the old-fashioned way — (do something) in a way that is considered traditional, not novel.
+
+---
+
+Word Box:
+built-in • suited • suite • in fact • pricing • up to
+
+GitHub is a popular tool that developers flock to to host their open source projects. But is it the only player in the space?_____ , there are a few GitHub alternatives out there that have their own strong advantages. Here are a few of them:
+
+1. BITBUCKET
+Advantages over GitHub:
+ More_____ flexibility.
+ Better_____. BitBucket is absolutely free for_____ 5 users.
+ Better integration with the Atlassian_____ of products including Jira and Trello.
+
+2. GITLAB
+Advantages over GitHub:
+ GitLab has in-built functionality to track bugs and fix them online.
+ Better_____ for DevOps purposes and handling Continuous delivery and integration.
+ Has a CLI user experience.
+
+---
+
+Repository (repo) — a location in which data is stored and managed.
+Fork — split (a process) into two or more independent processes.
+Pull request — a method of submitting contributions to an open development project.
+Suite — a set of programs with a uniform design and the ability to share data.
+CLI (command line interface) — a text-based user interface (UI) used to view and manage computer files (as opposed to Graphic User Interface which is icon-based).
+Version control (or source control) — the practice of tracking and managing changes to software code.
+Atlassian — an Australian enterprise software company that develops products for software developers, project managers, and content management.
+Jira — a software application developed by Atlassian used for issue tracking and project management.
+Trello — a collaboration tool that organizes your projects into boards, also managed by Atlassian.
+
+---
+
+New hire — a person who just joined the company.
+To bug — to annoy.
+To breathe a sigh of relief — to feel extremely relieved and peaceful.
+Two weeks' notice — a resignation letter that lets the company know you're quitting in two weeks.
+Wtf — what the fuck?
+
+---
+
+| Term | Definition |
+| :--- | :--- |
+|1. Go smoothly | Go easily, without any problems. |
+|2. Postpone | Delay, set to a later time. |
+|3. Pitfall | Hidden danger |
+|4. Face (something) | Deal with (something). |
+|5. Reproduce | Repeat or replicate. |
+|6. Clickable | Able to be clicked. |
+|7. Garbled | Distorted, not working properly. |
+|8. Upfront | In advance, without waiting for anything else to happen. |
+|9. Outline | Describe the most important details. |
+|10. Key | Crucial, very important. |
+|11. Constraints | Limitations. |
+|12. Deliverables | Results you need to provide. |
+|13. Rule of thumb | Practical advice that works in all cases. |
+|14. Over | More than. |
+|15. Fail to | Not manage (to do something). |
+|16. Swamped with | Overloaded/overwhelmed with something. |
+|17. Slip through the cracks | Overlook, miss something important. |
+
+---
+
+1. Smoke testing — e) A type of software testing that determines whether the deployed build is stable or not
+2. Acceptance criteria — b) A set of predefined requirements that must be met in order to mark a user story complete (Agile concept)
+3. Regression testing — d) A type of software testing to confirm that a recent program or code change has not adversely affected existing features
+4. Test case — c) A part of a test scenario which describes an action performed on a system to determine if it satisfies software requirements and functions correctly
+5. Edge case — a) A bug that is uncommon for users to encounter
+
+---
+
+Setback — something that happens that delays or prevents a process from developing.
+URL (Uniform Resource Locator) — an address that shows where a particular page can be found on the World Wide Web.
+Bug report — something that stores all information needed to document, report and fix problems occurred in software or on a website.
+Run (a test) — perform (a test).
+Bug — an error in a computer program or system.
+Feature — a unit of functionality of a software system.
+Agile software development — a set of practices intended to improve the effectiveness of software development professionals, teams, and organizations.
+User story — an informal, natural language description of features of a software system written from the perspective of an end user.
+Argument — a value that is passed between programs, subroutines or functions.
+Iteration — a process where a set of instructions or structures are repeated in a sequence a specified number of times or until a condition is met.
+
+---
+
+EXERCISE 1A
+
+a) transparent - Able to be seen through clearly
+b) adapting - Adjusting
+c) get something off the ground - Start developing something suc-
+cessfully
+d) engagement - Desire to take active part in some-
+thing
+e) cost-efficient - With an optimal balance of value to
+price
+f) beneficial - Giving good results	
+e) entrepreneur - Business founder
+
+---
+
+Fill the gap using these words:
+capitalize on, hover your phone, gaining traction, primary, early adopter, come up with
+
+1. John always ____ brilliant creative ideas.
+2. I think AR is going to ____ in the next couple of years.
+3. He knows how to ____ market trends, that’s why he is so successful.
+4. Our company was an _____ of VR technology. We’ve been using it since the late 2000s!
+5. Our ______ objective is to gain more users.
+6. If you ______ your mouse ______ this button, it will change its color.
+
+---
+
+EXERCISE 1B
+
+1. Keep track of - Be informed about
+2. Hireability - Ability to be hired
+3. Streamline - Make a process faster or more
+4. Jump through hoops - Go through a complex procedure
+5. Earn - Achieve or obtain through work
+6. Facilitate - Make (something) easier
+7. Optimize - Improve to its maximum potential
+8. Display - Display
+9. Dive into - Study / explore something in-depth
+10. Break down - Divide into smaller parts
+
+---
+
+Fill the gaps using these words:
+pitfalls, facing, reproduce, clickable, garbled, upfront, outlining, key, deliverables, constraints, rule of thumb, over, fail to, swamped with, slip through the cracks
+
+1. I’m _______ a very difficult problem.
+2. I haven’t managed to _______ this issue in my browser.
+3. We had to _______ the project release date because there were a few critical bugs we needed to fix.
+4. Everything went _______ and we didn't experience any unexpected _______.
+5. The client is experiencing an issue where text appears _______ on some of the slides. Does anyone know how to fix this?
+6. Is this a link? It's not _______.
+7. We got _______ with tasks and a couple things _______ unfortunately.
+8. We can start working on the project upon receipt of full _______ payment.
+9. We got _______ 200 requests: 208 to be exact.
+10. I have _______ to mention something very important when we started the meeting so I'm going to mention it now.
+11. Despite our time and budget _______, we have managed to clarify our _______ _______ and create all _______ features.
+12. A classic _______ for effective meetings is to _______ the agenda before diving into the details.

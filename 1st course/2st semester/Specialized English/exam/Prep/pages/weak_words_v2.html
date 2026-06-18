@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eng Prep — Weak Words</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0e0e11;--surface:#18181d;--surface2:#22222a;--border:#2e2e3a;--accent:#7c6ffa;--accent2:#fa6f9b;--accent3:#6ffad4;--text:#e8e8f0;--muted:#7a7a90;--success:#4ade80;--danger:#f87171;--radius:10px;--font-head:'Syne',sans-serif;--font-mono:'IBM Plex Mono',monospace}
+body{background:var(--bg);color:var(--text);font-family:var(--font-mono);min-height:100vh}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-family:var(--font-head);font-weight:800;font-size:1.1rem}.logo span{color:var(--accent)}.logo .day{color:var(--accent2)}
+.pbw{display:flex;align-items:center;gap:10px;font-size:.75rem;color:var(--muted)}
+.pbt{width:160px;height:4px;background:var(--border);border-radius:4px;overflow:hidden}
+.pbf{height:100%;background:var(--accent);border-radius:4px;transition:width .4s ease}
+.nav{display:flex;gap:4px;padding:1rem 2rem 0;overflow-x:auto}
+.nav-tab{background:none;border:1px solid var(--border);color:var(--muted);font-family:var(--font-mono);font-size:.72rem;padding:6px 14px;border-radius:6px;cursor:pointer;white-space:nowrap;transition:all .15s}
+.nav-tab:hover{border-color:var(--accent);color:var(--text)}.nav-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}.nav-tab.done{border-color:var(--success);color:var(--success)}
+main{padding:2rem;max-width:900px;margin:0 auto}
+.section{display:none}.section.active{display:block}
+.section-title{font-family:var(--font-head);font-size:1.5rem;font-weight:800;margin-bottom:.3rem}
+.section-subtitle{color:var(--muted);font-size:.78rem;margin-bottom:1.5rem}
+.tag{display:inline-block;font-size:.65rem;padding:2px 7px;border-radius:4px;border:1px solid var(--border);color:var(--muted);margin-right:4px}
+.flashcard-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-bottom:1.5rem}
+.flashcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.2rem;cursor:pointer;transition:all .2s;min-height:80px;display:flex;flex-direction:column;justify-content:center;position:relative}
+.flashcard:hover{border-color:var(--accent);transform:translateY(-1px)}
+.fc-term{font-size:.88rem;font-weight:500;color:var(--text);margin-bottom:6px}
+.fc-def{font-size:.78rem;color:var(--accent3);display:none;line-height:1.5}
+.flashcard.revealed .fc-def{display:block}
+.flashcard.revealed{border-color:var(--accent3);background:rgba(111,250,212,.05)}
+.fc-hint{font-size:.62rem;color:var(--muted);position:absolute;bottom:8px;right:10px}
+.match-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:600px){.match-wrap{grid-template-columns:1fr}}
+.match-col-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem}
+.match-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem 1rem;cursor:pointer;font-size:.82rem;line-height:1.5;transition:all .15s;user-select:none}
+.match-item:hover{border-color:var(--accent)}.match-item.selected{border-color:var(--accent);background:rgba(124,111,250,.12)}
+.match-item.matched-correct{border-color:var(--success);background:rgba(74,222,128,.10);color:var(--success);cursor:default}
+.match-item.matched-wrong{border-color:var(--danger);background:rgba(248,113,113,.10);animation:shake .3s}
+.match-num{font-size:.65rem;color:var(--muted);margin-bottom:3px}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.wordbox{background:var(--surface);border:1px dashed var(--border);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;flex-wrap:wrap;gap:8px}
+.wordbox-label{font-size:.68rem;color:var(--muted);width:100%;margin-bottom:4px;text-transform:uppercase;letter-spacing:.07em}
+.word-chip{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:.78rem;cursor:pointer;transition:all .15s}
+.word-chip:hover{border-color:var(--accent2);color:var(--accent2)}.word-chip.used{opacity:.3;pointer-events:none;text-decoration:line-through}.word-chip.active-sel{border-color:var(--accent2);color:var(--accent2)}
+.gap-sentences{display:flex;flex-direction:column;gap:1rem}
+.gap-sentence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem 1rem;font-size:.83rem;line-height:2.2}
+.sent-num{font-size:.65rem;color:var(--muted);display:block;margin-bottom:2px}
+.gap{display:inline-block;min-width:130px;height:22px;border-bottom:2px solid var(--accent);vertical-align:middle;margin:0 4px;text-align:center;font-size:.82rem;color:var(--accent3);cursor:pointer;padding:0 6px;transition:border-color .15s}
+.gap:hover{border-color:var(--accent2)}.gap.filled{border-color:var(--accent3)}.gap.correct{border-color:var(--success);color:var(--success)}.gap.wrong{border-color:var(--danger);color:var(--danger)}
+.btn{font-family:var(--font-mono);font-size:.78rem;padding:8px 18px;border-radius:7px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;transition:all .15s}
+.btn:hover{background:var(--accent);color:#fff}
+.btn-row{display:flex;gap:10px;margin-top:1.25rem;flex-wrap:wrap;align-items:center}
+.score-badge{font-size:.75rem;padding:4px 10px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);color:var(--muted)}
+.score-badge.perfect{border-color:var(--success);color:var(--success)}
+.result-msg{margin-top:1rem;padding:.75rem 1rem;border-radius:var(--radius);font-size:.8rem;display:none}
+.result-msg.show{display:block}.result-msg.ok{background:rgba(74,222,128,.1);border:1px solid var(--success);color:var(--success)}.result-msg.bad{background:rgba(248,113,113,.1);border:1px solid var(--danger);color:var(--danger)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">eng<span>prep</span>.exe — <span class="day">слаби думи</span></div>
+  <div class="pbw">
+    <span id="prog-label">0 / 5 done</span>
+    <div class="pbt"><div class="pbf" id="prog-fill" style="width:0%"></div></div>
+  </div>
+</header>
+<div class="nav" id="nav"></div>
+<main>
+
+  <div class="section active" id="sec-0">
+    <div class="section-title">Flashcards</div>
+    <div class="section-subtitle">Кликни карта за да видиш дефиницията. <span class="tag">flashcards</span></div>
+    <div class="btn-row" style="margin-bottom:1rem;margin-top:0">
+      <button class="btn" onclick="revealAll()">👁 Reveal all</button>
+      <button class="btn" onclick="hideAll()">✕ Hide all</button>
+    </div>
+    <div class="flashcard-grid" id="fc-grid"></div>
+    <div class="btn-row"><button class="btn" onclick="markDone(0)">✓ Готово →</button></div>
+  </div>
+
+  <div class="section" id="sec-1">
+    <div class="section-title">Matching — Part 1</div>
+    <div class="section-subtitle">Свържи термина с дефиницията. <span class="tag">matching</span></div>
+    <div class="match-wrap">
+      <div><div class="match-col-label">Terms</div><div id="m1-left" style="display:flex;flex-direction:column;gap:8px"></div></div>
+      <div><div class="match-col-label">Definitions</div><div id="m1-right" style="display:flex;flex-direction:column;gap:8px"></div></div>
+    </div>
+    <div class="btn-row"><button class="btn" onclick="resetMatch(1)">↺ Reset</button><span class="score-badge" id="m1-score"></span></div>
+    <div class="result-msg" id="m1-result"></div>
+  </div>
+
+  <div class="section" id="sec-2">
+    <div class="section-title">Matching — Part 2</div>
+    <div class="section-subtitle">Свържи термина с дефиницията. <span class="tag">matching</span></div>
+    <div class="match-wrap">
+      <div><div class="match-col-label">Terms</div><div id="m2-left" style="display:flex;flex-direction:column;gap:8px"></div></div>
+      <div><div class="match-col-label">Definitions</div><div id="m2-right" style="display:flex;flex-direction:column;gap:8px"></div></div>
+    </div>
+    <div class="btn-row"><button class="btn" onclick="resetMatch(2)">↺ Reset</button><span class="score-badge" id="m2-score"></span></div>
+    <div class="result-msg" id="m2-result"></div>
+  </div>
+
+  <div class="section" id="sec-3">
+    <div class="section-title">Gap Fill — Part 1</div>
+    <div class="section-subtitle">Кликни дума, после кликни празното място. <span class="tag">gap fill</span></div>
+    <div class="wordbox" id="wb3"><div class="wordbox-label">Word Box</div></div>
+    <div class="gap-sentences" id="gs3"></div>
+    <div class="btn-row">
+      <button class="btn" onclick="checkGaps(3)">✓ Check</button>
+      <button class="btn" onclick="resetGaps(3)">↺ Reset</button>
+      <span class="score-badge" id="g3-score"></span>
+    </div>
+    <div class="result-msg" id="g3-result"></div>
+  </div>
+
+  <div class="section" id="sec-4">
+    <div class="section-title">Gap Fill — Part 2</div>
+    <div class="section-subtitle">Кликни дума, после кликни празното място. <span class="tag">gap fill</span></div>
+    <div class="wordbox" id="wb4"><div class="wordbox-label">Word Box</div></div>
+    <div class="gap-sentences" id="gs4"></div>
+    <div class="btn-row">
+      <button class="btn" onclick="checkGaps(4)">✓ Check</button>
+      <button class="btn" onclick="resetGaps(4)">↺ Reset</button>
+      <span class="score-badge" id="g4-score"></span>
+    </div>
+    <div class="result-msg" id="g4-result"></div>
+  </div>
+
+</main>
+<script>
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+const flashcards=[
+  {term:'Prospective',def:'Likely to happen'},
+  {term:'Scalable',def:'Having an ability to grow bigger'},
+  {term:'Bring someone on board',def:'Ask someone to join the team'},
+  {term:'At stake',def:'At risk'},
+  {term:'Render something obsolete',def:'Make something useless and old-fashioned'},
+  {term:'Breakthrough',def:'A sudden important discovery or development'},
+  {term:'Smoke testing',def:'Check if a deployed build is stable or not'},
+  {term:'Beneficial',def:'Giving good results'},
+  {term:'Adapting',def:'Adjusting'},
+  {term:'Jump through hoops',def:'Go through a complex procedure'},
+  {term:'Streamline',def:'Make a process faster or more efficient'},
+  {term:'Facilitate',def:'Make something easier'},
+  {term:'Break down',def:'Divide into smaller parts'},
+  {term:'Dive into',def:'Study or explore something in-depth'},
+  {term:'MVP',def:'A product version with just enough features for early customers'},
+  {term:'Bootstrap',def:'Start a business with minimal financial resources'},
+  {term:'VC',def:'Private financing that investors provide to startups'},
+  {term:'Accelerator',def:'Organization offering support and funding to startups'},
+  {term:'Incubator',def:'Organization fostering early-stage companies'},
+  {term:'Notorious',def:'Famous for something bad'},
+  {term:'Cumbersome',def:'Slow or complicated and therefore inefficient'},
+  {term:'Versatile',def:'Having many applications'},
+  {term:'Concern',def:'A matter of interest or importance to someone'},
+  {term:'Upfront',def:'In advance, without waiting for anything else to happen'},
+  {term:'Postpone',def:'Delay, set to a later time'},
+  {term:'Constraints',def:'Limitations'},
+  {term:'Swamped with',def:'Overloaded or overwhelmed with something'},
+  {term:'Slip through the cracks',def:'Overlook or miss something important'},
+  {term:'Atlassian',def:'Australian enterprise software company for developers and project managers'},
+  {term:'Jira',def:'Atlassian app for issue tracking and project management'},
+  {term:'Trello',def:'Atlassian collaboration tool that organizes projects into boards'},
+  {term:'To be aligned',def:'To be in agreement with'},
+  {term:'Seamless',def:'Perfect, smooth'},
+  {term:'Be critical to',def:'Extremely important to the success of something'},
+  {term:'User story',def:'Informal description of a software feature from end user perspective'},
+  {term:'Agile software development',def:'Set of practices to improve effectiveness of software development teams'},
+  {term:'Feature',def:'A unit of functionality of a software system'},
+  {term:'Setback',def:'Something that delays or prevents a process from developing'},
+];
+
+const matchSets={
+  1:{
+    terms:['Prospective','Scalable','At stake','Breakthrough','Notorious','Cumbersome','Versatile','Concern','Postpone','Constraints','Setback','Seamless','Adapting'],
+    defs:['Likely to happen','Having an ability to grow bigger','At risk','A sudden important discovery or development','Famous for something bad','Slow, complicated and inefficient','Having many applications','A matter of interest or importance to someone','Delay, set to a later time','Limitations','Something that delays or prevents a process from developing','Perfect, smooth','Adjusting'],
+    answers:[0,1,2,3,4,5,6,7,8,9,10,11,12]
+  },
+  2:{
+    terms:['MVP','Bootstrap','VC','Accelerator','Incubator','Atlassian','Jira','Trello','User story','Agile software development','Feature','Smoke testing','To be aligned'],
+    defs:['Product version with just enough features for early customers','Start a business with minimal financial resources','Private financing that investors provide to startups','Organization offering support and funding to startups','Organization fostering early-stage companies','Australian enterprise software company for developers and project managers','Atlassian app for issue tracking and project management','Atlassian collaboration tool that organizes projects into boards','Informal description of a software feature from end user perspective','Set of practices to improve effectiveness of software development teams','A unit of functionality of a software system','Check if a deployed build is stable or not','To be in agreement with'],
+    answers:[0,1,2,3,4,5,6,7,8,9,10,11,12]
+  }
+};
+
+const gapSets={
+  3:{
+    words:shuffle(['take on','handle','beat','in the market','leveraged','back up','at some point','tap into','take advantage of','on top of','capitalize on','primary']),
+    sentences:[
+      {text:"We decided to _____ a very difficult task and it paid off.",answers:['take on']},
+      {text:"Our team needs to _____ customer requests more efficiently.",answers:['handle']},
+      {text:"Our competitors _____ us to market by two weeks.",answers:['beat']},
+      {text:"I'm _____ for a new pair of headphones.",answers:['in the market']},
+      {text:"AI is even _____ for lie detection and emotional recognition.",answers:['leveraged']},
+      {text:"You need to _____ your opinions with facts.",answers:['back up']},
+      {text:"You will need to change your work routine _____ .",answers:['at some point']},
+      {text:"You have a natural talent for logical thinking that you can _____ .",answers:['tap into']},
+      {text:"She can easily _____ this situation.",answers:['take advantage of']},
+      {text:"He's an amazing coder, _____ being a great guy.",answers:['on top of']},
+      {text:"He knows how to _____ market trends.",answers:['capitalize on']},
+      {text:"Our _____ objective is to gain more users.",answers:['primary']},
+    ]
+  },
+  4:{
+    words:shuffle(['pitfalls','garbled','upfront','constraints','rule of thumb','swamped with','slip through the cracks','bring on board','at stake','streamline','facilitate','dive into']),
+    sentences:[
+      {text:"Everything went smoothly and we didn't experience any unexpected _____ .",answers:['pitfalls']},
+      {text:"Text appears _____ on some of the slides.",answers:['garbled']},
+      {text:"We can start working upon receipt of full _____ payment.",answers:['upfront']},
+      {text:"Despite our time and budget _____, we delivered everything.",answers:['constraints']},
+      {text:"A classic _____ for effective meetings is to outline the agenda first.",answers:['rule of thumb']},
+      {text:"We got _____ tasks and a couple of things _____ unfortunately.",answers:['swamped with','slip through the cracks']},
+      {text:"We need to _____ the new developer as soon as possible.",answers:['bring on board']},
+      {text:"Our company's reputation is _____ if we miss this deadline.",answers:['at stake']},
+      {text:"We need to _____ our onboarding process.",answers:['streamline']},
+      {text:"This tool will _____ better collaboration between teams.",answers:['facilitate']},
+      {text:"Let's _____ the data and see what's really happening.",answers:['dive into']},
+    ]
+  }
+};
+
+const TOTAL=5;
+const sectionDone=[false,false,false,false,false];
+const matchState={
+  1:{selectedLeft:null,selectedRight:null,matched:{},defOrder:[]},
+  2:{selectedLeft:null,selectedRight:null,matched:{},defOrder:[]}
+};
+const gapState={3:{selected:null,filled:{}},4:{selected:null,filled:{}}};
+let currentSection=0;
+const tabLabels=['Flashcards','Matching Pt.1','Matching Pt.2','Gap Fill Pt.1','Gap Fill Pt.2'];
+
+function buildNav(){
+  const nav=document.getElementById('nav');nav.innerHTML='';
+  tabLabels.forEach((label,i)=>{
+    const btn=document.createElement('button');
+    btn.className='nav-tab'+(i===currentSection?' active':'')+(sectionDone[i]?' done':'');
+    btn.textContent=(sectionDone[i]?'✓ ':'')+label;
+    btn.onclick=()=>switchSection(i);nav.appendChild(btn);
+  });
+}
+function switchSection(i){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-'+i).classList.add('active');
+  currentSection=i;buildNav();
+}
+function updateProgress(){
+  const done=sectionDone.filter(Boolean).length;
+  document.getElementById('prog-label').textContent=done+' / '+TOTAL+' done';
+  document.getElementById('prog-fill').style.width=Math.round(done/TOTAL*100)+'%';
+  buildNav();
+}
+function markDone(i){sectionDone[i]=true;updateProgress();if(i<TOTAL-1)switchSection(i+1);}
+
+function buildFlashcards(){
+  const grid=document.getElementById('fc-grid');grid.innerHTML='';
+  shuffle(flashcards).forEach(fc=>{
+    const card=document.createElement('div');card.className='flashcard';
+    card.innerHTML=`<div class="fc-term">${fc.term}</div><div class="fc-def">${fc.def}</div><div class="fc-hint">click to reveal</div>`;
+    card.onclick=()=>{card.classList.toggle('revealed');card.querySelector('.fc-hint').textContent=card.classList.contains('revealed')?'click to hide':'click to reveal';};
+    grid.appendChild(card);
+  });
+}
+function revealAll(){document.querySelectorAll('.flashcard').forEach(c=>{c.classList.add('revealed');c.querySelector('.fc-hint').textContent='click to hide';});}
+function hideAll(){document.querySelectorAll('.flashcard').forEach(c=>{c.classList.remove('revealed');c.querySelector('.fc-hint').textContent='click to reveal';});}
+
+function buildMatch(setIdx){
+  const set=matchSets[setIdx];const state=matchState[setIdx];
+  state.selectedLeft=null;state.selectedRight=null;state.matched={};
+  const defOrder=shuffle(set.defs.map((_,i)=>i));state.defOrder=defOrder;
+  const leftEl=document.getElementById('m'+setIdx+'-left');
+  const rightEl=document.getElementById('m'+setIdx+'-right');
+  leftEl.innerHTML='';rightEl.innerHTML='';
+  shuffle([...set.terms.map((t,i)=>({t,i}))]).forEach(({t,i},pos)=>{
+    const div=document.createElement('div');div.className='match-item';div.dataset.termidx=i;
+    div.innerHTML='<div class="match-num">'+(pos+1)+'</div>'+t;
+    div.onclick=()=>clickLeft(setIdx,i);leftEl.appendChild(div);
+  });
+  defOrder.forEach((defIdx,pos)=>{
+    const div=document.createElement('div');div.className='match-item';div.dataset.defidx=defIdx;
+    div.innerHTML='<div class="match-num">'+String.fromCharCode(97+pos)+')</div>'+set.defs[defIdx];
+    div.onclick=()=>clickRight(setIdx,defIdx);rightEl.appendChild(div);
+  });
+  const sc=document.getElementById('m'+setIdx+'-score');if(sc){sc.textContent='';sc.classList.remove('perfect');}
+  const res=document.getElementById('m'+setIdx+'-result');if(res){res.className='result-msg';res.textContent='';}
+}
+
+function clickLeft(setIdx,termIdx){
+  const state=matchState[setIdx];if(state.matched[termIdx]!==undefined)return;
+  document.getElementById('m'+setIdx+'-left').querySelectorAll('.match-item').forEach(el=>el.classList.remove('selected'));
+  state.selectedLeft=termIdx;
+  document.getElementById('m'+setIdx+'-left').querySelector('[data-termidx="'+termIdx+'"]').classList.add('selected');
+  if(state.selectedRight!==null)tryMatch(setIdx);
+}
+function clickRight(setIdx,defIdx){
+  const state=matchState[setIdx];if(Object.values(state.matched).includes(defIdx))return;
+  document.getElementById('m'+setIdx+'-right').querySelectorAll('.match-item').forEach(el=>el.classList.remove('selected'));
+  state.selectedRight=defIdx;
+  document.getElementById('m'+setIdx+'-right').querySelector('[data-defidx="'+defIdx+'"]').classList.add('selected');
+  if(state.selectedLeft!==null)tryMatch(setIdx);
+}
+function tryMatch(setIdx){
+  const state=matchState[setIdx];const set=matchSets[setIdx];
+  const termIdx=state.selectedLeft;const defIdx=state.selectedRight;
+  const leftItem=document.getElementById('m'+setIdx+'-left').querySelector('[data-termidx="'+termIdx+'"]');
+  const rightItem=document.getElementById('m'+setIdx+'-right').querySelector('[data-defidx="'+defIdx+'"]');
+  if(set.answers[termIdx]===defIdx){
+    state.matched[termIdx]=defIdx;
+    leftItem.classList.remove('selected');leftItem.classList.add('matched-correct');
+    rightItem.classList.remove('selected');rightItem.classList.add('matched-correct');
+    state.selectedLeft=null;state.selectedRight=null;updateMatchScore(setIdx);
+  } else {
+    leftItem.classList.add('matched-wrong');rightItem.classList.add('matched-wrong');
+    setTimeout(()=>{leftItem.classList.remove('matched-wrong','selected');rightItem.classList.remove('matched-wrong','selected');},500);
+    state.selectedLeft=null;state.selectedRight=null;
+  }
+}
+function updateMatchScore(setIdx){
+  const state=matchState[setIdx];const set=matchSets[setIdx];
+  const total=set.terms.length;const done=Object.keys(state.matched).length;
+  const sc=document.getElementById('m'+setIdx+'-score');sc.textContent=done+' / '+total;
+  if(done===total){sc.classList.add('perfect');sectionDone[setIdx]=true;updateProgress();
+    const res=document.getElementById('m'+setIdx+'-result');res.className='result-msg ok show';res.textContent='✓ Perfect! All '+total+' matched correctly.';}
+}
+function resetMatch(setIdx){buildMatch(setIdx);}
+
+function buildGaps(secIdx){
+  const data=gapSets[secIdx];gapState[secIdx]={selected:null,filled:{}};
+  const wbEl=document.getElementById('wb'+secIdx);wbEl.innerHTML='<div class="wordbox-label">Word Box</div>';
+  shuffle(data.words).forEach(w=>{
+    const chip=document.createElement('span');chip.className='word-chip';chip.dataset.word=w;chip.textContent=w;
+    chip.onclick=()=>selectWord(secIdx,w,chip);wbEl.appendChild(chip);
+  });
+  const gsEl=document.getElementById('gs'+secIdx);gsEl.innerHTML='';
+  data.sentences.forEach((sent,sIdx)=>{
+    const div=document.createElement('div');div.className='gap-sentence';
+    const num=document.createElement('span');num.className='sent-num';num.textContent=(sIdx+1)+'.';div.appendChild(num);
+    const parts=sent.text.split('_____');
+    parts.forEach((part,pIdx)=>{
+      if(part)div.appendChild(document.createTextNode(part));
+      if(pIdx<sent.answers.length){
+        const g=document.createElement('span');g.className='gap';g.dataset.s=sIdx;g.dataset.g=pIdx;
+        g.onclick=()=>fillGap(secIdx,sIdx,pIdx);div.appendChild(g);
+      }
+    });
+    gsEl.appendChild(div);
+  });
+  const sc=document.getElementById('g'+secIdx+'-score');if(sc){sc.textContent='';sc.classList.remove('perfect');}
+  const res=document.getElementById('g'+secIdx+'-result');if(res){res.className='result-msg';res.textContent='';}
+}
+function selectWord(secIdx,word,chipEl){
+  const state=gapState[secIdx];const wbEl=document.getElementById('wb'+secIdx);
+  if(state.selected===word){state.selected=null;wbEl.querySelectorAll('.word-chip').forEach(c=>c.classList.remove('active-sel'));return;}
+  state.selected=word;wbEl.querySelectorAll('.word-chip').forEach(c=>c.classList.remove('active-sel'));chipEl.classList.add('active-sel');
+}
+function fillGap(secIdx,sIdx,gIdx){
+  const state=gapState[secIdx];const key=sIdx+'_'+gIdx;
+  const gsEl=document.getElementById('gs'+secIdx);
+  const gapEl=gsEl.querySelector('[data-s="'+sIdx+'"][data-g="'+gIdx+'"]');
+  if(!state.selected){if(state.filled[key]){delete state.filled[key];gapEl.textContent='';gapEl.className='gap';updateChipsUsed(secIdx);}return;}
+  state.filled[key]=state.selected;gapEl.textContent=state.selected;gapEl.className='gap filled';
+  state.selected=null;document.getElementById('wb'+secIdx).querySelectorAll('.word-chip').forEach(c=>c.classList.remove('active-sel'));
+  updateChipsUsed(secIdx);
+}
+function updateChipsUsed(secIdx){
+  const state=gapState[secIdx];const usedWords=Object.values(state.filled);
+  document.getElementById('wb'+secIdx).querySelectorAll('.word-chip').forEach(chip=>{
+    const word=chip.dataset.word;
+    const used=usedWords.filter(w=>w===word).length;
+    const total=document.getElementById('wb'+secIdx).querySelectorAll('.word-chip[data-word="'+word.replace(/"/g,'\\"')+'"]').length;
+    chip.classList.toggle('used',used>=total);
+  });
+}
+function checkGaps(secIdx){
+  const data=gapSets[secIdx];const state=gapState[secIdx];
+  const gsEl=document.getElementById('gs'+secIdx);let correct=0,total=0;
+  data.sentences.forEach((sent,sIdx)=>{
+    sent.answers.forEach((ans,gIdx)=>{
+      total++;const key=sIdx+'_'+gIdx;
+      const gapEl=gsEl.querySelector('[data-s="'+sIdx+'"][data-g="'+gIdx+'"]');
+      const filled=state.filled[key];
+      if(filled&&filled.toLowerCase()===ans.toLowerCase()){correct++;gapEl.className='gap correct';}
+      else{gapEl.className='gap wrong';}
+    });
+  });
+  const sc=document.getElementById('g'+secIdx+'-score');sc.textContent=correct+' / '+total;
+  const res=document.getElementById('g'+secIdx+'-result');
+  if(correct===total){sc.classList.add('perfect');res.className='result-msg ok show';res.textContent='✓ Perfect! All '+total+' gaps correct.';sectionDone[secIdx]=true;updateProgress();}
+  else{sc.classList.remove('perfect');res.className='result-msg bad show';res.textContent='✗ '+correct+' correct, '+(total-correct)+' wrong. Грешните са в червено.';}
+}
+function resetGaps(secIdx){buildGaps(secIdx);}
+
+buildNav();
+buildFlashcards();
+buildMatch(1);buildMatch(2);buildGaps(3);buildGaps(4);
+updateProgress();
+</script>
+</body>
+</html>
